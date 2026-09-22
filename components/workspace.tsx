@@ -154,7 +154,7 @@ export function Workspace({ docs, currentPath }: { docs: Doc[]; currentPath: str
         <div className="brand">markdown-kb</div>
         <button type="button" className="search-button" onClick={() => setPaletteOpen(true)}>
           <span>Search</span>
-          <kbd>\u2318K</kbd>
+          <kbd>⌘K</kbd>
         </button>
         <nav className="tree" aria-label="Pages">
           {groups.map((group) => (
@@ -301,10 +301,10 @@ export function Workspace({ docs, currentPath }: { docs: Doc[]; currentPath: str
         <div className="overlay" onMouseDown={() => setHelpOpen(false)}>
           <div className="help" role="dialog" aria-label="Shortcuts" onMouseDown={(event) => event.stopPropagation()}>
             <h2>Shortcuts</h2>
-            <Shortcut keys="\u2318K" label="Search pages" />
-            <Shortcut keys="\u2318/" label="Cycle Preview, Split, and Source" />
-            <Shortcut keys={"\u2318" + String.fromCharCode(92)} label="Show or hide the outline" />
-            <Shortcut keys="\u2318S" label="Keep the local draft" />
+            <Shortcut keys="⌘K" label="Search pages" />
+            <Shortcut keys="⌘/" label="Cycle Preview, Split, and Source" />
+            <Shortcut keys={"⌘" + String.fromCharCode(92)} label="Show or hide the outline" />
+            <Shortcut keys="⌘S" label="Keep the local draft" />
             <Shortcut keys="?" label="Show this list" />
             <p className="help-note">On Linux and Windows, Ctrl is the modifier.</p>
           </div>
