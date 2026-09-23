@@ -36,14 +36,20 @@ function repoPage(doc: RepoDoc, content: string, path: string, prefix: string): 
   return { id: `${prefix}${doc.path}`, path, content, origin: doc.path, base: doc.content, createdAt: 0, updatedAt: 0 };
 }
 
-export function reconcile(ws: Workspace, repo: RepoDoc[], prefix = "repo:"): Workspace {
+export function reconcile(
+  ws: Workspace,
+  repo: RepoDoc[],
+  prefix = "repo:",
+  options?: { preserveDirtyBase?: boolean },
+): Workspace {
   const byOrigin = new Map(repo.map((doc) => [doc.path, doc]));
   let changed = false;
   const pages = ws.pages.map((page) => {
     const doc = page.origin ? byOrigin.get(page.origin) : undefined;
     if (!doc || doc.content === page.base) return page;
-    changed = true;
     const untouched = page.content === page.base;
+    if (!untouched && options?.preserveDirtyBase) return page;
+    changed = true;
     return { ...page, base: doc.content, content: untouched ? doc.content : page.content };
   });
 

@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { quickTitle } from "./markdown/scan";
-import type { ProjectEntry, RepoProjectSummary } from "./workspace/projects";
+import { defaultStore, type DiskFile } from "./store/fs-store";
+import { DISK_BLOCKED, type ProjectEntry, type ProjectSummary } from "./workspace/projects";
 
 export type Doc = {
   path: string;
@@ -72,18 +73,59 @@ const entryOf = (project: RepoProject): ProjectEntry => ({
   kind: "repo",
 });
 
-export function getProjects(): ProjectEntry[] {
-  return PROJECTS.map(entryOf);
+export type LoadedProject = ProjectEntry & { home: string; synced: boolean };
+
+const blocked = new Set(DISK_BLOCKED);
+
+function diskProjects() {
+  try {
+    return defaultStore().listProjects().filter((project) => !blocked.has(project.slug));
+  } catch {
+    return [];
+  }
 }
 
-export function getProject(slug: string): (ProjectEntry & { home: string }) | undefined {
+function diskDocs(slug: string): Doc[] {
+  let files: DiskFile[] = [];
+  try {
+    files = defaultStore().listFiles(slug).files;
+  } catch {
+    return [];
+  }
+  return files
+    .map((file) => {
+      const slugParts = file.path.replace(/\.md$/i, "").split("/");
+      const fallback = slugParts.at(-1)?.replace(/-/g, " ") ?? "Page";
+      return { path: file.path, slug: slugParts, title: quickTitle(file.content, fallback), content: file.content };
+    })
+    .sort((a, b) => a.title.localeCompare(b.title) || a.path.localeCompare(b.path));
+}
+
+export function getProjects(): ProjectEntry[] {
+  return [
+    ...PROJECTS.map(entryOf),
+    ...diskProjects().map((project): ProjectEntry => ({
+      slug: project.slug,
+      name: project.name,
+      description: project.description,
+      kind: "disk",
+    })),
+  ];
+}
+
+export function getProject(slug: string): LoadedProject | undefined {
   const project = PROJECTS.find((entry) => entry.slug === slug);
-  return project ? { ...entryOf(project), home: project.home } : undefined;
+  if (project) return { ...entryOf(project), home: project.home, synced: false };
+  const disk = diskProjects().find((entry) => entry.slug === slug);
+  if (!disk) return undefined;
+  const docs = diskDocs(slug);
+  const home = docs.find((doc) => !doc.path.includes("/"))?.path ?? docs[0]?.path ?? "";
+  return { slug: disk.slug, name: disk.name, description: disk.description, kind: "disk", home, synced: true };
 }
 
 export function getDocs(slug: string): Doc[] {
   const project = PROJECTS.find((entry) => entry.slug === slug);
-  if (!project) return [];
+  if (!project) return diskProjects().some((entry) => entry.slug === slug) ? diskDocs(slug) : [];
   const order = project.order ?? [];
   const rank = (doc: Doc) => {
     const index = doc.slug.length > 1 ? order.indexOf(doc.slug[0]) : -1;
@@ -92,6 +134,15 @@ export function getDocs(slug: string): Doc[] {
   return walk(project.root(), []).sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title));
 }
 
-export function projectSummaries(): RepoProjectSummary[] {
-  return PROJECTS.map((project) => ({ ...entryOf(project), kind: "repo", paths: getDocs(project.slug).map((doc) => doc.path) }));
+export function projectSummaries(): ProjectSummary[] {
+  return [
+    ...PROJECTS.map((project) => ({ ...entryOf(project), kind: "repo" as const, paths: getDocs(project.slug).map((doc) => doc.path) })),
+    ...diskProjects().map((project) => ({
+      slug: project.slug,
+      name: project.name,
+      description: project.description,
+      kind: "disk" as const,
+      paths: project.paths,
+    })),
+  ];
 }
