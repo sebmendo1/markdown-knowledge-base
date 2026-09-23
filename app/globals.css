@@ -346,6 +346,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   overflow: auto;
 }
 .code-block pre { padding: 14px 16px; }
+.shiki, .shiki span { color: var(--shiki-dark); }
+[data-theme="light"] .shiki, [data-theme="light"] .shiki span { color: var(--shiki-light); }
 .copy-button {
   position: absolute;
   top: 8px;
@@ -367,6 +369,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   overflow-x: auto;
 }
 .mermaid-block svg { max-width: 100%; height: auto; }
+.mermaid-block[aria-busy="true"] { min-height: 180px; }
 .chart-host { width: 100%; min-height: 220px; }
 .block-error { color: var(--danger); font-size: 13px; margin: 0 0 8px; }
 

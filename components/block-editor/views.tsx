@@ -373,13 +373,13 @@ export function RawView(props: NodeViewProps) {
         >
           {source.trim() ? (
             <div className="source-editor-preview">
-              <MarkdownView source={source} docs={docs} embedded />
+              <MarkdownView source={source} docs={docs} depth={1} />
             </div>
           ) : null}
         </SourceEditor>
       ) : (
         <div className="block-atom-view raw-view" onClick={block.open}>
-          <MarkdownView source={source} docs={docs} embedded />
+          <MarkdownView source={source} docs={docs} depth={1} />
         </div>
       )}
     </NodeViewWrapper>
