@@ -11,6 +11,7 @@ import { importInto, moveFolderTo, movePageTo, newFolder, newPage, renameFolderT
 import { PopoverMenu, type MenuItem } from "./popover-menu";
 import { Chevron, TreeInput } from "./tree-input";
 import { treeItems } from "./tree-items";
+import { useProject } from "./project-context";
 import { listen, type Target } from "./ui-events";
 import { setCollapsed, useCollapsed } from "./workspace-store";
 
@@ -23,6 +24,7 @@ const same = (a: Target, b: Target) =>
   a.kind === b.kind && (a.kind === "page" ? a.id === (b as typeof a).id : a.path === (b as typeof a).path);
 
 export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs: PageDoc[]; currentPath: string; onGo: (href: string) => void }) {
+  const project = useProject();
   const collapsed = useCollapsed();
   const tree = useMemo(() => buildTree(ws, docs), [ws, docs]);
   const [editing, setEditing] = useState<Editing>(null);
@@ -54,7 +56,7 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
     if (edit.kind !== "rename") {
       if (edit.kind === "new-folder") return void newFolder(edit.folder, text);
       setMode("edit");
-      onGo(hrefOf(newPage(edit.folder, text)));
+      onGo(hrefOf(project, newPage(edit.folder, text)));
     } else if (edit.target.kind === "page") {
       renamePageTo(edit.target.id, text);
     } else {
@@ -71,7 +73,7 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
   const openMenu = (target: Target | null) => (event: MouseEvent<HTMLElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    const items = treeItems(target, onGo, pick);
+    const items = treeItems(target, project, onGo, pick);
     if (event.type === "contextmenu") return setMenu({ x: event.clientX, y: event.clientY, items });
     const rect = event.currentTarget.getBoundingClientRect();
     setMenu({ x: rect.left, y: rect.bottom + 4, items });
@@ -106,7 +108,7 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
     drag.current = null;
     if (event.dataTransfer.files.length > 0) {
       const paths = await importInto(Array.from(event.dataTransfer.files), folder);
-      if (paths[0]) onGo(hrefOf(paths[0]));
+      if (paths[0]) onGo(hrefOf(project, paths[0]));
     } else if (target?.kind === "page") movePageTo(target.id, folder);
     else if (target) moveFolderTo(target.path, folder);
     if (folder) setCollapsed(folder, false);
@@ -161,7 +163,7 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
     if (renaming(target)) return <TreeInput key={doc.id} depth={depth} initial={doc.title} placeholder="Page title" onDone={finish} />;
     return (
       <div key={doc.id} className="tree-row" style={{ "--depth": depth } as CSSProperties} onContextMenu={openMenu(target)} {...dragProps(target, folderOf(doc.path))}>
-        <Link href={hrefOf(doc.path)} className="tree-link" aria-current={doc.path === currentPath ? "page" : undefined} onClick={() => onGo("")}>
+        <Link href={hrefOf(project, doc.path)} className="tree-link" aria-current={doc.path === currentPath ? "page" : undefined} onClick={() => onGo("")}>
           {doc.title}
         </Link>
         <span className="tree-actions">
@@ -180,7 +182,7 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
         <button type="button" className="tree-action" aria-label="New page" onClick={() => setEditing({ kind: "new-page", folder: "" })}>
           <PlusIcon />
         </button>
-        <button type="button" className="tree-action" aria-label="Workspace actions" onClick={openMenu(null)}>
+        <button type="button" className="tree-action" aria-label="Project actions" onClick={openMenu(null)}>
           <DotsIcon />
         </button>
       </div>
@@ -208,7 +210,7 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
           const files = Array.from(input.files ?? []);
           input.value = "";
           const paths = await importInto(files, input.dataset.folder ?? "");
-          if (paths[0]) onGo(hrefOf(paths[0]));
+          if (paths[0]) onGo(hrefOf(project, paths[0]));
         }}
       />
       {menu ? (

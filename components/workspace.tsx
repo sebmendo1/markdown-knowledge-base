@@ -5,9 +5,12 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Doc } from "@/lib/docs";
 import type { Heading } from "@/lib/markdown/outline";
 import { folderOf, hrefOf } from "@/lib/workspace/paths";
+import type { ProjectEntry } from "@/lib/workspace/projects";
 import { backlinks, rendersAsRepo } from "@/lib/workspace/tree";
 import { setMode, setSidebarExpanded, useMode } from "./draft-store";
 import { editPage } from "./history-store";
+import { ProjectContext } from "./project-context";
+import { touchProject, useRegistry } from "./project-store";
 import { emit } from "./ui-events";
 import { useActiveHeading } from "./use-active-heading";
 import { useEditorKeys } from "./use-editor-keys";
@@ -16,21 +19,31 @@ import { docOf, useHydrated, useWorkspace } from "./workspace-store";
 import { WorkspaceView, type PageState } from "./workspace-view";
 
 export function Workspace({
+  project,
+  projects: repoProjects,
   docs: repoDocs,
   currentPath,
   rendered,
   headings: repoHeadings,
 }: {
+  project: string;
+  projects: ProjectEntry[];
   docs: Doc[];
   currentPath: string;
   rendered: ReactNode;
   headings: Heading[];
 }) {
   const router = useRouter();
-  const ws = useWorkspace(repoDocs);
+  const ws = useWorkspace(project, repoDocs);
   const hydrated = useHydrated();
+  const registry = useRegistry();
+  const projects = useMemo(
+    () => [...repoProjects, ...registry.local.map((item): ProjectEntry => ({ ...item, kind: "local" }))],
+    [repoProjects, registry.local],
+  );
+  const entry = projects.find((item) => item.slug === project);
   const docs = useMemo(() => ws.pages.map(docOf), [ws.pages]);
-  const page = ws.pages.find((entry) => entry.path === currentPath);
+  const page = ws.pages.find((item) => item.path === currentPath);
   const doc = page ? docOf(page) : undefined;
   const value = page?.content ?? "";
   const mode = useMode();
@@ -62,26 +75,34 @@ export function Workspace({
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !entry) return;
     if (page) {
       last.current = { id: page.id, path: page.path };
+      touchProject(project, page.path);
+      return;
+    }
+    if (currentPath === "") {
+      const remembered = registry.last[project];
+      const target = ws.pages.find((item) => item.path === remembered) ?? ws.pages[0];
+      if (target) router.replace(hrefOf(project, target.path));
       return;
     }
     const previous = last.current;
     if (!previous || previous.path !== currentPath) return;
-    const moved = ws.pages.find((entry) => entry.id === previous.id);
+    const moved = ws.pages.find((item) => item.id === previous.id);
     if (moved) {
       last.current = { id: moved.id, path: moved.path };
-      router.replace(hrefOf(moved.path));
-    } else if (ws.trash.some((entry) => entry.id === previous.id)) {
+      router.replace(hrefOf(project, moved.path));
+    } else if (ws.trash.some((item) => item.id === previous.id)) {
       last.current = null;
-      if (ws.pages[0]) router.replace(hrefOf(ws.pages[0].path));
+      router.replace(hrefOf(project, ws.pages[0]?.path));
     }
-  }, [hydrated, page, currentPath, ws, router]);
+  }, [hydrated, entry, page, currentPath, ws, router, project, registry.last]);
 
   useEffect(() => {
-    if (doc) document.title = `${doc.title} · markdown-kb`;
-  }, [doc]);
+    if (doc) document.title = `${doc.title} · ${entry?.name ?? "markdown-kb"}`;
+    else if (entry && currentPath === "") document.title = entry.name;
+  }, [doc, entry, currentPath]);
 
   const asRepo = useMemo(
     () => Boolean(page && page.path === page.origin && rendersAsRepo(currentPath, docs, repoDocs)),
@@ -111,32 +132,37 @@ export function Workspace({
   }
 
   return (
-    <WorkspaceView
-      ws={ws}
-      docs={docs}
-      hydrated={hydrated}
-      currentPath={currentPath}
-      pageId={page?.id ?? null}
-      title={doc?.title ?? ""}
-      state={state}
-      mode={mode}
-      words={value.trim() ? value.trim().split(/\s+/).length : 0}
-      outlineOpen={outlineOpen}
-      sidebarOpen={sidebarOpen}
-      paletteOpen={paletteOpen}
-      helpOpen={helpOpen}
-      value={value}
-      rendered={asRepo ? rendered : null}
-      headings={headings}
-      linkedFrom={linkedFrom}
-      activeHeading={activeHeading}
-      previewRef={previewRef}
-      setSidebarOpen={setSidebarOpen}
-      setPaletteOpen={setPaletteOpen}
-      setHelpOpen={setHelpOpen}
-      onChange={(next) => page && editPage(page.id, next)}
-      go={go}
-      jump={jump}
-    />
+    <ProjectContext.Provider value={project}>
+      <WorkspaceView
+        project={entry}
+        projects={projects}
+        projectKnown={!hydrated || Boolean(entry)}
+        ws={ws}
+        docs={docs}
+        hydrated={hydrated}
+        currentPath={currentPath}
+        pageId={page?.id ?? null}
+        title={doc?.title ?? ""}
+        state={state}
+        mode={mode}
+        words={value.trim() ? value.trim().split(/\s+/).length : 0}
+        outlineOpen={outlineOpen}
+        sidebarOpen={sidebarOpen}
+        paletteOpen={paletteOpen}
+        helpOpen={helpOpen}
+        value={value}
+        rendered={asRepo ? rendered : null}
+        headings={headings}
+        linkedFrom={linkedFrom}
+        activeHeading={activeHeading}
+        previewRef={previewRef}
+        setSidebarOpen={setSidebarOpen}
+        setPaletteOpen={setPaletteOpen}
+        setHelpOpen={setHelpOpen}
+        onChange={(next) => page && editPage(page.id, next)}
+        go={go}
+        jump={jump}
+      />
+    </ProjectContext.Provider>
   );
 }
