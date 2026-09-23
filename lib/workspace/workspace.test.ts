@@ -39,6 +39,9 @@ test("seed uses drafts, and reconcile follows untouched repository files", () =>
   ]);
   assert.equal(content(next, "docs/writing.md"), "# Writing v2\n");
   assert.equal(content(next, "docs/layout.md"), "edited");
+  assert.equal(next.pages.find((page) => page.path === "docs/layout.md")?.base, "changed upstream");
+  const kept = reconcile(ws, [{ path: "docs/layout.md", content: "changed upstream" }], "repo:", { preserveDirtyBase: true });
+  assert.equal(kept.pages.find((page) => page.path === "docs/layout.md")?.base, repo[1].content);
   assert.equal(content(next, "docs/new.md"), "# New\n");
   assert.equal(reconcile(next, [...repo.slice(2), { path: "docs/new.md", content: "# New\n" }]).pages.length, 4);
 });

@@ -12,7 +12,7 @@ const EVENT = "markdown-kb-workspace";
 const keyOf = (project: string) => `${LEGACY_KEY}:${project}`;
 
 let current: { project: string; repo: RepoDoc[] } = { project: LEGACY_PROJECT, repo: [] };
-const caches = new Map<string, { raw: string | null; repo: RepoDoc[]; ws: Workspace }>();
+const caches = new Map<string, { raw: string | null; repo: RepoDoc[]; ws: Workspace; preserve: boolean }>();
 const serverSeeds = new WeakMap<RepoDoc[], Workspace>();
 const docCache = new WeakMap<Page, PageDoc>();
 
@@ -51,19 +51,32 @@ function legacyDraft(project: string) {
   return (path: string) => (project === LEGACY_PROJECT ? window.localStorage.getItem(`markdown-kb:${path}`) : null);
 }
 
-export function readProject(project: string, repo: RepoDoc[]): Workspace {
+const dirtyBase = new Set<string>();
+
+export function setPreserveDirtyBase(project: string, on: boolean) {
+  if (on) dirtyBase.add(project);
+  else dirtyBase.delete(project);
+}
+
+function dirtyOptions(project: string, options?: { preserveDirtyBase?: boolean }) {
+  return options?.preserveDirtyBase || dirtyBase.has(project) ? { preserveDirtyBase: true } : undefined;
+}
+
+export function readProject(project: string, repo: RepoDoc[], options?: { preserveDirtyBase?: boolean }): Workspace {
   const raw = rawOf(project);
+  const preserve = dirtyOptions(project, options);
+  const preserving = Boolean(preserve);
   const hit = caches.get(project);
-  if (hit && hit.raw === raw && hit.repo === repo) return hit.ws;
+  if (hit && hit.raw === raw && hit.repo === repo && hit.preserve === preserving) return hit.ws;
   const prefix = repoIdPrefix(project);
   let ws: Workspace;
   try {
     const parsed = raw ? (JSON.parse(raw) as Workspace) : null;
-    ws = parsed?.version === 1 ? reconcile(parsed, repo, prefix) : seed(repo, legacyDraft(project), prefix);
+    ws = parsed?.version === 1 ? reconcile(parsed, repo, prefix, preserve) : seed(repo, legacyDraft(project), prefix);
   } catch {
     ws = seed(repo, legacyDraft(project), prefix);
   }
-  caches.set(project, { raw, repo, ws });
+  caches.set(project, { raw, repo, ws, preserve: preserving });
   return ws;
 }
 
@@ -80,18 +93,24 @@ function serverSeed(project: string, docs: RepoDoc[]) {
   return ws;
 }
 
-export function useWorkspace(project: string, docs: RepoDoc[]): Workspace {
+export function useWorkspace(project: string, docs: RepoDoc[], options?: { preserveDirtyBase?: boolean }): Workspace {
   return useSyncExternalStore(
     subscribe,
     () => {
       if (current.project !== project || current.repo !== docs) current = { project, repo: docs };
-      return readProject(project, docs);
+      return readProject(project, docs, options);
     },
     () => serverSeed(project, docs),
   );
 }
 
-export function writeProject(project: string, ws: Workspace): boolean {
+let afterWrite: (project: string) => void = () => {};
+
+export function onWorkspaceWrite(listener: (project: string) => void) {
+  afterWrite = listener;
+}
+
+export function writeProject(project: string, ws: Workspace, sync = true): boolean {
   const raw = JSON.stringify(ws);
   try {
     window.localStorage.setItem(keyOf(project), raw);
@@ -99,8 +118,9 @@ export function writeProject(project: string, ws: Workspace): boolean {
     notify("This browser is out of room for pages. Export a project, then empty its Trash.");
     return false;
   }
-  caches.set(project, { raw, repo: project === current.project ? current.repo : [], ws });
+  caches.set(project, { raw, repo: project === current.project ? current.repo : [], ws, preserve: dirtyBase.has(project) });
   changed();
+  if (sync) afterWrite(project);
   return true;
 }
 
