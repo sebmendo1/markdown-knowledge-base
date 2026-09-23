@@ -2,11 +2,14 @@
 
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
+import { Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { useMemo } from "react";
+import { useResolvedTheme } from "./theme-store";
 
-const editorTheme = EditorView.theme(
+function editorTheme(dark: boolean) {
+  return EditorView.theme(
   {
     "&": {
       height: "100%",
@@ -26,16 +29,17 @@ const editorTheme = EditorView.theme(
       color: "var(--text-faint)",
       border: "none",
     },
-    ".cm-activeLine": { backgroundColor: "rgba(255,255,255,0.03)" },
+    ".cm-activeLine": { backgroundColor: "var(--bg-hover)" },
     ".cm-activeLineGutter": { backgroundColor: "transparent", color: "var(--text-dim)" },
     ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
-      backgroundColor: "#2a3a55 !important",
+      backgroundColor: "var(--selection) !important",
     },
     "&.cm-focused": { outline: "none" },
     ".cm-cursor": { borderLeftColor: "var(--text)" },
   },
-  { dark: true },
-);
+    { dark },
+  );
+}
 
 type EditorProps = {
   value: string;
@@ -44,19 +48,20 @@ type EditorProps = {
 };
 
 export function Editor({ value, onChange, onView }: EditorProps) {
+  const dark = useResolvedTheme() === "dark";
   const extensions = useMemo(
     () => [
       markdown({ base: markdownLanguage, codeLanguages: languages }),
-      editorTheme,
+      editorTheme(dark),
       EditorView.lineWrapping,
-      keymap.of([
-        {
-          key: "Mod-s",
-          run: () => true,
-        },
-      ]),
+      Prec.highest(
+        keymap.of([
+          { key: "Mod-s", run: () => true },
+          { key: "Mod-/", run: () => true },
+        ]),
+      ),
     ],
-    [],
+    [dark],
   );
 
   return (

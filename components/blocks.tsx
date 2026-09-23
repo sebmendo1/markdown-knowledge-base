@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { parse } from "yaml";
 import { parseDelimited } from "@/lib/markdown/csv";
+import { useResolvedTheme } from "./theme-store";
 
 const LANG_ALIAS: Record<string, string> = {
   ts: "typescript",
@@ -19,33 +20,33 @@ const LANG_ALIAS: Record<string, string> = {
 let highlighterPromise: Promise<import("shiki").Highlighter> | null = null;
 
 function getHighlighter() {
-  highlighterPromise ??=
-    import("shiki").then(({ createHighlighter, createJavaScriptRegexEngine }) =>
-      createHighlighter({
-        themes: ["github-dark"],
-        langs: [
-          "typescript",
-          "tsx",
-          "javascript",
-          "jsx",
-          "json",
-          "yaml",
-          "bash",
-          "markdown",
-          "python",
-          "css",
-          "html",
-          "sql",
-          "diff",
-          "text",
-        ],
-        engine: createJavaScriptRegexEngine(),
-      }),
-    );
+  highlighterPromise ??= import("shiki").then(({ createHighlighter, createJavaScriptRegexEngine }) =>
+    createHighlighter({
+      themes: ["github-dark", "github-light"],
+      langs: [
+        "typescript",
+        "tsx",
+        "javascript",
+        "jsx",
+        "json",
+        "yaml",
+        "bash",
+        "markdown",
+        "python",
+        "css",
+        "html",
+        "sql",
+        "diff",
+        "text",
+      ],
+      engine: createJavaScriptRegexEngine(),
+    }),
+  );
   return highlighterPromise;
 }
 
 export function CodeBlock({ code, lang }: { code: string; lang: string }) {
+  const theme = useResolvedTheme();
   const [html, setHtml] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -56,7 +57,7 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
       .then((highlighter) => {
         const loaded = highlighter.getLoadedLanguages();
         const useLang = loaded.includes(mapped) ? mapped : "text";
-        const next = highlighter.codeToHtml(code, { lang: useLang, theme: "github-dark" });
+        const next = highlighter.codeToHtml(code, { lang: useLang, theme: theme === "light" ? "github-light" : "github-dark" });
         if (!cancelled) setHtml(next);
       })
       .catch(() => {
@@ -65,7 +66,7 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
     return () => {
       cancelled = true;
     };
-  }, [code, lang]);
+  }, [code, lang, theme]);
 
   async function copy() {
     try {
@@ -95,31 +96,46 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
 
 export function MermaidBlock({ chart }: { chart: string }) {
   const reactId = useId().replace(/:/g, "");
+  const theme = useResolvedTheme();
   const [error, setError] = useState<string | null>(null);
   const [svg, setSvg] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    const id = `mermaid-${reactId}`;
+    const id = `mermaid-${reactId}-${theme}`;
+    const light = theme === "light";
+    document.getElementById(id)?.remove();
     (async () => {
       try {
         const mermaid = (await import("mermaid")).default;
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: "strict",
-          theme: "dark",
+          theme: light ? "default" : "dark",
           fontFamily: "Geist, sans-serif",
-          themeVariables: {
-            darkMode: true,
-            background: "transparent",
-            primaryColor: "#1c2433",
-            primaryTextColor: "#ececec",
-            primaryBorderColor: "#314158",
-            lineColor: "#8aa0c8",
-            secondaryColor: "#161616",
-            tertiaryColor: "#141414",
-            fontSize: "14px",
-          },
+          themeVariables: light
+            ? {
+                darkMode: false,
+                background: "transparent",
+                primaryColor: "#e7eefc",
+                primaryTextColor: "#1c1c1c",
+                primaryBorderColor: "#b7c7ea",
+                lineColor: "#5c7199",
+                secondaryColor: "#f3f3f0",
+                tertiaryColor: "#ffffff",
+                fontSize: "14px",
+              }
+            : {
+                darkMode: true,
+                background: "transparent",
+                primaryColor: "#1c2433",
+                primaryTextColor: "#ececec",
+                primaryBorderColor: "#314158",
+                lineColor: "#8aa0c8",
+                secondaryColor: "#161616",
+                tertiaryColor: "#141414",
+                fontSize: "14px",
+              },
         });
         const rendered = await mermaid.render(id, chart);
         if (!cancelled) {
@@ -137,7 +153,7 @@ export function MermaidBlock({ chart }: { chart: string }) {
     return () => {
       cancelled = true;
     };
-  }, [chart, reactId]);
+  }, [chart, reactId, theme]);
 
   return (
     <figure className="mermaid-block">
@@ -147,24 +163,26 @@ export function MermaidBlock({ chart }: { chart: string }) {
   );
 }
 
-const chartConfig = {
-  background: "transparent",
-  font: "Geist, sans-serif",
-  view: { stroke: "transparent" },
-  axis: {
-    labelColor: "#a1a1a1",
-    titleColor: "#a1a1a1",
-    domainColor: "#2a2a2a",
-    tickColor: "#2a2a2a",
-    gridColor: "#222222",
-    labelFontSize: 11,
-    titleFontSize: 12,
-  },
-  legend: { labelColor: "#a1a1a1", titleColor: "#cfcfcf" },
-  title: { color: "#ececec", fontSize: 13, fontWeight: "normal" as const, anchor: "start" as const },
-  range: { category: ["#7aa2f7", "#7dcea0", "#e6c07b", "#f0a8a8", "#c4b5fd"] },
-  mark: { color: "#7aa2f7" },
-};
+function chartConfig(light: boolean) {
+  return {
+    background: "transparent",
+    font: "Geist, sans-serif",
+    view: { stroke: "transparent" },
+    axis: {
+      labelColor: light ? "#5c5c5c" : "#a1a1a1",
+      titleColor: light ? "#5c5c5c" : "#a1a1a1",
+      domainColor: light ? "#d5d5d0" : "#2a2a2a",
+      tickColor: light ? "#d5d5d0" : "#2a2a2a",
+      gridColor: light ? "#e6e6e1" : "#222222",
+      labelFontSize: 11,
+      titleFontSize: 12,
+    },
+    legend: { labelColor: light ? "#5c5c5c" : "#a1a1a1", titleColor: light ? "#1c1c1c" : "#cfcfcf" },
+    title: { color: light ? "#1c1c1c" : "#ececec", fontSize: 13, fontWeight: "normal" as const, anchor: "start" as const },
+    range: { category: ["#7aa2f7", "#7dcea0", "#e6c07b", "#f0a8a8", "#c4b5fd"] },
+    mark: { color: "#7aa2f7" },
+  };
+}
 
 function usesRemoteData(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
@@ -176,6 +194,7 @@ function usesRemoteData(value: unknown): boolean {
 
 export function ChartBlock({ source }: { source: string }) {
   const reactId = useId().replace(/:/g, "");
+  const theme = useResolvedTheme();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -187,8 +206,7 @@ export function ChartBlock({ source }: { source: string }) {
     (async () => {
       try {
         const trimmed = source.trim();
-        const spec =
-          trimmed.startsWith("{") || trimmed.startsWith("[") ? JSON.parse(trimmed) : parse(trimmed);
+        const spec = trimmed.startsWith("{") || trimmed.startsWith("[") ? JSON.parse(trimmed) : parse(trimmed);
         if (usesRemoteData(spec)) {
           throw new Error("Charts can only use inline data.");
         }
@@ -197,7 +215,7 @@ export function ChartBlock({ source }: { source: string }) {
         const result = await embed(host, spec as never, {
           actions: false,
           renderer: "svg",
-          config: chartConfig,
+          config: chartConfig(theme === "light"),
           mode: "vega-lite",
         });
         finalize = () => result.finalize();
@@ -213,7 +231,7 @@ export function ChartBlock({ source }: { source: string }) {
       cancelled = true;
       finalize?.();
     };
-  }, [reactId, source]);
+  }, [reactId, source, theme]);
 
   return (
     <figure className="chart-block">
