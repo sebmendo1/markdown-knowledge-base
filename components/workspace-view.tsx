@@ -1,6 +1,6 @@
 "use client";
 
-import type { RefObject } from "react";
+import type { ReactNode, RefObject } from "react";
 import type { Heading } from "@/lib/markdown/outline";
 import type { Workspace } from "@/lib/workspace/model";
 import { hrefOf } from "@/lib/workspace/paths";
@@ -36,6 +36,7 @@ export function WorkspaceView(props: {
   paletteOpen: boolean;
   helpOpen: boolean;
   value: string;
+  rendered: ReactNode;
   headings: Heading[];
   linkedFrom: PageDoc[];
   activeHeading: string | null;
@@ -69,6 +70,8 @@ export function WorkspaceView(props: {
     <PreviewStage
       mode={props.mode}
       value={props.value}
+      rendered={props.rendered}
+      path={props.currentPath}
       docs={props.docs}
       linkedFrom={props.linkedFrom}
       previewRef={props.previewRef}

@@ -8,6 +8,7 @@ import { GearIcon } from "./gear-icon";
 import { downloadPage, duplicate, revert, saveVersion, trash } from "./page-actions";
 import { PanelIcon } from "./panel-icon";
 import { PopoverMenu, type MenuItem } from "./popover-menu";
+import { preloadBlockEditor } from "./preview-stage";
 import { openSettings } from "./settings-host";
 import { openShare } from "./share-host";
 import { emit } from "./ui-events";
@@ -100,6 +101,8 @@ export function DocumentChrome({
               className={editing ? "edit-toggle is-on" : "edit-toggle"}
               aria-pressed={editing}
               aria-label={editing ? "Turn editing off" : "Turn editing on"}
+              onPointerEnter={preloadBlockEditor}
+              onFocus={preloadBlockEditor}
               onClick={() => setMode(editing ? "preview" : "edit")}
             >
               {editing ? "Editing" : "Edit"}

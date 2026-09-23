@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Workspace } from "@/lib/workspace/model";
 import type { PageDoc } from "@/lib/workspace/tree";
 import { restoreVersion, useHistory } from "./history-store";
-import { MarkdownView } from "./markdown-view";
+import { LazyMarkdownView } from "./lazy-markdown";
 import { notify } from "./toast-host";
 import { listen } from "./ui-events";
 import { docOf } from "./workspace-store";
@@ -69,7 +69,7 @@ export function HistoryDialog({ ws, docs }: { ws: Workspace; docs: PageDoc[] }) 
             {history.length === 0 ? <p className="sheet-empty">Versions appear as you edit. Press ⌘S to keep one on purpose.</p> : null}
           </nav>
           <div className="history-preview">
-            <MarkdownView source={chosen.content} docs={docs} />
+            <LazyMarkdownView source={chosen.content} docs={docs} path={page.path} />
           </div>
         </div>
         <div className="history-actions">

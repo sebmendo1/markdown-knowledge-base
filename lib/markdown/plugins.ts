@@ -1,3 +1,4 @@
+import type { Element, Root as HastRoot } from "hast";
 import type { Parent, PhrasingContent, Root, Text } from "mdast";
 import { visit } from "unist-util-visit";
 import { hrefFor, resolveDoc, type DocRef } from "./links";
@@ -146,4 +147,17 @@ function splitWiki(value: string, docs: DocRef[]): PhrasingContent[] | null {
   if (parts.length === 0) return null;
   if (last < value.length) parts.push({ type: "text", value: value.slice(last) });
   return parts;
+}
+
+const TWICE = /^(#?)user-content-user-content-/;
+
+export function rehypeSinglePrefix() {
+  return (tree: HastRoot) => {
+    visit(tree, "element", (node: Element) => {
+      for (const key of ["id", "href"] as const) {
+        const value = node.properties[key];
+        if (typeof value === "string" && TWICE.test(value)) node.properties[key] = value.replace(TWICE, "$1user-content-");
+      }
+    });
+  };
 }
