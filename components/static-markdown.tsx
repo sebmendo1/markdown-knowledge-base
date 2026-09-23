@@ -1,40 +1,43 @@
-"use client";
-
 import Link from "next/link";
-import { useMemo } from "react";
-import ReactMarkdown from "react-markdown";
+import Markdown from "react-markdown";
 import { splitFrontmatter } from "@/lib/markdown/frontmatter";
+import { highlight } from "@/lib/markdown/highlight";
 import { hrefFor } from "@/lib/markdown/links";
 import { extractSection } from "@/lib/markdown/outline";
 import { CodeBlock } from "./blocks";
-import { markdownComponents, markdownPlugins, Properties, type EmbedProps, type MarkdownDoc } from "./markdown-parts";
+import { markdownComponents, markdownPlugins, Properties, type CodeProps, type EmbedProps, type MarkdownDoc } from "./markdown-parts";
 
-type MarkdownViewProps = {
+export function StaticMarkdown({
+  source,
+  docs,
+  path,
+  depth = 0,
+  trail = [],
+}: {
   source: string;
   docs: MarkdownDoc[];
   path?: string;
   depth?: number;
   trail?: string[];
-};
-
-export function MarkdownView({ source, docs, path, depth = 0, trail = [] }: MarkdownViewProps) {
-  const parsed = useMemo(() => splitFrontmatter(source), [source]);
-  const plugins = useMemo(() => markdownPlugins(docs), [docs]);
-  const chain = useMemo(() => (path ? [...trail, path] : trail), [path, trail]);
-  const components = useMemo(() => markdownComponents({ docs, depth, trail: chain, Code: CodeBlock, Embed }), [docs, depth, chain]);
-
+}) {
+  const parsed = splitFrontmatter(source);
+  const chain = path ? [...trail, path] : trail;
   return (
     <div className={depth > 0 ? "md md-embed" : "md"}>
       {parsed.error ? <p className="block-error">{parsed.error}</p> : null}
       {depth === 0 ? <Properties data={parsed.data} /> : null}
-      <ReactMarkdown {...plugins} components={components}>
+      <Markdown {...markdownPlugins(docs)} components={markdownComponents({ docs, depth, trail: chain, Code: HighlightedCode, Embed: StaticEmbed })}>
         {parsed.body}
-      </ReactMarkdown>
+      </Markdown>
     </div>
   );
 }
 
-function Embed({ path, heading, docs, depth, trail }: EmbedProps) {
+async function HighlightedCode({ code, lang }: CodeProps) {
+  return <CodeBlock code={code} lang={lang} html={await highlight(code, lang)} />;
+}
+
+function StaticEmbed({ path, heading, docs, depth, trail }: EmbedProps) {
   const doc = docs.find((entry) => entry.path === path);
   if (!doc) return <p className="wiki-broken">Missing page: {path}</p>;
   const source = heading ? extractSection(doc.content, heading) : doc.content;
@@ -44,7 +47,7 @@ function Embed({ path, heading, docs, depth, trail }: EmbedProps) {
         {doc.title}
         {heading ? ` / ${heading}` : ""}
       </Link>
-      <MarkdownView source={source} docs={docs} path={doc.path} depth={depth} trail={trail} />
+      <StaticMarkdown source={source} docs={docs} path={doc.path} depth={depth} trail={trail} />
     </aside>
   );
 }

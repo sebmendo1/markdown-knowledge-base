@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { StaticMarkdown } from "@/components/static-markdown";
 import { Workspace } from "@/components/workspace";
 import { getDoc, getDocs } from "@/lib/docs";
+import { extractHeadings } from "@/lib/markdown/outline";
 import { humanize } from "@/lib/workspace/paths";
 
 type Props = { params: Promise<{ slug: string[] }> };
@@ -19,5 +21,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Page({ params }: Props) {
   const slug = decode((await params).slug);
-  return <Workspace docs={getDocs()} currentPath={`${slug.join("/")}.md`} />;
+  const docs = getDocs();
+  const path = `${slug.join("/")}.md`;
+  const doc = docs.find((entry) => entry.path === path);
+  return (
+    <Workspace
+      docs={docs}
+      currentPath={path}
+      rendered={doc ? <StaticMarkdown source={doc.content} docs={docs} path={path} /> : null}
+      headings={doc ? extractHeadings(doc.content) : []}
+    />
+  );
 }
