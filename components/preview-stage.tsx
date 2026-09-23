@@ -7,6 +7,7 @@ import { hrefOf } from "@/lib/workspace/paths";
 import type { PageDoc } from "@/lib/workspace/tree";
 import type { Mode } from "./draft-store";
 import { LazyMarkdownView, preloadMarkdown } from "./lazy-markdown";
+import { useProject } from "./project-context";
 
 const Editor = dynamic(() => import("./editor").then((module) => module.Editor), {
   ssr: false,
@@ -44,6 +45,7 @@ export function PreviewStage({
   onChange: (next: string) => void;
   go: (href: string) => void;
 }) {
+  const project = useProject();
   useEffect(() => {
     if (mode !== "preview") preloadMarkdown();
   }, [mode]);
@@ -71,7 +73,7 @@ export function PreviewStage({
               <ul>
                 {linkedFrom.map((doc) => (
                   <li key={doc.id}>
-                    <Link href={hrefOf(doc.path)} onClick={() => go("")}>
+                    <Link href={hrefOf(project, doc.path)} onClick={() => go("")}>
                       {doc.title}
                     </Link>
                     <small>{doc.path}</small>

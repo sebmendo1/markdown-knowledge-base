@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The writing guide is the home page.
+Open [http://localhost:3000](http://localhost:3000). The home page lists every project as a card.
 
 ```bash
 npm test
@@ -19,6 +19,8 @@ npm run build
 
 ## What this slice does
 
+- Projects: a grid of project cards on launch, and a project menu at the top of the sidebar to switch between them, as in Notion. Each project keeps its own pages, folders, Trash, and last open page
+- Open a folder of `.md` files from disk as a new project, keeping its subfolders
 - Three columns: page tree, page, outline, with light, dark, and system themes
 - Preview by default. Edit (E) turns the page into blocks, as in Notion: a `/` menu, a drag handle with block actions, a selection toolbar, and `[[` page links. ⌘/ shows the Markdown source
 - Editing keeps the file exact: blocks you leave alone are written back byte for byte, and diagrams, charts, math, and code edit their source inside the block
@@ -26,9 +28,9 @@ npm run build
 - A page tree you can grow: nested folders, create, rename, drag to move, duplicate, Trash with Undo
 - Links follow pages: renaming or moving rewrites every `[[wiki link]]` that points there
 - Version history per page, backlinks under each page, and a create button on links to missing pages
-- Import `.md` files, download a page, and export the whole workspace as a `.zip`
+- Import `.md` files, download a page, and export a whole project as a `.zip`
 
-The files in `content/` seed the workspace. Pages you create or edit live in the browser's local storage, so export and import move them between devices. Sign-in, a shared database, and agent proposals come later.
+Repository projects are folders in this repository, listed in `lib/docs.ts`: `content/` is the **markdown-kb guide** and `specs/` is **Ledger specs**. Each page lives at `/<project>/<path>`. Pages you create or edit, and projects you create or open from a folder, live in the browser's local storage, so export and import move them between devices. Sign-in, a shared database, and agent proposals come later.
 
 ## Design
 

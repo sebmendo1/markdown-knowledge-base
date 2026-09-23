@@ -7,12 +7,23 @@ title: Organizing pages
 
 Every page is a Markdown file, and every folder is a path. You can grow the knowledge base from the page tree on the left, and the files stay plain `.md` the whole way.
 
+## Projects
+
+A project is one folder of pages, with its own tree, search, and Trash. The home page shows every project as a card. Open a card to start reading.
+
+| To | Do this |
+| --- | --- |
+| Switch projects | Choose the project name at the top of the sidebar, then pick another. Each project reopens on the page you left |
+| Start a project | Choose **New project** on the home page or in the project menu |
+| Open a folder of notes | Choose **Open folder…** and pick a folder of `.md` files. Its subfolders become folders in the tree |
+| See every project | Choose **All projects** in the project menu |
+
 ## Where pages live
 
 Pages you create or edit are saved in this browser as you type. The pages in the repository are the starting set. When the repository gains a page, it appears here too, and pages you have edited keep your version.
 
 > [!NOTE]
-> To move your pages to another device, or to keep a copy, choose **Export workspace (.zip)** from the … menu beside **Pages**. Import the files on the other device with **Import Markdown files…**.
+> To move your pages to another device, or to keep a copy, choose **Export project (.zip)** from the … menu beside **Pages**. Import the files on the other device with **Import Markdown files…**.
 
 ## Create
 

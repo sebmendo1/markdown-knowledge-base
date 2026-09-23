@@ -1,14 +1,18 @@
 "use client";
 
 import type { Workspace } from "@/lib/workspace/model";
+import type { ProjectEntry } from "@/lib/workspace/projects";
 import type { PageDoc } from "@/lib/workspace/tree";
 import { GearIcon } from "./gear-icon";
 import { PageTree } from "./page-tree";
 import { PanelIcon } from "./panel-icon";
+import { ProjectSwitcher } from "./project-switcher";
 import { openSettings } from "./settings-host";
 import { emit } from "./ui-events";
 
 export function FileSidebar({
+  project,
+  projects,
   ws,
   docs,
   currentPath,
@@ -17,6 +21,8 @@ export function FileSidebar({
   onSearch,
   onRetract,
 }: {
+  project?: ProjectEntry;
+  projects: ProjectEntry[];
   ws: Workspace;
   docs: PageDoc[];
   currentPath: string;
@@ -31,7 +37,7 @@ export function FileSidebar({
         <button type="button" className="icon-button" aria-label="Hide sidebar" onClick={onRetract}>
           <PanelIcon />
         </button>
-        <div className="brand">markdown-kb</div>
+        <ProjectSwitcher project={project} projects={projects} />
       </div>
       <button type="button" className="search-button" onClick={onSearch}>
         <span>Search</span>

@@ -35,7 +35,7 @@ test("wiki refs resolve by file name when the path is unique", () => {
     { path: "docs/writing.md", title: "Writing" },
   ];
   assert.equal(resolveDoc(docs, "shortcuts")?.path, "docs/shortcuts.md");
-  assert.equal(hrefFor("docs/shortcuts.md", "Keyboard"), "/docs/shortcuts#keyboard");
+  assert.equal(hrefFor("guide", "docs/shortcuts.md", "Keyboard"), "/guide/docs/shortcuts#keyboard");
 });
 
 test("quick titles match the full parser", () => {

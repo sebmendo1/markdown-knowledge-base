@@ -5,14 +5,14 @@ import { downloadPage, duplicate, exportWorkspace, trash, trashFolderAt } from "
 import type { MenuItem } from "./popover-menu";
 import { emit, type Target } from "./ui-events";
 
-export function treeItems(target: Target | null, go: (href: string) => void, pick: (folder: string) => void): MenuItem[] {
+export function treeItems(target: Target | null, project: string, go: (href: string) => void, pick: (folder: string) => void): MenuItem[] {
   if (!target) {
     return [
       { label: "New page", hint: "C", run: () => emit("markdown-kb-create", { kind: "page", folder: "" }) },
       { label: "New folder", run: () => emit("markdown-kb-create", { kind: "folder", folder: "" }) },
       "divider",
       { label: "Import Markdown files…", run: () => pick("") },
-      { label: "Export workspace (.zip)", run: exportWorkspace },
+      { label: "Export project (.zip)", run: exportWorkspace },
       "divider",
       { label: "Trash", run: () => emit("markdown-kb-trash", null) },
     ];
@@ -39,7 +39,7 @@ export function treeItems(target: Target | null, go: (href: string) => void, pic
       label: "Duplicate",
       run: () => {
         const path = duplicate(id);
-        if (path) go(hrefOf(path));
+        if (path) go(hrefOf(project, path));
       },
     },
     { label: "Move to…", run: () => emit("markdown-kb-move", target) },
