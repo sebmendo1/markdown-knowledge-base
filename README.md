@@ -20,7 +20,8 @@ npm run build
 ## What this slice does
 
 - Three columns: page tree, page, outline, with light, dark, and system themes
-- Preview by default. Edit, or ⌘/, puts the source beside the page
+- Preview by default. Edit (E) turns the page into blocks, as in Notion: a `/` menu, a drag handle with block actions, a selection toolbar, and `[[` page links. ⌘/ shows the Markdown source
+- Editing keeps the file exact: blocks you leave alone are written back byte for byte, and diagrams, charts, math, and code edit their source inside the block
 - GitHub-flavored Markdown, callouts, math, Mermaid, Vega-Lite charts, CSV tables, footnotes, and wiki links
 - A page tree you can grow: nested folders, create, rename, drag to move, duplicate, Trash with Undo
 - Links follow pages: renaming or moving rewrites every `[[wiki link]]` that points there

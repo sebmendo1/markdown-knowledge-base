@@ -25,7 +25,7 @@ What the preview renders:
 - Code, math, diagrams, and charts
 
 - [x] Read the page before editing it
-- [ ] Switch to Split when you want the source beside the preview
+- [ ] Press `E` to edit the page as blocks
 
 ## Tables
 
@@ -33,13 +33,13 @@ What the preview renders:
 | --- | --- |
 | Files | Jump between pages |
 | Preview | Read |
-| Split | Edit beside the preview |
+| Editing | Write in blocks |
 | Outline | Move through the page |
 
 ## Callouts
 
 > [!TIP]
-> Press `⌘K` to jump to a page. Press `⌘/` to switch between Preview and Split. Preview is the view you start in.
+> Press `⌘K` to jump to a page. Press `E` to edit the page as blocks, and `⌘/` to see its Markdown source. Preview is the view you start in.
 
 > [!IMPORTANT]
 > The Markdown file is the document. Preview is a view of it.
@@ -103,7 +103,7 @@ encoding:
 pane,job
 Files,Jump between pages
 Preview,Read
-Split,Edit beside the preview
+Editing,Write in blocks
 Outline,Move through the page
 ```
 

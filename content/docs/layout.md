@@ -13,7 +13,7 @@ The left column is the page tree: folders and the pages inside them. The open pa
 
 ## Page
 
-Preview is the default, because this is a place to read. Edit, in the title row, turns editing on and puts the source beside the page. Press it again, or ⌘/, to turn editing off. Share copies a link to this page. Anyone with the link can open it in viewing or in editing. The … beside Share holds the page actions, version history among them. On a narrow screen the source sits above the preview, and the preview keeps the taller share. The line stays near sixty-six characters.
+Preview is the default, because this is a place to read. Edit, in the title row, turns editing on: the page stays formatted and each paragraph, heading, list, and diagram becomes a block you can change in place. Press it again to turn editing off. ⌘/ shows the Markdown source, and pressing it again returns to blocks. Share copies a link to this page. Anyone with the link can open it in viewing or in editing. The … beside Share holds the page actions, version history among them. The line stays near sixty-six characters.
 
 ## Outline
 
