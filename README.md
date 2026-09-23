@@ -22,7 +22,7 @@ npm run build
 - Projects: a grid of project cards on launch, and a project menu at the top of the sidebar to switch between them, as in Notion. Each project keeps its own pages, folders, Trash, and last open page
 - Open a folder of `.md` files from disk as a new project, keeping its subfolders
 - Three columns: page tree, page, outline, with light, dark, and system themes
-- Preview by default. Edit (E) turns the page into blocks, as in Notion: a `/` menu, a drag handle with block actions, a selection toolbar, and `⌘/` shows the Markdown source
+- Preview by default. Edit (E) turns the page into blocks, as in Notion: a `/` menu, a drag handle with block actions, a selection toolbar, and `[[` page links. ⌘/ shows the Markdown source
 - Editing keeps the file exact: blocks you leave alone are written back byte for byte, and diagrams, charts, math, and code edit their source inside the block
 - GitHub-flavored Markdown, callouts, math, Mermaid, Vega-Lite charts, CSV tables, footnotes, and wiki links
 - A page tree you can grow: nested folders, create, rename, drag to move, duplicate, Trash with Undo
