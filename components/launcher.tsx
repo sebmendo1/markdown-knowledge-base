@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { hrefOf, humanize } from "@/lib/workspace/paths";
-import { projectStats, sortProjects, type ProjectEntry, type RepoProjectSummary } from "@/lib/workspace/projects";
+import { diskListSignature } from "@/lib/store/sync";
+import { projectKindLabel, projectStats, sortProjects, type ProjectEntry, type ProjectSummary } from "@/lib/workspace/projects";
+import { useDiskProjectWatch } from "./disk-sync";
 import { DotsIcon, PlusIcon } from "./action-icons";
 import { useFolderPicker } from "./folder-picker";
 import { GearIcon } from "./gear-icon";
@@ -35,9 +38,12 @@ function ago(at: number) {
   return "just now";
 }
 
-export function Launcher({ repo }: { repo: RepoProjectSummary[] }) {
+export function Launcher({ repo }: { repo: ProjectSummary[] }) {
+  const router = useRouter();
   const registry = useRegistry();
   const hydrated = useHydrated();
+  const diskSignature = useMemo(() => diskListSignature(repo.filter((project) => project.kind === "disk")), [repo]);
+  useDiskProjectWatch(diskSignature, () => router.refresh());
   const [dialog, setDialog] = useState<ProjectDraft | null>(null);
   const [menu, setMenu] = useState<{ x: number; y: number; items: MenuItem[] } | null>(null);
   const [doomed, setDoomed] = useState<Card | null>(null);
@@ -106,7 +112,7 @@ export function Launcher({ repo }: { repo: RepoProjectSummary[] }) {
                     <ProjectTile slug={project.slug} name={project.name} size="lg" />
                     <div className="project-card-title">
                       <h2>{project.name}</h2>
-                      <span>{project.kind === "repo" ? "Repository" : "This browser"}</span>
+                      <span>{projectKindLabel(project.kind)}</span>
                     </div>
                   </div>
                   <p className="project-card-desc">{project.description || "A folder of Markdown pages."}</p>
