@@ -15,6 +15,7 @@ import { emit } from "./ui-events";
 import { useActiveHeading } from "./use-active-heading";
 import { useEditorKeys } from "./use-editor-keys";
 import { useHeadings } from "./use-headings";
+import { loadDiskVersion, startDiskSync, useDiskConflicts } from "./disk-sync";
 import { docOf, useHydrated, useWorkspace } from "./workspace-store";
 import { WorkspaceView, type PageState } from "./workspace-view";
 
@@ -25,6 +26,7 @@ export function Workspace({
   currentPath,
   rendered,
   headings: repoHeadings,
+  sync = false,
 }: {
   project: string;
   projects: ProjectEntry[];
@@ -32,9 +34,11 @@ export function Workspace({
   currentPath: string;
   rendered: ReactNode;
   headings: Heading[];
+  sync?: boolean;
 }) {
   const router = useRouter();
-  const ws = useWorkspace(project, repoDocs);
+  const ws = useWorkspace(project, repoDocs, { preserveDirtyBase: sync });
+  const conflicts = useDiskConflicts();
   const hydrated = useHydrated();
   const registry = useRegistry();
   const projects = useMemo(
@@ -62,6 +66,11 @@ export function Workspace({
   }
 
   useEditorKeys({ mode, pageId: page?.id ?? null, setOutlineOpen, setSidebarOpen, setPaletteOpen, setHelpOpen, onNewPage: newPageHere });
+
+  useEffect(() => {
+    if (!sync) return;
+    return startDiskSync(project, () => router.refresh());
+  }, [sync, project, router]);
 
   useEffect(() => {
     const edit = new URLSearchParams(window.location.search).get("edit");
@@ -160,6 +169,8 @@ export function Workspace({
         setPaletteOpen={setPaletteOpen}
         setHelpOpen={setHelpOpen}
         onChange={(next) => page && editPage(page.id, next)}
+        diskConflict={Boolean(page && conflicts.some((item) => item.id === page.id))}
+        onLoadDisk={() => page && loadDiskVersion(page.id)}
         go={go}
         jump={jump}
       />
