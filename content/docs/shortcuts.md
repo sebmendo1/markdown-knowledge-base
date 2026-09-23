@@ -5,16 +5,19 @@ title: Shortcuts
 
 # Shortcuts
 
-The keyboard covers the actions you repeat. Commands with ⌘ also work while the cursor is in the source.
+The keyboard covers the actions you repeat. Commands with ⌘ also work while the cursor is in the source. Single keys work while you read.
 
 ## Keyboard
 
 | Keys | Action |
 | --- | --- |
 | `⌘K` | Search pages |
-| `⌘/` | Cycle Preview, Split, and Source |
+| `⌘/` | Turn editing on or off |
+| `E` | Start editing |
+| `C` | Create a page in this folder |
+| `⌘S` | Save a version |
 | `⌘\` | Show or hide the outline |
-| `⌘S` | Keep the local draft |
+| `⌘,` | Open settings |
 | `?` | Show this list |
 
 On Linux and Windows, Ctrl is the modifier.

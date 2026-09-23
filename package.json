@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test lib/markdown/*.test.ts"
+    "test": "tsx --test lib/markdown/*.test.ts lib/workspace/*.test.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",

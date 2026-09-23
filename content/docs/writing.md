@@ -12,7 +12,7 @@ markdown-kb is a reading surface for notes kept as Markdown. The source stays ex
 
 ## Measure
 
-Prose sits in a column about 720 pixels wide, with room between lines. Headings stay quiet. The outline on the right follows the page as you scroll.
+Prose sits in a column about sixty-six characters wide, with room between lines. On a narrow screen the line shortens instead of the type shrinking. Headings stay quiet. The outline on the right follows the page while there is room for it.
 
 A useful line is long enough to hold a thought and short enough to find the next one.
 
@@ -33,13 +33,13 @@ What the preview renders:
 | --- | --- |
 | Files | Jump between pages |
 | Preview | Read |
-| Source | Edit the exact Markdown |
+| Split | Edit beside the preview |
 | Outline | Move through the page |
 
 ## Callouts
 
 > [!TIP]
-> Press `⌘K` to jump to a page. Press `⌘/` to cycle Preview, Split, and Source.
+> Press `⌘K` to jump to a page. Press `⌘/` to switch between Preview and Split. Preview is the view you start in.
 
 > [!IMPORTANT]
 > The Markdown file is the document. Preview is a view of it.
@@ -54,15 +54,15 @@ What the preview renders:
 
 ```ts
 export const reading = {
-  measure: 720,
-  lineHeight: 1.65,
-  fontSize: 16.5,
+  measure: "66ch",
+  lineHeight: 1.7,
+  fontSize: 17,
 };
 ```
 
 ## Math
 
-The reading measure stays near $720$ pixels.
+The reading measure stays near sixty-six characters.
 
 $$
 42 \le \text{characters per line} \le 75
@@ -103,7 +103,7 @@ encoding:
 pane,job
 Files,Jump between pages
 Preview,Read
-Source,Edit the exact Markdown
+Split,Edit beside the preview
 Outline,Move through the page
 ```
 
