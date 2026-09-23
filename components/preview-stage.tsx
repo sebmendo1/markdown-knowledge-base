@@ -2,17 +2,23 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import type { RefObject } from "react";
+import { useEffect, type ReactNode, type RefObject } from "react";
 import { hrefOf } from "@/lib/workspace/paths";
 import type { PageDoc } from "@/lib/workspace/tree";
 import type { Mode } from "./draft-store";
-import { MarkdownView } from "./markdown-view";
+import { LazyMarkdownView, preloadMarkdown } from "./lazy-markdown";
 
 const Editor = dynamic(() => import("./editor").then((module) => module.Editor), {
   ssr: false,
 });
 
-const BlockEditor = dynamic(() => import("./block-editor/block-editor").then((module) => module.BlockEditor), {
+const loadBlockEditor = () => import("./block-editor/block-editor");
+
+export function preloadBlockEditor() {
+  void loadBlockEditor();
+}
+
+const BlockEditor = dynamic(() => loadBlockEditor().then((module) => module.BlockEditor), {
   ssr: false,
   loading: () => <div className="block-editor-loading" aria-busy="true" />,
 });
@@ -20,6 +26,8 @@ const BlockEditor = dynamic(() => import("./block-editor/block-editor").then((mo
 export function PreviewStage({
   mode,
   value,
+  rendered,
+  path,
   docs,
   linkedFrom,
   previewRef,
@@ -28,12 +36,17 @@ export function PreviewStage({
 }: {
   mode: Mode;
   value: string;
+  rendered: ReactNode;
+  path: string;
   docs: PageDoc[];
   linkedFrom: PageDoc[];
   previewRef: RefObject<HTMLDivElement | null>;
   onChange: (next: string) => void;
   go: (href: string) => void;
 }) {
+  useEffect(() => {
+    if (mode !== "preview") preloadMarkdown();
+  }, [mode]);
   if (mode === "source") {
     return (
       <div className="stage source">
@@ -50,7 +63,7 @@ export function PreviewStage({
           {mode === "edit" ? (
             <BlockEditor value={value} docs={docs} onChange={onChange} go={go} />
           ) : (
-            <MarkdownView source={value} docs={docs} />
+            (rendered ?? <LazyMarkdownView source={value} docs={docs} path={path} />)
           )}
           {linkedFrom.length > 0 ? (
             <aside className="backlinks" aria-label="Linked from">

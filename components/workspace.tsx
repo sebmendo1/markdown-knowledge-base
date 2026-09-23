@@ -1,20 +1,31 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Doc } from "@/lib/docs";
-import { extractHeadings } from "@/lib/markdown/outline";
+import type { Heading } from "@/lib/markdown/outline";
 import { folderOf, hrefOf } from "@/lib/workspace/paths";
-import { backlinks } from "@/lib/workspace/tree";
+import { backlinks, rendersAsRepo } from "@/lib/workspace/tree";
 import { setMode, setSidebarExpanded, useMode } from "./draft-store";
 import { editPage } from "./history-store";
 import { emit } from "./ui-events";
 import { useActiveHeading } from "./use-active-heading";
 import { useEditorKeys } from "./use-editor-keys";
+import { useHeadings } from "./use-headings";
 import { docOf, useHydrated, useWorkspace } from "./workspace-store";
 import { WorkspaceView, type PageState } from "./workspace-view";
 
-export function Workspace({ docs: repoDocs, currentPath }: { docs: Doc[]; currentPath: string }) {
+export function Workspace({
+  docs: repoDocs,
+  currentPath,
+  rendered,
+  headings: repoHeadings,
+}: {
+  docs: Doc[];
+  currentPath: string;
+  rendered: ReactNode;
+  headings: Heading[];
+}) {
   const router = useRouter();
   const ws = useWorkspace(repoDocs);
   const hydrated = useHydrated();
@@ -72,7 +83,11 @@ export function Workspace({ docs: repoDocs, currentPath }: { docs: Doc[]; curren
     if (doc) document.title = `${doc.title} · markdown-kb`;
   }, [doc]);
 
-  const headings = useMemo(() => extractHeadings(value), [value]);
+  const asRepo = useMemo(
+    () => Boolean(page && page.path === page.origin && rendersAsRepo(currentPath, docs, repoDocs)),
+    [page, currentPath, docs, repoDocs],
+  );
+  const headings = useHeadings(previewRef, asRepo ? repoHeadings : [], currentPath);
   const linkedFrom = useMemo(() => (page ? backlinks(docs, currentPath) : []), [docs, currentPath, page]);
   useActiveHeading(previewRef, value, mode, setActiveHeading);
 
@@ -111,6 +126,7 @@ export function Workspace({ docs: repoDocs, currentPath }: { docs: Doc[]; curren
       paletteOpen={paletteOpen}
       helpOpen={helpOpen}
       value={value}
+      rendered={asRepo ? rendered : null}
       headings={headings}
       linkedFrom={linkedFrom}
       activeHeading={activeHeading}

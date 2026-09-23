@@ -1,72 +1,46 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
-import { parse } from "yaml";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { parseDelimited } from "@/lib/markdown/csv";
 import { useResolvedTheme } from "./theme-store";
 
-const LANG_ALIAS: Record<string, string> = {
-  ts: "typescript",
-  js: "javascript",
-  py: "python",
-  yml: "yaml",
-  sh: "bash",
-  shell: "bash",
-  md: "markdown",
-  txt: "text",
-  plaintext: "text",
-};
-
-let highlighterPromise: Promise<import("shiki").Highlighter> | null = null;
-
-function getHighlighter() {
-  highlighterPromise ??= import("shiki").then(({ createHighlighter, createJavaScriptRegexEngine }) =>
-    createHighlighter({
-      themes: ["github-dark", "github-light"],
-      langs: [
-        "typescript",
-        "tsx",
-        "javascript",
-        "jsx",
-        "json",
-        "yaml",
-        "bash",
-        "markdown",
-        "python",
-        "css",
-        "html",
-        "sql",
-        "diff",
-        "text",
-      ],
-      engine: createJavaScriptRegexEngine(),
-    }),
-  );
-  return highlighterPromise;
+function useNear<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || near) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setNear(true);
+          observer.disconnect();
+        }
+      },
+      { root: node.closest(".preview-pane"), rootMargin: "600px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [near]);
+  return [ref, near] as const;
 }
 
-export function CodeBlock({ code, lang }: { code: string; lang: string }) {
-  const theme = useResolvedTheme();
-  const [html, setHtml] = useState<string | null>(null);
+export function CodeBlock({ code, lang, html: ready }: { code: string; lang: string; html?: string | null }) {
+  const [html, setHtml] = useState<string | null>(ready ?? null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (ready !== undefined) return;
     let cancelled = false;
-    const mapped = LANG_ALIAS[lang] ?? (lang || "text");
-    getHighlighter()
-      .then((highlighter) => {
-        const loaded = highlighter.getLoadedLanguages();
-        const useLang = loaded.includes(mapped) ? mapped : "text";
-        const next = highlighter.codeToHtml(code, { lang: useLang, theme: theme === "light" ? "github-light" : "github-dark" });
+    import("@/lib/markdown/highlight")
+      .then(({ highlight }) => highlight(code, lang))
+      .then((next) => {
         if (!cancelled) setHtml(next);
-      })
-      .catch(() => {
-        if (!cancelled) setHtml(null);
       });
     return () => {
       cancelled = true;
     };
-  }, [code, lang, theme]);
+  }, [code, lang, ready]);
 
   async function copy() {
     try {
@@ -78,13 +52,14 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
     }
   }
 
+  const shown = ready ?? html;
   return (
     <div className="code-block">
       <button type="button" className="copy-button" onClick={copy} aria-label="Copy code">
         {copied ? "Copied" : "Copy"}
       </button>
-      {html ? (
-        <div dangerouslySetInnerHTML={{ __html: html }} />
+      {shown ? (
+        <div dangerouslySetInnerHTML={{ __html: shown }} />
       ) : (
         <pre>
           <code>{code}</code>
@@ -94,13 +69,20 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
   );
 }
 
+const diagrams = new Map<string, string>();
+
 export function MermaidBlock({ chart }: { chart: string }) {
   const reactId = useId().replace(/:/g, "");
   const theme = useResolvedTheme();
-  const [error, setError] = useState<string | null>(null);
-  const [svg, setSvg] = useState<string | null>(null);
+  const [ref, near] = useNear<HTMLElement>();
+  const [drawn, setDrawn] = useState<{ key: string; svg: string | null; error: string | null } | null>(null);
+  const key = `${theme}\n${chart}`;
+  const cached = diagrams.get(key);
+  const svg = cached ?? drawn?.svg ?? null;
+  const error = cached ? null : drawn?.key === key ? drawn.error : null;
 
   useEffect(() => {
+    if (!near || diagrams.has(key)) return;
     let cancelled = false;
     const id = `mermaid-${reactId}-${theme}`;
     const light = theme === "light";
@@ -138,25 +120,21 @@ export function MermaidBlock({ chart }: { chart: string }) {
               },
         });
         const rendered = await mermaid.render(id, chart);
-        if (!cancelled) {
-          setSvg(rendered.svg);
-          setError(null);
-        }
+        if (diagrams.size > 60) diagrams.delete(diagrams.keys().next().value!);
+        diagrams.set(key, rendered.svg);
+        if (!cancelled) setDrawn({ key, svg: rendered.svg, error: null });
       } catch (caught) {
         document.getElementById(id)?.remove();
-        if (!cancelled) {
-          setSvg(null);
-          setError(caught instanceof Error ? caught.message : "Diagram could not be drawn.");
-        }
+        if (!cancelled) setDrawn({ key, svg: null, error: caught instanceof Error ? caught.message : "Diagram could not be drawn." });
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [chart, reactId, theme]);
+  }, [chart, key, near, reactId, theme]);
 
   return (
-    <figure className="mermaid-block">
+    <figure ref={ref} className="mermaid-block" aria-busy={!svg && !error}>
       {error ? <p className="block-error">{error}</p> : null}
       {svg ? <div dangerouslySetInnerHTML={{ __html: svg }} /> : null}
     </figure>
@@ -196,17 +174,18 @@ export function ChartBlock({ source }: { source: string }) {
   const reactId = useId().replace(/:/g, "");
   const theme = useResolvedTheme();
   const [error, setError] = useState<string | null>(null);
+  const [ref, near] = useNear<HTMLElement>();
 
   useEffect(() => {
     const host = document.getElementById(reactId);
-    if (!host) return;
+    if (!host || !near) return;
     let cancelled = false;
     let finalize: (() => void) | undefined;
 
     (async () => {
       try {
         const trimmed = source.trim();
-        const spec = trimmed.startsWith("{") || trimmed.startsWith("[") ? JSON.parse(trimmed) : parse(trimmed);
+        const spec = trimmed.startsWith("{") || trimmed.startsWith("[") ? JSON.parse(trimmed) : (await import("yaml")).parse(trimmed);
         if (usesRemoteData(spec)) {
           throw new Error("Charts can only use inline data.");
         }
@@ -231,10 +210,10 @@ export function ChartBlock({ source }: { source: string }) {
       cancelled = true;
       finalize?.();
     };
-  }, [reactId, source, theme]);
+  }, [near, reactId, source, theme]);
 
   return (
-    <figure className="chart-block">
+    <figure ref={ref} className="chart-block">
       {error ? <p className="block-error">{error}</p> : null}
       <div id={reactId} className="chart-host" />
     </figure>
