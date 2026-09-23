@@ -22,21 +22,21 @@ export type Workspace = {
 
 export type RepoDoc = { path: string; content: string };
 
-export function seed(repo: RepoDoc[], draft: (path: string) => string | null = () => null): Workspace {
+export function seed(repo: RepoDoc[], draft: (path: string) => string | null = () => null, prefix = "repo:"): Workspace {
   return {
     version: 1,
-    pages: repo.map((doc) => repoPage(doc, draft(doc.path) ?? doc.content, doc.path)),
+    pages: repo.map((doc) => repoPage(doc, draft(doc.path) ?? doc.content, doc.path, prefix)),
     folders: [],
     trash: [],
     removed: [],
   };
 }
 
-function repoPage(doc: RepoDoc, content: string, path: string): Page {
-  return { id: `repo:${doc.path}`, path, content, origin: doc.path, base: doc.content, createdAt: 0, updatedAt: 0 };
+function repoPage(doc: RepoDoc, content: string, path: string, prefix: string): Page {
+  return { id: `${prefix}${doc.path}`, path, content, origin: doc.path, base: doc.content, createdAt: 0, updatedAt: 0 };
 }
 
-export function reconcile(ws: Workspace, repo: RepoDoc[]): Workspace {
+export function reconcile(ws: Workspace, repo: RepoDoc[], prefix = "repo:"): Workspace {
   const byOrigin = new Map(repo.map((doc) => [doc.path, doc]));
   let changed = false;
   const pages = ws.pages.map((page) => {
@@ -52,7 +52,7 @@ export function reconcile(ws: Workspace, repo: RepoDoc[]): Workspace {
     if (known.has(doc.path)) continue;
     changed = true;
     const path = uniquePath(pages.map((page) => page.path), doc.path.replace(/\.md$/i, ""), ".md");
-    pages.push(repoPage(doc, doc.content, path));
+    pages.push(repoPage(doc, doc.content, path, prefix));
   }
   return changed ? { ...ws, pages } : ws;
 }

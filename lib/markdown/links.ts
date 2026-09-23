@@ -1,4 +1,5 @@
 import GithubSlugger from "github-slugger";
+import { hrefOf } from "../workspace/paths";
 
 export type DocRef = {
   path: string;
@@ -17,8 +18,8 @@ export function resolveDoc<T extends DocRef>(docs: T[], ref: string): T | undefi
   return matches.length === 1 ? matches[0] : undefined;
 }
 
-export function hrefFor(path: string, heading?: string): string {
-  const base = `/${path.replace(/\.md$/i, "")}`;
+export function hrefFor(project: string, path: string, heading?: string): string {
+  const base = hrefOf(project, path);
   if (!heading) return base;
   return `${base}#${new GithubSlugger().slug(heading)}`;
 }

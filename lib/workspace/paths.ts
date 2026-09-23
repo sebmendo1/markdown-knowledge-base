@@ -44,6 +44,13 @@ export function uniquePath(taken: Iterable<string>, base: string, ext = ""): str
   return candidate;
 }
 
-export function hrefOf(path: string): string {
-  return `/${path.replace(/\.md$/i, "")}`;
+export function hrefOf(project: string, path?: string): string {
+  const base = `/${encodeURIComponent(project)}`;
+  if (!path) return base;
+  const page = path
+    .replace(/\.md$/i, "")
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/");
+  return `${base}/${page}`;
 }

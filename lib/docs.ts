@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { quickTitle } from "./markdown/scan";
+import type { ProjectEntry, RepoProjectSummary } from "./workspace/projects";
 
 export type Doc = {
   path: string;
@@ -9,8 +10,32 @@ export type Doc = {
   content: string;
 };
 
-const ROOT = path.join(process.cwd(), "content");
-const FOLDER_ORDER = ["ledger", "docs"];
+type RepoProject = {
+  slug: string;
+  name: string;
+  description: string;
+  root: () => string;
+  home: string;
+  order?: string[];
+};
+
+const PROJECTS: RepoProject[] = [
+  {
+    slug: "guide",
+    name: "markdown-kb guide",
+    description: "How to write, organize, and read pages here. Formatting, diagrams, charts, and shortcuts.",
+    root: () => path.join(process.cwd(), "content"),
+    home: "docs/writing.md",
+    order: ["ledger", "docs"],
+  },
+  {
+    slug: "specs",
+    name: "Ledger specs",
+    description: "The Ledger PRD, every decision since, and the plan for turning them into specs.",
+    root: () => path.join(process.cwd(), "specs"),
+    home: "PLAN.md",
+  },
+];
 
 function walk(directory: string, prefix: string[]): Doc[] {
   if (!fs.existsSync(directory)) return [];
@@ -40,18 +65,33 @@ function walk(directory: string, prefix: string[]): Doc[] {
   return docs;
 }
 
-export function getDocs(): Doc[] {
-  return walk(ROOT, []).sort((a, b) => {
-    const aFolder = FOLDER_ORDER.indexOf(a.slug[0] ?? "");
-    const bFolder = FOLDER_ORDER.indexOf(b.slug[0] ?? "");
-    const aOrder = aFolder === -1 ? 99 : aFolder;
-    const bOrder = bFolder === -1 ? 99 : bFolder;
-    if (aOrder !== bOrder) return aOrder - bOrder;
-    return a.title.localeCompare(b.title);
-  });
+const entryOf = (project: RepoProject): ProjectEntry => ({
+  slug: project.slug,
+  name: project.name,
+  description: project.description,
+  kind: "repo",
+});
+
+export function getProjects(): ProjectEntry[] {
+  return PROJECTS.map(entryOf);
 }
 
-export function getDoc(slug: string[]): Doc | undefined {
-  const key = slug.join("/");
-  return getDocs().find((doc) => doc.slug.join("/") === key);
+export function getProject(slug: string): (ProjectEntry & { home: string }) | undefined {
+  const project = PROJECTS.find((entry) => entry.slug === slug);
+  return project ? { ...entryOf(project), home: project.home } : undefined;
+}
+
+export function getDocs(slug: string): Doc[] {
+  const project = PROJECTS.find((entry) => entry.slug === slug);
+  if (!project) return [];
+  const order = project.order ?? [];
+  const rank = (doc: Doc) => {
+    const index = doc.slug.length > 1 ? order.indexOf(doc.slug[0]) : -1;
+    return index === -1 ? 99 : index;
+  };
+  return walk(project.root(), []).sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title));
+}
+
+export function projectSummaries(): RepoProjectSummary[] {
+  return PROJECTS.map((project) => ({ ...entryOf(project), kind: "repo", paths: getDocs(project.slug).map((doc) => doc.path) }));
 }
