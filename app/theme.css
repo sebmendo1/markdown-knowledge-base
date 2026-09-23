@@ -1,0 +1,36 @@
+:root { --selection: #2a3a55; }
+
+[data-theme="light"] {
+  --bg: #f6f6f4;
+  --bg-sidebar: #efefec;
+  --bg-chrome: #efefec;
+  --bg-outline: #f3f3f0;
+  --bg-source: #f3f3f0;
+  --bg-raised: #ffffff;
+  --bg-hover: #e6e6e2;
+  --bg-sunken: #ecece8;
+  --text: #1a1a1a;
+  --text-dim: #3a3a3a;
+  --text-faint: #6a6a66;
+  --accent: #3b6fd6;
+  --amber: #8a5a10;
+  --danger: #a33b3b;
+  --selection: #d5e2fb;
+  color-scheme: light;
+}
+[data-theme="light"] ::selection { background: var(--selection); }
+[data-theme="light"] * { scrollbar-color: #c8c8c2 transparent; }
+[data-theme="light"] .md a,
+[data-theme="light"] .missing a { color: #2451b5; }
+[data-theme="light"] .md a:hover { color: #1a3d8f; }
+[data-theme="light"] .md mark { background: #f4e3b0; color: #3a3014; }
+[data-theme="light"] .callout-note { background: #e7eefc; }
+[data-theme="light"] .callout-note .callout-title { color: #2451b5; }
+[data-theme="light"] .callout-tip { background: #e5f4eb; }
+[data-theme="light"] .callout-tip .callout-title { color: #1d6b45; }
+[data-theme="light"] .callout-important { background: #efe8fb; }
+[data-theme="light"] .callout-important .callout-title { color: #5b3d9e; }
+[data-theme="light"] .callout-warning { background: #f8efd8; }
+[data-theme="light"] .callout-warning .callout-title { color: #8a5a10; }
+[data-theme="light"] .callout-caution { background: #f8e4e4; }
+[data-theme="light"] .callout-caution .callout-title { color: #9a3030; }

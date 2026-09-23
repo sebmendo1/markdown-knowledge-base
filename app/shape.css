@@ -1,0 +1,44 @@
+.search-button,
+.tree-link,
+.text-button,
+.icon-button,
+.palette-item,
+.files-button {
+  border-radius: 12px;
+}
+.outline button { border-radius: 10px; }
+.outline button.is-active { background: var(--bg-hover); }
+.search-button kbd,
+.help kbd,
+.shortcut kbd,
+.md :not(pre) > code,
+.md kbd,
+.copy-button {
+  border-radius: 8px;
+}
+.md mark { border-radius: 6px; }
+.tree-link[aria-current="page"]::before {
+  left: 4px;
+  border-radius: 3px;
+}
+.palette,
+.help {
+  border-radius: 20px;
+}
+.callout,
+.embed,
+.md blockquote,
+.md details,
+.md img,
+.code-block pre,
+.code-block .shiki,
+.mermaid-block,
+.chart-block,
+.table-scroll {
+  border-radius: 18px;
+}
+.callout { padding: 14px 18px 8px; }
+.embed { padding: 14px 18px 10px; }
+.md blockquote,
+.md details { padding: 14px 18px; }
+.copy-button { top: 12px; right: 12px; }
