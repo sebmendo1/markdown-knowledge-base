@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { hrefOf } from "@/lib/workspace/paths";
-import { setMode } from "./draft-store";
+import { setMode, type Mode } from "./draft-store";
 import { DotsIcon } from "./action-icons";
 import { GearIcon } from "./gear-icon";
 import { downloadPage, duplicate, revert, saveVersion, trash } from "./page-actions";
@@ -18,6 +18,12 @@ const STATUS: Record<PageState, string> = {
   edited: "Edited in this browser",
   created: "Created in this browser",
   missing: "No page here yet",
+};
+
+const MODE_LABEL: Record<Mode, string> = {
+  preview: "Viewing",
+  edit: "Editing",
+  source: "Markdown source",
 };
 
 export function DocumentChrome({
@@ -36,12 +42,12 @@ export function DocumentChrome({
   pageId: string | null;
   state: PageState;
   words: number;
-  mode: string;
+  mode: Mode;
   onOpenFiles: () => void;
   go: (href: string) => void;
   children: ReactNode;
 }) {
-  const editing = mode === "split";
+  const editing = mode !== "preview";
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const slug = path.replace(/\.md$/i, "").split("/");
 
@@ -65,6 +71,9 @@ export function DocumentChrome({
       "divider",
       { label: "Save a version", hint: "⌘S", run: () => saveVersion(id) },
       { label: "Version history", run: () => emit("markdown-kb-history", id) },
+      mode === "source"
+        ? { label: "Edit as blocks", hint: "⌘/", run: () => setMode("edit") }
+        : { label: "View Markdown source", hint: "⌘/", run: () => setMode("source") },
       { label: "Download Markdown", run: () => downloadPage(id) },
       ...(state === "edited" ? [{ label: "Revert to repository copy", run: () => revert(id) }] : []),
       "divider",
@@ -91,7 +100,7 @@ export function DocumentChrome({
               className={editing ? "edit-toggle is-on" : "edit-toggle"}
               aria-pressed={editing}
               aria-label={editing ? "Turn editing off" : "Turn editing on"}
-              onClick={() => setMode(editing ? "preview" : "split")}
+              onClick={() => setMode(editing ? "preview" : "edit")}
             >
               {editing ? "Editing" : "Edit"}
             </button>
@@ -123,7 +132,7 @@ export function DocumentChrome({
         <span>{STATUS[state]}</span>
         <span className="status-gap" />
         {pageId ? <span>{words} words</span> : null}
-        {pageId ? <span>{editing ? "Editing" : "Viewing"}</span> : null}
+        {pageId ? <span>{MODE_LABEL[mode]}</span> : null}
       </footer>
       {menu && pageId ? <PopoverMenu x={menu.x} y={menu.y} label="Page actions" items={items(pageId)} onClose={() => setMenu(null)} /> : null}
     </>

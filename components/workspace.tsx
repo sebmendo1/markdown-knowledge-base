@@ -41,7 +41,7 @@ export function Workspace({ docs: repoDocs, currentPath }: { docs: Doc[]; curren
 
   useEffect(() => {
     const edit = new URLSearchParams(window.location.search).get("edit");
-    if (edit === "1") setMode("split");
+    if (edit === "1") setMode("edit");
     if (edit === "0") setMode("preview");
     if (edit === "1" || edit === "0") {
       const url = new URL(window.location.href);

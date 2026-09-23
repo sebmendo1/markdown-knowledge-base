@@ -141,13 +141,11 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .stage { flex: 1; min-height: 0; display: grid; background: var(--bg); }
 .stage.preview { grid-template-columns: minmax(0, 1fr) 220px; }
 .stage.preview.outline-hidden { grid-template-columns: minmax(0, 1fr); }
-.stage.split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .source-pane, .preview-pane, .outline { min-width: 0; min-height: 0; }
 .source-pane { display: flex; flex-direction: column; background: var(--bg-source); }
 .source-pane .editor, .source-pane .cm-theme, .source-pane .cm-editor { height: 100%; }
 .preview-pane, .outline { overflow: auto; }
 .md-column { max-width: 760px; margin: 0 auto; padding: 36px 32px 96px; }
-.stage.split .md-column { padding-top: 28px; }
 
 .outline { background: var(--bg-outline); padding: 18px 10px 40px; }
 .outline h2, .outline-empty {
@@ -381,9 +379,6 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 }
 .missing a { color: #9db7ff; }
 
-@media (max-width: 1100px) {
-  .stage.split { grid-template-columns: minmax(0, 1fr); }
-}
 @media (max-width: 860px) {
   .shell { display: block; }
   .sidebar {

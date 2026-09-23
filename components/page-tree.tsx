@@ -53,7 +53,7 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
     if (!edit || !text) return;
     if (edit.kind !== "rename") {
       if (edit.kind === "new-folder") return void newFolder(edit.folder, text);
-      setMode("split");
+      setMode("edit");
       onGo(hrefOf(newPage(edit.folder, text)));
     } else if (edit.target.kind === "page") {
       renamePageTo(edit.target.id, text);

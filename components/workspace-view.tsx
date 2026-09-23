@@ -48,7 +48,7 @@ export function WorkspaceView(props: {
   jump: (id: string) => void;
 }) {
   const missing = props.state === "missing";
-  const showOutline = props.outlineOpen && props.mode !== "split" && !missing;
+  const showOutline = props.outlineOpen && props.mode !== "source" && !missing;
   const expanded = useSidebarExpanded();
   const shell = ["shell", expanded ? "" : "is-collapsed", showOutline ? "has-outline" : ""].filter(Boolean).join(" ");
   function showSidebar() {
