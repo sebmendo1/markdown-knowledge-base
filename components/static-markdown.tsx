@@ -10,12 +10,14 @@ import { markdownComponents, markdownPlugins, Properties, type CodeProps, type E
 export function StaticMarkdown({
   source,
   docs,
+  project,
   path,
   depth = 0,
   trail = [],
 }: {
   source: string;
   docs: MarkdownDoc[];
+  project: string;
   path?: string;
   depth?: number;
   trail?: string[];
@@ -26,7 +28,10 @@ export function StaticMarkdown({
     <div className={depth > 0 ? "md md-embed" : "md"}>
       {parsed.error ? <p className="block-error">{parsed.error}</p> : null}
       {depth === 0 ? <Properties data={parsed.data} /> : null}
-      <Markdown {...markdownPlugins(docs)} components={markdownComponents({ docs, depth, trail: chain, Code: HighlightedCode, Embed: StaticEmbed })}>
+      <Markdown
+        {...markdownPlugins(docs, project)}
+        components={markdownComponents({ docs, project, depth, trail: chain, Code: HighlightedCode, Embed: StaticEmbed })}
+      >
         {parsed.body}
       </Markdown>
     </div>
@@ -37,17 +42,17 @@ async function HighlightedCode({ code, lang }: CodeProps) {
   return <CodeBlock code={code} lang={lang} html={await highlight(code, lang)} />;
 }
 
-function StaticEmbed({ path, heading, docs, depth, trail }: EmbedProps) {
+function StaticEmbed({ path, heading, docs, depth, trail, project }: EmbedProps) {
   const doc = docs.find((entry) => entry.path === path);
   if (!doc) return <p className="wiki-broken">Missing page: {path}</p>;
   const source = heading ? extractSection(doc.content, heading) : doc.content;
   return (
     <aside className="embed">
-      <Link className="embed-source" href={hrefFor(doc.path, heading || undefined)}>
+      <Link className="embed-source" href={hrefFor(project, doc.path, heading || undefined)}>
         {doc.title}
         {heading ? ` / ${heading}` : ""}
       </Link>
-      <StaticMarkdown source={source} docs={docs} path={doc.path} depth={depth} trail={trail} />
+      <StaticMarkdown source={source} docs={docs} project={project} path={doc.path} depth={depth} trail={trail} />
     </aside>
   );
 }

@@ -6,7 +6,7 @@ export default function NotFound() {
       <div>
         <h1>This page is not in the knowledge base.</h1>
         <p>
-          <Link href="/docs/writing">Back to writing</Link>
+          <Link href="/">Back to all projects</Link>
         </p>
       </div>
     </main>

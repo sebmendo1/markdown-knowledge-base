@@ -8,6 +8,7 @@ import { hrefFor } from "@/lib/markdown/links";
 import { extractSection } from "@/lib/markdown/outline";
 import { CodeBlock } from "./blocks";
 import { markdownComponents, markdownPlugins, Properties, type EmbedProps, type MarkdownDoc } from "./markdown-parts";
+import { useProject } from "./project-context";
 
 type MarkdownViewProps = {
   source: string;
@@ -19,9 +20,10 @@ type MarkdownViewProps = {
 
 export function MarkdownView({ source, docs, path, depth = 0, trail = [] }: MarkdownViewProps) {
   const parsed = useMemo(() => splitFrontmatter(source), [source]);
-  const plugins = useMemo(() => markdownPlugins(docs), [docs]);
+  const project = useProject();
+  const plugins = useMemo(() => markdownPlugins(docs, project), [docs, project]);
   const chain = useMemo(() => (path ? [...trail, path] : trail), [path, trail]);
-  const components = useMemo(() => markdownComponents({ docs, depth, trail: chain, Code: CodeBlock, Embed }), [docs, depth, chain]);
+  const components = useMemo(() => markdownComponents({ docs, project, depth, trail: chain, Code: CodeBlock, Embed }), [docs, project, depth, chain]);
 
   return (
     <div className={depth > 0 ? "md md-embed" : "md"}>
@@ -34,13 +36,13 @@ export function MarkdownView({ source, docs, path, depth = 0, trail = [] }: Mark
   );
 }
 
-function Embed({ path, heading, docs, depth, trail }: EmbedProps) {
+function Embed({ path, heading, docs, project, depth, trail }: EmbedProps) {
   const doc = docs.find((entry) => entry.path === path);
   if (!doc) return <p className="wiki-broken">Missing page: {path}</p>;
   const source = heading ? extractSection(doc.content, heading) : doc.content;
   return (
     <aside className="embed">
-      <Link className="embed-source" href={hrefFor(doc.path, heading || undefined)}>
+      <Link className="embed-source" href={hrefFor(project, doc.path, heading || undefined)}>
         {doc.title}
         {heading ? ` / ${heading}` : ""}
       </Link>
