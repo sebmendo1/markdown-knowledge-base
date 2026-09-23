@@ -8,6 +8,7 @@ import { CALLOUT_KINDS, wikiSource } from "@/lib/editor/json";
 import { hrefFor, resolveDoc } from "@/lib/markdown/links";
 import { ChartBlock, CodeBlock, CsvTable, MermaidBlock } from "../blocks";
 import { MarkdownView } from "../markdown-view";
+import { useProject } from "../project-context";
 import { takeFreshBlock } from "./commands";
 
 export const EditorDocs = createContext<{ docs: Doc[]; go: (href: string) => void }>({ docs: [], go: () => {} });
@@ -267,6 +268,7 @@ export function InlineMathView(props: NodeViewProps) {
 
 export function WikiLinkView(props: NodeViewProps) {
   const { docs, go } = useContext(EditorDocs);
+  const project = useProject();
   const target = String(props.node.attrs.target ?? "");
   const heading = props.node.attrs.heading ? String(props.node.attrs.heading) : undefined;
   const doc = resolveDoc(docs, target);
@@ -277,7 +279,7 @@ export function WikiLinkView(props: NodeViewProps) {
       className={[doc ? "wiki-chip" : "wiki-chip wiki-broken", props.selected ? "is-selected" : ""].join(" ")}
       title={doc ? `Open ${doc.title}` : `No page named ${target}`}
       onClick={() => {
-        if (doc) go(hrefFor(doc.path, heading));
+        if (doc) go(hrefFor(project, doc.path, heading));
       }}
     >
       <span className="wiki-chip-icon" aria-hidden>
