@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-export type Mode = "preview" | "split";
+export type Mode = "preview" | "edit" | "source";
 
 const DRAFT_EVENT = "markdown-kb-draft";
 
@@ -25,7 +25,9 @@ export function useMode(): Mode {
 }
 
 function readMode(): Mode {
-  return window.localStorage.getItem("markdown-kb:mode") === "split" ? "split" : "preview";
+  const stored = window.localStorage.getItem("markdown-kb:mode");
+  if (stored === "source") return "source";
+  return stored === "edit" || stored === "split" ? "edit" : "preview";
 }
 
 export function setMode(mode: Mode) {

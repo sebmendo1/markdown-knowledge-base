@@ -11,6 +11,7 @@ import "./settings.css";
 import "./columns.css";
 import "./share.css";
 import "./tree.css";
+import "./block-editor.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

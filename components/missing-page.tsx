@@ -10,7 +10,7 @@ export function MissingPage({ path, first, go }: { path: string; first?: PageDoc
   const title = humanize(nameOf(path));
   function create() {
     const made = newPageAt(path);
-    setMode("split");
+    setMode("edit");
     if (made && made !== path) go(hrefOf(made));
   }
   return (

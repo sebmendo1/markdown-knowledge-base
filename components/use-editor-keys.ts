@@ -33,7 +33,7 @@ export function useEditorKeys(options: {
       }
       if (meta && event.key === "/") {
         event.preventDefault();
-        setMode(mode === "preview" ? "split" : "preview");
+        setMode(mode === "source" ? "edit" : "source");
         return;
       }
       if (meta && event.key === "\\") {
@@ -54,7 +54,7 @@ export function useEditorKeys(options: {
       }
       if (plain && event.key.toLowerCase() === "e" && pageId) {
         event.preventDefault();
-        setMode("split");
+        setMode("edit");
         return;
       }
       if (!typing && event.key === "?") {

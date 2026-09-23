@@ -5,10 +5,16 @@ import Link from "next/link";
 import type { RefObject } from "react";
 import { hrefOf } from "@/lib/workspace/paths";
 import type { PageDoc } from "@/lib/workspace/tree";
+import type { Mode } from "./draft-store";
 import { MarkdownView } from "./markdown-view";
 
 const Editor = dynamic(() => import("./editor").then((module) => module.Editor), {
   ssr: false,
+});
+
+const BlockEditor = dynamic(() => import("./block-editor/block-editor").then((module) => module.BlockEditor), {
+  ssr: false,
+  loading: () => <div className="block-editor-loading" aria-busy="true" />,
 });
 
 export function PreviewStage({
@@ -20,7 +26,7 @@ export function PreviewStage({
   onChange,
   go,
 }: {
-  mode: "preview" | "split";
+  mode: Mode;
   value: string;
   docs: PageDoc[];
   linkedFrom: PageDoc[];
@@ -28,16 +34,24 @@ export function PreviewStage({
   onChange: (next: string) => void;
   go: (href: string) => void;
 }) {
-  return (
-    <div className={`stage ${mode}`}>
-      {mode === "split" ? (
+  if (mode === "source") {
+    return (
+      <div className="stage source">
         <div className="source-pane">
           <Editor value={value} onChange={onChange} />
         </div>
-      ) : null}
+      </div>
+    );
+  }
+  return (
+    <div className={`stage ${mode}`}>
       <div className="preview-pane" ref={previewRef}>
         <article className="md-column">
-          <MarkdownView source={value} docs={docs} />
+          {mode === "edit" ? (
+            <BlockEditor value={value} docs={docs} onChange={onChange} go={go} />
+          ) : (
+            <MarkdownView source={value} docs={docs} />
+          )}
           {linkedFrom.length > 0 ? (
             <aside className="backlinks" aria-label="Linked from">
               <h2>Linked from</h2>

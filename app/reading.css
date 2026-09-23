@@ -18,7 +18,6 @@ button, .tree-link, .palette-item { touch-action: manipulation; }
   width: min(100%, calc(66ch + 64px));
   padding: 40px 32px calc(96px + env(safe-area-inset-bottom));
 }
-.stage.split .md-column { padding-top: 24px; }
 .topbar {
   height: calc(44px + env(safe-area-inset-top));
   padding-top: env(safe-area-inset-top);
@@ -42,17 +41,6 @@ button, .tree-link, .palette-item { touch-action: manipulation; }
 }
 @container (max-width: 420px) {
   .md-column { padding-inline: 16px; }
-}
-@container (max-width: 900px) {
-  .stage.split {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(9rem, 34dvh) minmax(0, 1fr);
-  }
-  .stage.split .source-pane { overflow: hidden; }
-  .stage.split .preview-pane { overflow: auto; }
-}
-@container (min-width: 901px) {
-  .stage.split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 
 @media (hover: none) {

@@ -7,9 +7,11 @@ export function ShortcutHelp({ open, onClose }: { open: boolean; onClose: () => 
       <div className="help" role="dialog" aria-label="Shortcuts" onMouseDown={(event) => event.stopPropagation()}>
         <h2>Shortcuts</h2>
         <Shortcut keys="⌘K" label="Search pages" />
-        <Shortcut keys="⌘/" label="Turn editing on or off" />
+        <Shortcut keys="⌘/" label="Switch between blocks and Markdown source" />
         <Shortcut keys={"⌘" + String.fromCharCode(92)} label="Show or hide the outline" />
         <Shortcut keys="E" label="Start editing" />
+        <Shortcut keys="/" label="Insert a block while editing" />
+        <Shortcut keys="[[" label="Link to a page while editing" />
         <Shortcut keys="C" label="Create a page" />
         <Shortcut keys="⌘S" label="Save a version" />
         <Shortcut keys="⌘," label="Open settings" />
