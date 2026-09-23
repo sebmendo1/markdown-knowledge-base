@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
 import { parseDelimited } from "./csv";
 import { splitFrontmatter } from "./frontmatter";
 import { hrefFor, resolveDoc } from "./links";
-import { extractHeadings, extractSection } from "./outline";
+import { extractHeadings, extractSection, titleOf } from "./outline";
+import { quickTitle, scanHeadings } from "./scan";
 
 test("frontmatter separates the map from the body", () => {
   const result = splitFrontmatter("---\ntitle: Hi\n---\n# Hi\n");
@@ -33,6 +36,46 @@ test("wiki refs resolve by file name when the path is unique", () => {
   ];
   assert.equal(resolveDoc(docs, "shortcuts")?.path, "docs/shortcuts.md");
   assert.equal(hrefFor("docs/shortcuts.md", "Keyboard"), "/docs/shortcuts#keyboard");
+});
+
+test("quick titles match the full parser", () => {
+  const samples = [
+    "# Plain title\n\nBody",
+    "---\ntitle: From frontmatter\n---\n# Heading\n",
+    '---\ntype: doc\ntitle: "Quoted: with colon"\n---\n',
+    "---\ntitle: 'It''s here'\n---\n",
+    "---\ntitle: Trailing # comment\n---\n",
+    "```md\n# Hidden\n```\n\n# Shown after a fence\n",
+    "~~~\n# Hidden\n~~~\n\nSetext title\n============\n",
+    "# The **bold** and `code` and [a link](https://x.y) idea\n",
+    "# Keep [[wiki]] text\n",
+    "## Only a second level\n",
+    "#No space is not a heading\n",
+    "# Closing hashes ##\n",
+    "",
+  ];
+  for (const sample of samples) {
+    assert.equal(quickTitle(sample, "Fallback"), titleOf(sample, "Fallback"), JSON.stringify(sample));
+  }
+});
+
+test("quick titles skip math blocks, as the page renders them", () => {
+  assert.equal(quickTitle("$$\n# not a heading\n$$\n\n# After math\n", "Fallback"), "After math");
+});
+
+test("quick titles agree with the full parser on every seeded page", () => {
+  const root = path.join(process.cwd(), "content");
+  const files = fs.readdirSync(root, { recursive: true, encoding: "utf8" }).filter((file) => file.endsWith(".md"));
+  assert.ok(files.length > 0);
+  for (const file of files) {
+    const source = fs.readFileSync(path.join(root, file), "utf8");
+    assert.equal(quickTitle(source, file), titleOf(source, file), file);
+    assert.deepEqual(
+      scanHeadings(source).map((heading) => heading.text),
+      extractHeadings(source).map((heading) => heading.text),
+      file,
+    );
+  }
 });
 
 test("csv keeps quoted commas in one cell", () => {

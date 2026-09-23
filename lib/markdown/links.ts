@@ -5,7 +5,7 @@ export type DocRef = {
   title: string;
 };
 
-export function resolveDoc(docs: DocRef[], ref: string): DocRef | undefined {
+export function resolveDoc<T extends DocRef>(docs: T[], ref: string): T | undefined {
   const normalized = ref.trim().replace(/\.md$/i, "").replace(/^\/+/, "");
   const exact = docs.find((doc) => doc.path.replace(/\.md$/i, "") === normalized);
   if (exact) return exact;

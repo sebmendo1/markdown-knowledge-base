@@ -1,4 +1,4 @@
-import { titleOf } from "../markdown/outline";
+import { quickTitle } from "../markdown/scan";
 import { allFolders, pagePath, type Page, type Workspace } from "./model";
 import { folderOf, join, nameOf, slugify, uniquePath, within } from "./paths";
 import { relinker } from "./relink";
@@ -62,7 +62,7 @@ export function moveFolder(ws: Workspace, folder: string, parent: string, now: n
 export function duplicatePage(ws: Workspace, id: string, newId: string, now: number) {
   const page = ws.pages.find((entry) => entry.id === id);
   if (!page) return { ws, page: undefined };
-  const title = `${titleOf(page.content, nameOf(page.path))} copy`;
+  const title = `${quickTitle(page.content, nameOf(page.path))} copy`;
   const copy: Page = {
     id: newId,
     path: pagePath(ws, folderOf(page.path), title),

@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { titleOf } from "../markdown/outline";
-import { allFolders, createFolder, createPage, purgePage, reconcile, restorePage, seed, trashFolder, trashPage } from "./model";
+import { allFolders, createFolder, createPage, purgePage, reconcile, restorePage, seed, trashFolder, trashPage, updateContent } from "./model";
 import { duplicatePage, moveFolder, movePage, renameFolder, renamePage } from "./moves";
 import { slugify } from "./paths";
 import { setTitle } from "./title";
-import { backlinks, buildTree, importFiles, toDoc } from "./tree";
+import { backlinks, buildTree, importFiles, rendersAsRepo, toDoc } from "./tree";
 import { crc32, zip } from "./zip";
 
 const repo = [
@@ -86,6 +86,30 @@ test("create, duplicate, import, tree, and backlinks", () => {
   const tree = buildTree(ws, docs);
   assert.equal(tree[0].kind, "folder");
   assert.deepEqual(backlinks(docs, "docs/layout.md").map((doc) => doc.path), ["docs/writing.md"]);
+});
+
+test("a page renders as the repository copy until it or what it shows changes", () => {
+  const repoDocs = seed(repo).pages.map(toDoc);
+  assert.ok(rendersAsRepo("docs/writing.md", repoDocs, repoDocs));
+
+  const edited = updateContent(seed(repo), "repo:docs/layout.md", "---\ntitle: Page layout\n---\n", 1);
+  assert.equal(rendersAsRepo("docs/writing.md", edited.pages.map(toDoc), repoDocs), false);
+  assert.ok(rendersAsRepo("docs/shortcuts.md", edited.pages.map(toDoc), repoDocs));
+
+  const bodyOnly = updateContent(seed(repo), "repo:docs/layout.md", "---\ntitle: Layout\n---\n\nNew body.\n", 1);
+  assert.ok(rendersAsRepo("docs/writing.md", bodyOnly.pages.map(toDoc), repoDocs));
+
+  const embedRepo = [...repo, { path: "docs/embed.md", content: "![[layout]]\n" }];
+  const embedDocs = seed(embedRepo).pages.map(toDoc);
+  const embedEdited = updateContent(seed(embedRepo), "repo:docs/layout.md", "---\ntitle: Layout\n---\n\nNew body.\n", 1);
+  assert.ok(rendersAsRepo("docs/embed.md", embedDocs, embedDocs));
+  assert.equal(rendersAsRepo("docs/embed.md", embedEdited.pages.map(toDoc), embedDocs), false);
+
+  const trashed = trashPage(seed(repo), "repo:docs/shortcuts.md", 1);
+  assert.equal(rendersAsRepo("docs/writing.md", trashed.pages.map(toDoc), repoDocs), false);
+  const created = createPage(seed(repo), "", "Missing", "p1", 1).ws;
+  assert.ok(rendersAsRepo("docs/writing.md", created.pages.map(toDoc), repoDocs));
+  assert.equal(rendersAsRepo("docs/writing.md", renamePage(seed(repo), "repo:docs/writing.md", "Guide", 1).pages.map(toDoc), repoDocs), false);
 });
 
 test("zip writes a stored archive with correct checksums", () => {

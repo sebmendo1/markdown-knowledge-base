@@ -29,3 +29,7 @@ export function relinker(before: string[], moves: Map<string, string>) {
 export function linksIn(content: string): string[] {
   return Array.from(content.matchAll(WIKI), (match) => match[2].trim());
 }
+
+export function wikiRefs(content: string): { target: string; embed: boolean }[] {
+  return Array.from(content.matchAll(WIKI), (match) => ({ target: match[2].trim(), embed: match[1].startsWith("!") }));
+}

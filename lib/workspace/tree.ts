@@ -1,8 +1,8 @@
 import { resolveDoc } from "../markdown/links";
-import { titleOf } from "../markdown/outline";
+import { quickTitle } from "../markdown/scan";
 import { allFolders, pagePath, type Page, type Workspace } from "./model";
 import { folderOf, humanize, nameOf } from "./paths";
-import { linksIn } from "./relink";
+import { linksIn, wikiRefs } from "./relink";
 
 export type PageDoc = { id: string; path: string; slug: string[]; title: string; content: string };
 
@@ -16,7 +16,7 @@ export function toDoc(page: Page): PageDoc {
     id: page.id,
     path: page.path,
     slug: bare.split("/"),
-    title: titleOf(page.content, nameOf(page.path).replace(/-/g, " ")),
+    title: quickTitle(page.content, nameOf(page.path).replace(/-/g, " ")),
     content: page.content,
   };
 }
@@ -34,6 +34,29 @@ export function buildTree(ws: Workspace, docs: PageDoc[]): TreeNode[] {
     children.sort((a, b) => (a.kind === b.kind ? label(a).localeCompare(label(b)) : a.kind === "folder" ? -1 : 1));
   }
   return folders.get("")!;
+}
+
+type Source = { path: string; title: string; content: string };
+
+export function rendersAsRepo(path: string, local: Source[], repo: Source[]): boolean {
+  const seen = new Set<string>();
+  const localByPath = new Map(local.map((doc) => [doc.path, doc]));
+  const repoByPath = new Map(repo.map((doc) => [doc.path, doc]));
+  const visit = (at: string): boolean => {
+    if (seen.has(at)) return true;
+    seen.add(at);
+    const mine = localByPath.get(at);
+    const theirs = repoByPath.get(at);
+    if (!mine || !theirs || mine.content !== theirs.content) return false;
+    return wikiRefs(mine.content).every(({ target, embed }) => {
+      const a = resolveDoc(local, target);
+      const b = resolveDoc(repo, target);
+      if (!a || !b) return !a && !b;
+      if (a.path !== b.path) return false;
+      return embed ? visit(a.path) : a.title === b.title;
+    });
+  };
+  return visit(path);
 }
 
 export function backlinks(docs: PageDoc[], path: string): PageDoc[] {

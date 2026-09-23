@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { titleOf } from "./markdown/outline";
+import { quickTitle } from "./markdown/scan";
 
 export type Doc = {
   path: string;
@@ -32,7 +32,7 @@ function walk(directory: string, prefix: string[]): Doc[] {
     docs.push({
       path: `${slug.join("/")}.md`,
       slug,
-      title: titleOf(content, fallback),
+      title: quickTitle(content, fallback),
       content,
     });
   }
