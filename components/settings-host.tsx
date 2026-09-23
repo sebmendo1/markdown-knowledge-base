@@ -74,7 +74,7 @@ function General() {
       <div className="settings-row">
         <div>
           <div className="settings-label">Pages</div>
-          <p>Pages you create or edit live in this browser. Export the workspace from the Pages menu to keep a copy or move it to another device.</p>
+          <p>Pages you create or edit live in this browser, one project at a time. Export a project from the Pages menu to keep a copy or move it to another device.</p>
         </div>
       </div>
     </section>

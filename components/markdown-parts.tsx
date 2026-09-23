@@ -17,23 +17,25 @@ export const MAX_EMBED_DEPTH = 3;
 
 export type MarkdownDoc = DocRef & { content: string };
 export type CodeProps = { code: string; lang: string };
-export type EmbedProps = { path: string; heading: string; docs: MarkdownDoc[]; depth: number; trail: string[] };
+export type EmbedProps = { path: string; heading: string; docs: MarkdownDoc[]; project: string; depth: number; trail: string[] };
 
-export function markdownPlugins(docs: DocRef[]): Pick<Options, "remarkPlugins" | "rehypePlugins"> {
+export function markdownPlugins(docs: DocRef[], project: string): Pick<Options, "remarkPlugins" | "rehypePlugins"> {
   return {
-    remarkPlugins: [remarkGfm, remarkMath, remarkAlerts, remarkWiki(docs), remarkHighlight],
+    remarkPlugins: [remarkGfm, remarkMath, remarkAlerts, remarkWiki(docs, project), remarkHighlight],
     rehypePlugins: [rehypeKatex, rehypeRaw, [rehypeSanitize, sanitizeSchema], rehypeSinglePrefix, rehypeSlug],
   };
 }
 
 export function markdownComponents({
   docs,
+  project,
   depth,
   trail,
   Code,
   Embed,
 }: {
   docs: MarkdownDoc[];
+  project: string;
   depth: number;
   trail: string[];
   Code: ComponentType<CodeProps>;
@@ -79,7 +81,7 @@ export function markdownComponents({
       if (depth >= MAX_EMBED_DEPTH || trail.includes(embedPath)) {
         return <p className="wiki-broken">Embed stops here: {embedPath} is already shown above.</p>;
       }
-      return <Embed path={embedPath} heading={stringProp(node?.properties?.dataHeading) ?? ""} docs={docs} depth={depth + 1} trail={trail} />;
+      return <Embed path={embedPath} heading={stringProp(node?.properties?.dataHeading) ?? ""} docs={docs} project={project} depth={depth + 1} trail={trail} />;
     },
   };
 }

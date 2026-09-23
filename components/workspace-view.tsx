@@ -4,12 +4,13 @@ import type { ReactNode, RefObject } from "react";
 import type { Heading } from "@/lib/markdown/outline";
 import type { Workspace } from "@/lib/workspace/model";
 import { hrefOf } from "@/lib/workspace/paths";
+import type { ProjectEntry } from "@/lib/workspace/projects";
 import type { PageDoc } from "@/lib/workspace/tree";
 import { setSidebarExpanded, useSidebarExpanded, type Mode } from "./draft-store";
 import { DocumentChrome } from "./document-chrome";
 import { FileSidebar } from "./file-sidebar";
 import { HistoryDialog } from "./history-dialog";
-import { MissingPage } from "./missing-page";
+import { EmptyProject, MissingPage, UnknownProject } from "./missing-page";
 import { MoveDialog } from "./move-dialog";
 import { OutlinePanel } from "./outline-panel";
 import { PageSearch } from "./page-search";
@@ -22,6 +23,9 @@ import { TrashDialog } from "./trash-dialog";
 export type PageState = "repo" | "edited" | "created" | "missing";
 
 export function WorkspaceView(props: {
+  project?: ProjectEntry;
+  projects: ProjectEntry[];
+  projectKnown: boolean;
   ws: Workspace;
   docs: PageDoc[];
   hydrated: boolean;
@@ -60,9 +64,14 @@ export function WorkspaceView(props: {
     setSidebarExpanded(false);
     props.setSidebarOpen(false);
   }
+  if (!props.projectKnown) return <UnknownProject />;
   const body = missing ? (
-    props.hydrated ? (
+    !props.hydrated ? (
+      <div className="stage preview" />
+    ) : props.currentPath ? (
       <MissingPage path={props.currentPath} first={props.docs[0]} go={props.go} />
+    ) : props.docs.length === 0 ? (
+      <EmptyProject name={props.project?.name ?? "This project"} go={props.go} />
     ) : (
       <div className="stage preview" />
     )
@@ -82,6 +91,8 @@ export function WorkspaceView(props: {
   return (
     <div className={shell}>
       <FileSidebar
+        project={props.project}
+        projects={props.projects}
         ws={props.ws}
         docs={props.docs}
         currentPath={props.currentPath}
@@ -110,7 +121,7 @@ export function WorkspaceView(props: {
         docs={props.docs}
         open={props.paletteOpen}
         onClose={() => props.setPaletteOpen(false)}
-        onOpen={(path) => props.go(hrefOf(path))}
+        onOpen={(path) => props.go(hrefOf(props.project?.slug ?? "", path))}
       />
       <ShortcutHelp open={props.helpOpen} onClose={() => props.setHelpOpen(false)} />
       <MoveDialog ws={props.ws} />
