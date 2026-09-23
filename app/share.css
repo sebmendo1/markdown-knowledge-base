@@ -1,0 +1,70 @@
+.edit-toggle,
+.share-button {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  flex: none;
+}
+.edit-toggle {
+  background: transparent;
+  color: var(--text-dim);
+}
+.edit-toggle:hover,
+.edit-toggle.is-on {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.share-button {
+  background: var(--accent);
+  color: #fff;
+}
+.share-button:hover { filter: brightness(1.08); }
+.share-overlay { z-index: 60; align-items: center; padding-top: 0; }
+.share-dialog {
+  width: min(480px, calc(100vw - 32px));
+  background: var(--bg-raised);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.share-top {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px 0 20px;
+  background: var(--bg);
+}
+.share-top h2 {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+}
+.share-body { padding: 8px 20px 20px; }
+.share-body p { margin: 6px 0 0; color: var(--text-faint); }
+.share-link {
+  width: 100%;
+  margin-top: 16px;
+  height: 36px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--bg-sunken);
+  color: var(--text);
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.share-body .theme-switch { margin-top: 12px; }
+.share-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+@media (pointer: coarse) {
+  .edit-toggle, .share-button { height: 44px; }
+}
+@media (max-width: 640px) {
+  .share-dialog { width: calc(100vw - 16px); }
+}

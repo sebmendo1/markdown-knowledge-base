@@ -1,0 +1,73 @@
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body { overflow-x: clip; }
+.shell, .main { overflow: hidden; }
+.main { container-type: inline-size; }
+button, .tree-link, .palette-item { touch-action: manipulation; }
+
+.md-column { font-size: 17px; }
+.md {
+  font-size: inherit;
+  line-height: 1.7;
+  overflow-wrap: break-word;
+}
+.md h1 { font-size: clamp(1.6rem, 1.15rem + 1.5vw, 1.875rem); }
+.md h2 { font-size: clamp(1.15rem, 1rem + 0.5vw, 1.25rem); }
+.md h3 { font-size: 1.05rem; }
+.preview-pane { container-type: inline-size; }
+.md-column {
+  width: min(100%, calc(66ch + 64px));
+  padding: 40px 32px calc(96px + env(safe-area-inset-bottom));
+}
+.stage.split .md-column { padding-top: 24px; }
+.topbar {
+  height: calc(44px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+}
+.status {
+  height: calc(28px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.palette input { font-size: 16px; }
+.katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+.table-scroll, .code-block pre, .mermaid-block, .chart-block { max-width: 100%; }
+.code-block pre, .code-block .shiki { font-size: 13.5px; }
+.chart-host { min-height: clamp(180px, 42vw, 280px); }
+
+@container (max-width: 640px) {
+  .md-column {
+    width: 100%;
+    padding: 28px 20px calc(72px + env(safe-area-inset-bottom));
+  }
+  .source-pane .cm-content { font-size: 15px; }
+}
+@container (max-width: 420px) {
+  .md-column { padding-inline: 16px; }
+}
+@container (max-width: 900px) {
+  .stage.split {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(9rem, 34dvh) minmax(0, 1fr);
+  }
+  .stage.split .source-pane { overflow: hidden; }
+  .stage.split .preview-pane { overflow: auto; }
+}
+@container (min-width: 901px) {
+  .stage.split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+@media (hover: none) {
+  .copy-button { opacity: 1; }
+}
+@media (pointer: coarse) {
+  .icon-button { width: 44px; height: 44px; }
+  .search-button, .text-button { height: 44px; }
+  .tree-link { padding-top: 11px; padding-bottom: 11px; }
+  .outline button { padding-top: 8px; padding-bottom: 8px; }
+}
+@media (max-width: 860px) {
+  .shell { display: flex; flex-direction: column; }
+  .main { flex: 1; min-height: 0; }
+}
+@media (max-width: 420px) {
+  .status { gap: 8px; padding-inline: 12px; }
+}
