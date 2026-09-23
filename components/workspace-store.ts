@@ -2,14 +2,17 @@
 
 import { useSyncExternalStore } from "react";
 import { reconcile, seed, type Page, type RepoDoc, type Workspace } from "@/lib/workspace/model";
+import { LEGACY_PROJECT, repoIdPrefix } from "@/lib/workspace/projects";
 import { toDoc, type PageDoc } from "@/lib/workspace/tree";
 import { notify } from "./toast-host";
 
-const KEY = "markdown-kb:workspace";
+const LEGACY_KEY = "markdown-kb:workspace";
 const EVENT = "markdown-kb-workspace";
 
-let repo: RepoDoc[] = [];
-let cache: { raw: string | null; repo: RepoDoc[]; ws: Workspace } | null = null;
+const keyOf = (project: string) => `${LEGACY_KEY}:${project}`;
+
+let current: { project: string; repo: RepoDoc[] } = { project: LEGACY_PROJECT, repo: [] };
+const caches = new Map<string, { raw: string | null; repo: RepoDoc[]; ws: Workspace }>();
 const serverSeeds = new WeakMap<RepoDoc[], Workspace>();
 const docCache = new WeakMap<Page, PageDoc>();
 
@@ -26,52 +29,95 @@ export function changed() {
   window.dispatchEvent(new Event(EVENT));
 }
 
-function legacyDraft(path: string) {
-  return window.localStorage.getItem(`markdown-kb:${path}`);
+export function currentProject() {
+  return current.project;
 }
 
-export function readWorkspace(docs: RepoDoc[] = repo): Workspace {
-  repo = docs;
-  const raw = window.localStorage.getItem(KEY);
-  if (cache && cache.raw === raw && cache.repo === repo) return cache.ws;
+function rawOf(project: string) {
+  const raw = window.localStorage.getItem(keyOf(project));
+  return raw === null && project === LEGACY_PROJECT ? window.localStorage.getItem(LEGACY_KEY) : raw;
+}
+
+export function storedWorkspace(project: string): Workspace | null {
+  try {
+    const parsed = JSON.parse(rawOf(project) ?? "null") as Workspace | null;
+    return parsed?.version === 1 ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function legacyDraft(project: string) {
+  return (path: string) => (project === LEGACY_PROJECT ? window.localStorage.getItem(`markdown-kb:${path}`) : null);
+}
+
+export function readProject(project: string, repo: RepoDoc[]): Workspace {
+  const raw = rawOf(project);
+  const hit = caches.get(project);
+  if (hit && hit.raw === raw && hit.repo === repo) return hit.ws;
+  const prefix = repoIdPrefix(project);
   let ws: Workspace;
   try {
     const parsed = raw ? (JSON.parse(raw) as Workspace) : null;
-    ws = parsed?.version === 1 ? reconcile(parsed, repo) : seed(repo, legacyDraft);
+    ws = parsed?.version === 1 ? reconcile(parsed, repo, prefix) : seed(repo, legacyDraft(project), prefix);
   } catch {
-    ws = seed(repo, legacyDraft);
+    ws = seed(repo, legacyDraft(project), prefix);
   }
-  cache = { raw, repo, ws };
+  caches.set(project, { raw, repo, ws });
   return ws;
 }
 
-function serverSeed(docs: RepoDoc[]) {
+export function readWorkspace(): Workspace {
+  return readProject(current.project, current.repo);
+}
+
+function serverSeed(project: string, docs: RepoDoc[]) {
   let ws = serverSeeds.get(docs);
   if (!ws) {
-    ws = seed(docs);
+    ws = seed(docs, undefined, repoIdPrefix(project));
     serverSeeds.set(docs, ws);
   }
   return ws;
 }
 
-export function useWorkspace(docs: RepoDoc[]): Workspace {
-  return useSyncExternalStore(subscribe, () => readWorkspace(docs), () => serverSeed(docs));
+export function useWorkspace(project: string, docs: RepoDoc[]): Workspace {
+  return useSyncExternalStore(
+    subscribe,
+    () => {
+      if (current.project !== project || current.repo !== docs) current = { project, repo: docs };
+      return readProject(project, docs);
+    },
+    () => serverSeed(project, docs),
+  );
+}
+
+export function writeProject(project: string, ws: Workspace): boolean {
+  const raw = JSON.stringify(ws);
+  try {
+    window.localStorage.setItem(keyOf(project), raw);
+  } catch {
+    notify("This browser is out of room for pages. Export a project, then empty its Trash.");
+    return false;
+  }
+  caches.set(project, { raw, repo: project === current.project ? current.repo : [], ws });
+  changed();
+  return true;
 }
 
 export function commit(update: (ws: Workspace) => Workspace): Workspace {
   const before = readWorkspace();
   const next = update(before);
   if (next === before) return before;
-  const raw = JSON.stringify(next);
-  try {
-    window.localStorage.setItem(KEY, raw);
-  } catch {
-    notify("This browser is out of room for pages. Export the workspace, then empty the Trash.");
-    return before;
-  }
-  cache = { raw, repo, ws: next };
+  return writeProject(current.project, next) ? next : before;
+}
+
+export function forgetProject(project: string) {
+  const ws = storedWorkspace(project);
+  for (const page of [...(ws?.pages ?? []), ...(ws?.trash ?? [])]) window.localStorage.removeItem(`markdown-kb:history:${page.id}`);
+  window.localStorage.removeItem(keyOf(project));
+  window.localStorage.removeItem(collapsedKey(project));
+  caches.delete(project);
   changed();
-  return next;
 }
 
 export function docOf(page: Page): PageDoc {
@@ -94,20 +140,22 @@ export function useHydrated() {
   return useSyncExternalStore(noop, () => true, () => false);
 }
 
-const COLLAPSED = "markdown-kb:collapsed";
-let collapsedCache: { raw: string | null; set: Set<string> } = { raw: null, set: new Set() };
+const collapsedKey = (project: string) => (project === LEGACY_PROJECT ? "markdown-kb:collapsed" : `markdown-kb:collapsed:${project}`);
+const collapsedCaches = new Map<string, { raw: string | null; set: Set<string> }>();
 const EMPTY = new Set<string>();
 
 function readCollapsed() {
-  const raw = window.localStorage.getItem(COLLAPSED);
-  if (raw !== collapsedCache.raw) {
-    let list: string[] = [];
-    try {
-      list = raw ? (JSON.parse(raw) as string[]) : [];
-    } catch {}
-    collapsedCache = { raw, set: new Set(list) };
-  }
-  return collapsedCache.set;
+  const project = current.project;
+  const raw = window.localStorage.getItem(collapsedKey(project));
+  const hit = collapsedCaches.get(project);
+  if (hit && hit.raw === raw) return hit.set;
+  let list: string[] = [];
+  try {
+    list = raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {}
+  const set = new Set(list);
+  collapsedCaches.set(project, { raw, set });
+  return set;
 }
 
 export function useCollapsed() {
@@ -119,6 +167,6 @@ export function setCollapsed(folder: string, collapsed: boolean) {
   if (set.has(folder) === collapsed) return;
   if (collapsed) set.add(folder);
   else set.delete(folder);
-  window.localStorage.setItem(COLLAPSED, JSON.stringify([...set]));
+  window.localStorage.setItem(collapsedKey(current.project), JSON.stringify([...set]));
   changed();
 }

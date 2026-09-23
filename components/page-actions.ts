@@ -7,7 +7,7 @@ import { importFiles } from "@/lib/workspace/tree";
 import { zip } from "@/lib/workspace/zip";
 import { forgetHistory, readHistory, restoreVersion, snapshot } from "./history-store";
 import { notify } from "./toast-host";
-import { commit, docOf, makeId, readWorkspace } from "./workspace-store";
+import { commit, currentProject, docOf, makeId, readProject, readWorkspace } from "./workspace-store";
 
 const now = () => Date.now();
 const find = (id: string) => readWorkspace().pages.find((page) => page.id === id);
@@ -123,9 +123,10 @@ export function downloadPage(id: string) {
   if (page) download(`${nameOf(page.path)}.md`, new Blob([page.content], { type: "text/markdown" }));
 }
 
-export function exportWorkspace() {
-  const pages = readWorkspace().pages.map((page) => ({ path: page.path, content: page.content }));
-  download("markdown-kb.zip", new Blob([zip(pages)], { type: "application/zip" }));
+export function exportWorkspace(project = currentProject()) {
+  const ws = project === currentProject() ? readWorkspace() : readProject(project, []);
+  const pages = ws.pages.map((page) => ({ path: page.path, content: page.content }));
+  download(`${project}.zip`, new Blob([zip(pages)], { type: "application/zip" }));
   notify(`Exported ${pages.length} ${pages.length === 1 ? "page" : "pages"}`);
 }
 

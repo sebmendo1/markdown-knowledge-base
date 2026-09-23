@@ -47,7 +47,7 @@ export function remarkHighlight() {
   };
 }
 
-export function remarkWiki(docs: DocRef[]) {
+export function remarkWiki(docs: DocRef[], project: string) {
   return function remarkWikiPlugin() {
     return (tree: Root) => {
       visit(tree, "paragraph", (node) => {
@@ -76,7 +76,7 @@ export function remarkWiki(docs: DocRef[]) {
       visit(tree, "text", (node: Text, index, parent) => {
         if (!parent || index == null || !node.value.includes("[[")) return;
         if (isEmbed(parent)) return;
-        const parts = splitWiki(node.value, docs);
+        const parts = splitWiki(node.value, docs, project);
         if (!parts) return;
         parent.children.splice(index, 1, ...parts);
         return index + parts.length;
@@ -112,7 +112,7 @@ function splitMarks(value: string): PhrasingContent[] | null {
   return parts;
 }
 
-function splitWiki(value: string, docs: DocRef[]): PhrasingContent[] | null {
+function splitWiki(value: string, docs: DocRef[], project: string): PhrasingContent[] | null {
   if (!WIKI.test(value)) return null;
   WIKI.lastIndex = 0;
   const parts: PhrasingContent[] = [];
@@ -136,7 +136,7 @@ function splitWiki(value: string, docs: DocRef[]): PhrasingContent[] | null {
     } else {
       parts.push({
         type: "link",
-        url: hrefFor(doc.path, heading),
+        url: hrefFor(project, doc.path, heading),
         data: { hProperties: { className: ["wiki-link"] } },
         children: [{ type: "text", value: text }],
       });

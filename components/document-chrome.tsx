@@ -9,6 +9,7 @@ import { downloadPage, duplicate, revert, saveVersion, trash } from "./page-acti
 import { PanelIcon } from "./panel-icon";
 import { PopoverMenu, type MenuItem } from "./popover-menu";
 import { preloadBlockEditor } from "./preview-stage";
+import { useProject } from "./project-context";
 import { openSettings } from "./settings-host";
 import { openShare } from "./share-host";
 import { emit } from "./ui-events";
@@ -48,6 +49,7 @@ export function DocumentChrome({
   go: (href: string) => void;
   children: ReactNode;
 }) {
+  const project = useProject();
   const editing = mode !== "preview";
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const slug = path.replace(/\.md$/i, "").split("/");
@@ -65,7 +67,7 @@ export function DocumentChrome({
         label: "Duplicate",
         run: () => {
           const copy = duplicate(id);
-          if (copy) go(hrefOf(copy));
+          if (copy) go(hrefOf(project, copy));
         },
       },
       { label: "Move to…", run: () => emit("markdown-kb-move", { kind: "page", id }) },
@@ -88,11 +90,13 @@ export function DocumentChrome({
         <button type="button" className="icon-button sidebar-reveal" aria-label="Show sidebar" onClick={onOpenFiles}>
           <PanelIcon />
         </button>
-        <p className="crumbs">
-          {slug.slice(0, -1).join(" / ")}
-          {slug.length > 1 ? " / " : ""}
-          <strong>{slug.at(-1)}.md</strong>
-        </p>
+        {path ? (
+          <p className="crumbs">
+            {slug.slice(0, -1).join(" / ")}
+            {slug.length > 1 ? " / " : ""}
+            <strong>{slug.at(-1)}.md</strong>
+          </p>
+        ) : null}
         <div className="topbar-spacer" />
         {pageId ? (
           <>
@@ -107,7 +111,7 @@ export function DocumentChrome({
             >
               {editing ? "Editing" : "Edit"}
             </button>
-            <button type="button" className="share-button" onClick={() => openShare({ title, path, state })}>
+            <button type="button" className="share-button" onClick={() => openShare({ title, path: `${project}/${path}`, state })}>
               Share
             </button>
             <button
