@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { McpSnippets } from "@/lib/mcp/snippets";
 import { mcpSnippets } from "@/lib/mcp/snippets";
-import { GearIcon } from "./gear-icon";
 import { notify } from "./toast-host";
 import { applyTheme, setTheme, useThemeChoice, type ThemeChoice } from "./theme-store";
 
@@ -65,7 +64,6 @@ export function SettingsHost() {
               Appearance
             </button>
             <button type="button" className={section === "mcp" ? "is-active" : undefined} onClick={() => setSection("mcp")}>
-              <GearIcon />
               MCP
             </button>
           </nav>
