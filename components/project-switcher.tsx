@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { hrefOf } from "@/lib/workspace/paths";
-import { sortProjects, type ProjectEntry } from "@/lib/workspace/projects";
+import { projectKindLabel, sortProjects, type ProjectEntry } from "@/lib/workspace/projects";
 import { useFolderPicker } from "./folder-picker";
 import { ProjectDialog } from "./project-dialog";
 import { useRegistry } from "./project-store";
@@ -84,7 +84,7 @@ export function ProjectSwitcher({ project, projects }: { project?: ProjectEntry;
                   <ProjectTile slug={entry.slug} name={entry.name} size="sm" />
                   <span className="switcher-text">
                     <strong>{entry.name}</strong>
-                    <small>{entry.kind === "repo" ? "Repository" : "This browser"}</small>
+                    <small>{projectKindLabel(entry.kind)}</small>
                   </span>
                   {current ? <CheckIcon /> : null}
                 </Link>

@@ -49,6 +49,8 @@ export function WorkspaceView(props: {
   setPaletteOpen: (open: boolean) => void;
   setHelpOpen: (open: boolean) => void;
   onChange: (next: string) => void;
+  diskConflict?: boolean;
+  onLoadDisk?: () => void;
   go: (href: string) => void;
   jump: (id: string) => void;
 }) {
@@ -112,6 +114,16 @@ export function WorkspaceView(props: {
           mode={props.mode}
           onOpenFiles={showSidebar}
           go={props.go}
+          banner={
+            props.diskConflict ? (
+              <div className="disk-banner" role="status">
+                <span>This page changed on disk.</span>
+                <button type="button" onClick={props.onLoadDisk}>
+                  Load disk version
+                </button>
+              </div>
+            ) : null
+          }
         >
           {body}
         </DocumentChrome>
