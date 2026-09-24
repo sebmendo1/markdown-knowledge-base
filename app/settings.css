@@ -55,6 +55,9 @@
   color: var(--text-dim);
   text-align: left;
   padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .settings-nav button.is-active,
 .settings-nav button:hover { background: var(--bg-hover); color: var(--text); }
@@ -85,6 +88,35 @@
   padding: 0 12px;
 }
 .theme-switch button.is-active { background: var(--bg-raised); color: var(--text); }
+.mcp-block { margin-top: 22px; }
+.mcp-block header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mcp-copy {
+  height: 28px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--bg-sunken);
+  color: var(--text);
+  padding: 0 12px;
+  flex: none;
+}
+.mcp-copy:hover { background: var(--bg-hover); }
+.mcp-block pre {
+  margin: 8px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg-sunken);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
 
 @media (max-width: 860px) {
   .settings-launch { display: inline-flex; }
