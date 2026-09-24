@@ -37,6 +37,7 @@ export function DocumentChrome({
   mode,
   onOpenFiles,
   go,
+  banner,
   children,
 }: {
   title: string;
@@ -47,6 +48,7 @@ export function DocumentChrome({
   mode: Mode;
   onOpenFiles: () => void;
   go: (href: string) => void;
+  banner?: ReactNode;
   children: ReactNode;
 }) {
   const project = useProject();
@@ -134,6 +136,7 @@ export function DocumentChrome({
           <GearIcon />
         </button>
       </header>
+      {banner}
       {children}
       <footer className="status">
         <span>{STATUS[state]}</span>

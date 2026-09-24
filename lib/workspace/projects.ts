@@ -1,7 +1,7 @@
 import type { Workspace } from "./model";
 import { folderOf, slugify, uniquePath } from "./paths";
 
-export type ProjectKind = "repo" | "local";
+export type ProjectKind = "repo" | "local" | "disk";
 
 export type ProjectEntry = {
   slug: string;
@@ -11,6 +11,7 @@ export type ProjectEntry = {
 };
 
 export type RepoProjectSummary = ProjectEntry & { kind: "repo"; paths: string[] };
+export type ProjectSummary = ProjectEntry & { paths: string[] };
 
 export type LocalProject = {
   slug: string;
@@ -28,6 +29,14 @@ export type Registry = {
 
 export const LEGACY_PROJECT = "guide";
 export const RESERVED_SLUGS = ["docs", "ledger", "api", "new", "open", "projects", "settings"];
+export const BUILTIN_SLUGS = ["guide", "specs"];
+export const DISK_BLOCKED = [...RESERVED_SLUGS, ...BUILTIN_SLUGS];
+
+export function projectKindLabel(kind: ProjectKind): string {
+  if (kind === "disk") return "On this computer";
+  if (kind === "local") return "This browser";
+  return "Repository";
+}
 
 export const emptyRegistry = (): Registry => ({ version: 1, local: [], opened: {}, last: {} });
 
