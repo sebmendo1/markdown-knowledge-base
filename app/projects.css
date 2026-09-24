@@ -45,10 +45,10 @@
   letter-spacing: -0.01em;
 }
 .project-switch .project-tile {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  font-size: 12px;
 }
 .project-switch-icon { flex: none; color: var(--text-faint); }
 
@@ -257,7 +257,7 @@
 
 @media (pointer: coarse) {
   .project-switch { height: 44px; }
-  .project-switch .project-tile { width: 44px; height: 44px; border-radius: 12px; font-size: 17px; }
+  .project-switch .project-tile { width: 24px; height: 24px; border-radius: 7px; font-size: 12px; }
   .switcher-item { padding: 10px 8px; }
   .switcher-action { height: 44px; }
   .launcher-secondary, .launcher-primary { height: 44px; }
