@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
-const files = ["./content/**/*", "./specs/**/*"];
+const files = ["./content/**/*", "./specs/**/*", "./kb/**/*"];
 
 const nextConfig: NextConfig = {
   agentRules: false,
+  allowedDevOrigins: ["127.0.0.1"],
   outputFileTracingIncludes: {
     "/[project]": files,
     "/[project]/[...slug]": files,
