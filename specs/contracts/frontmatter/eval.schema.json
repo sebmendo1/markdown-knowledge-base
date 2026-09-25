@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "frontmatter/eval.schema.json",
+  "title": "Eval frontmatter",
+  "description": "Seed shape of an eval document. Metric range is inclusive when both ends are present. A range whose first number is greater than the second fails field_kind. maxLength counts Unicode code points.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "title", "version", "status", "metrics"],
+  "properties": {
+    "type": { "const": "eval" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "version": { "type": "integer", "minimum": 1, "maximum": 999999999 },
+    "status": { "enum": ["draft", "active", "retired"] },
+    "baseline": { "type": "string", "pattern": "^\\[\\[[a-z0-9]+(?:-[a-z0-9]+)*@[1-9][0-9]{0,8}(?:#[^\\]\\r\\n]{1,200})?\\]\\]$" },
+    "metrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/metric" }
+    }
+  },
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "unit", "better"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "minLength": 1, "maxLength": 64 },
+        "unit": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "better": { "enum": ["higher", "lower"] },
+        "range": {
+          "type": "array",
+          "prefixItems": [{ "type": "number" }, { "type": "number" }],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    }
+  },
+  "x-ledger": {
+    "folder": "evals",
+    "filename": "{slug}",
+    "sections": ["What it measures", "Dataset", "Scoring method", "How to run"]
+  },
+  "examples": [
+    {
+      "type": "eval",
+      "title": "Summary faithfulness",
+      "version": 2,
+      "status": "active",
+      "baseline": "[[memento-journal@5]]",
+      "metrics": [
+        { "key": "faithfulness", "unit": "score", "range": [0, 1], "better": "higher" },
+        { "key": "latency_ms", "unit": "ms", "better": "lower" }
+      ]
+    }
+  ]
+}

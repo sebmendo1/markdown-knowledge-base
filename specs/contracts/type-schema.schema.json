@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "type-schema.schema.json",
+  "title": "Type schema frontmatter",
+  "description": "Meta-schema for a file at .ledger/types/<name>.md. Satisfying this schema is necessary to load a type. The loader also rejects a file stem that differs from name, a duplicate name, a required_when key that is not another field, a required_when scalar the watched field cannot hold, and a folder named assets. Those failures are schema_invalid. maxLength counts Unicode code points.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "name", "folder", "filename", "fields"],
+  "properties": {
+    "type": { "const": "schema" },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "folder": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 80,
+      "not": { "const": "assets" }
+    },
+    "filename": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^(?:[^{}]|\\{date\\}|\\{slug\\})+$"
+    },
+    "fields": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "additionalProperties": { "$ref": "#/$defs/field" }
+    },
+    "sections": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+    }
+  },
+  "$defs": {
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["string", "number", "date", "enum", "boolean", "list", "link", "links", "metrics"]
+        },
+        "required": { "type": "boolean" },
+        "max": { "type": "integer", "minimum": 1, "maximum": 100000 },
+        "min": { "type": "number" },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 80 }
+        },
+        "required_when": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 1,
+          "additionalProperties": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "number" },
+              { "type": "boolean" }
+            ]
+          }
+        },
+        "to": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "pinned": { "type": "boolean" },
+        "from": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "string" } }, "required": ["kind"] },
+          "then": { "$ref": "#/$defs/banString" }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "number" } }, "required": ["kind"] },
+          "then": { "$ref": "#/$defs/banNumber" }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "date" } }, "required": ["kind"] },
+          "then": { "$ref": "#/$defs/banPlain" }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "enum" } }, "required": ["kind"] },
+          "then": {
+            "type": "object",
+            "required": ["values"],
+            "properties": {
+              "max": false,
+              "min": false,
+              "to": false,
+              "pinned": false,
+              "from": false
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "boolean" } }, "required": ["kind"] },
+          "then": { "$ref": "#/$defs/banPlain" }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "list" } }, "required": ["kind"] },
+          "then": { "$ref": "#/$defs/banPlain" }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "link" } }, "required": ["kind"] },
+          "then": {
+            "type": "object",
+            "required": ["to"],
+            "properties": {
+              "max": false,
+              "min": false,
+              "values": false,
+              "from": false
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "links" } }, "required": ["kind"] },
+          "then": {
+            "type": "object",
+            "required": ["to"],
+            "properties": {
+              "max": false,
+              "min": false,
+              "values": false,
+              "from": false
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "metrics" } }, "required": ["kind"] },
+          "then": {
+            "type": "object",
+            "required": ["from"],
+            "properties": {
+              "max": false,
+              "min": false,
+              "values": false,
+              "to": false,
+              "pinned": false
+            }
+          }
+        }
+      ]
+    },
+    "banString": {
+      "type": "object",
+      "properties": {
+        "min": false,
+        "values": false,
+        "to": false,
+        "pinned": false,
+        "from": false
+      }
+    },
+    "banNumber": {
+      "type": "object",
+      "properties": {
+        "max": false,
+        "values": false,
+        "to": false,
+        "pinned": false,
+        "from": false
+      }
+    },
+    "banPlain": {
+      "type": "object",
+      "properties": {
+        "max": false,
+        "min": false,
+        "values": false,
+        "to": false,
+        "pinned": false,
+        "from": false
+      }
+    }
+  },
+  "examples": [
+    {
+      "type": "schema",
+      "name": "experiment",
+      "folder": "experiments",
+      "filename": "{date}-{slug}",
+      "fields": {
+        "title": { "kind": "string", "required": true, "max": 120 },
+        "date": { "kind": "date", "required": true },
+        "status": {
+          "kind": "enum",
+          "values": ["planned", "running", "concluded", "abandoned"],
+          "required": true
+        },
+        "hypothesis": { "kind": "string", "required": true },
+        "harness": { "kind": "link", "to": "harness", "pinned": true, "required": true },
+        "eval": { "kind": "link", "to": "eval", "pinned": true, "required": true },
+        "environment": { "kind": "string" },
+        "sample_size": { "kind": "number", "min": 1 },
+        "results": { "kind": "metrics", "from": "eval" },
+        "verdict": {
+          "kind": "enum",
+          "values": ["supported", "refuted", "inconclusive"],
+          "required_when": { "status": "concluded" }
+        }
+      },
+      "sections": ["Setup", "Observations", "Surprises", "Next"]
+    }
+  ]
+}

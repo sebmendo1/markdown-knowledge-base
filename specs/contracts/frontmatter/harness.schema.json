@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "frontmatter/harness.schema.json",
+  "title": "Harness frontmatter",
+  "description": "Seed shape of a harness document. Unknown keys are field_unknown warnings in the validator, which maps additionalProperties failures to that warning. Null on an optional key is treated as absent. maxLength counts Unicode code points.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "title", "version", "status", "model"],
+  "properties": {
+    "type": { "const": "harness" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "version": { "type": "integer", "minimum": 1, "maximum": 999999999 },
+    "status": { "enum": ["draft", "active", "retired"] },
+    "model": { "type": "string", "minLength": 1 },
+    "parent": { "type": "string", "pattern": "^\\[\\[[a-z0-9]+(?:-[a-z0-9]+)*@[1-9][0-9]{0,8}(?:#[^\\]\\r\\n]{1,200})?\\]\\]$" },
+    "changes": { "type": "string" }
+  },
+  "x-ledger": {
+    "folder": "harnesses",
+    "filename": "{slug}",
+    "sections": ["Context strategy", "Prompts", "Tools", "Known limits"]
+  },
+  "examples": [
+    {
+      "type": "harness",
+      "title": "Memento journal harness",
+      "version": 7,
+      "status": "active",
+      "model": "Apple Foundation Model (on-device)",
+      "parent": "[[memento-journal@6]]",
+      "changes": "Moved summaries to rolling 8k context window"
+    }
+  ]
+}
