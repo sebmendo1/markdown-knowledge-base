@@ -1,0 +1,1123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdown-kb.local/specs/contracts/mcp-tools.json",
+  "title": "Ledger MCP tools",
+  "description": "Input and output schemas for the ten Ledger remote MCP tools. API keys are a later target, and the current release has no auth. The stdio server started by npm run mcp is the editor server and is not this contract. OAuth handshake is F14. A grant, once issued, calls these same tools.",
+  "$comment": "Normative tool descriptions are the const values. Normative bodies are the $defs. This file is a schema, not a sample payload.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "get_context",
+    "list_documents",
+    "read_document",
+    "search",
+    "get_template",
+    "validate",
+    "propose_change",
+    "get_proposal",
+    "update_proposal",
+    "get_metrics"
+  ],
+  "properties": {
+    "get_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns the pack in output.pack: agents.md, the active harness, active evals, current findings, accepted decisions, and the last 10 experiments. detail brief and full return the same pack. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/getContextInput"
+        },
+        "output": {
+          "$ref": "#/$defs/getContextOutput"
+        }
+      }
+    },
+    "list_documents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns paths, titles, types, status, and updated dates. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/listDocumentsInput"
+        },
+        "output": {
+          "$ref": "#/$defs/listDocumentsOutput"
+        }
+      }
+    },
+    "read_document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns the Markdown, parsed frontmatter, revision id, and backlinks. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/readDocumentInput"
+        },
+        "output": {
+          "$ref": "#/$defs/readDocumentOutput"
+        }
+      }
+    },
+    "search": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns hits with path, title, snippet, and score. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/searchInput"
+        },
+        "output": {
+          "$ref": "#/$defs/searchOutput"
+        }
+      }
+    },
+    "get_template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns the template Markdown, the field schema, writing guidance, and the filename pattern. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/getTemplateInput"
+        },
+        "output": {
+          "$ref": "#/$defs/getTemplateOutput"
+        }
+      }
+    },
+    "validate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns valid, errors, and warnings, and creates nothing. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/validateInput"
+        },
+        "output": {
+          "$ref": "#/$defs/validateOutput"
+        }
+      }
+    },
+    "propose_change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns the proposal id, status, and url. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/proposeChangeInput"
+        },
+        "output": {
+          "$ref": "#/$defs/proposeChangeOutput"
+        }
+      }
+    },
+    "get_proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns the status, reviewer notes, and merged revision id. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/getProposalInput"
+        },
+        "output": {
+          "$ref": "#/$defs/getProposalOutput"
+        }
+      }
+    },
+    "update_proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Updates a proposal only after changes were requested. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/updateProposalInput"
+        },
+        "output": {
+          "$ref": "#/$defs/updateProposalOutput"
+        }
+      }
+    },
+    "get_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "input",
+        "output"
+      ],
+      "properties": {
+        "description": {
+          "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values. Returns the time series of metric points with experiment links. This tool does not merge, delete, or administer."
+        },
+        "input": {
+          "$ref": "#/$defs/getMetricsInput"
+        },
+        "output": {
+          "$ref": "#/$defs/getMetricsOutput"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "workflow": {
+      "const": "Call get_context first. Call get_template before creating a document. Call validate when unsure. Submit one document per proposal. Never invent metric values."
+    },
+    "syntaxReference": {
+      "const": "Callouts use GitHub alert syntax: > [!NOTE], > [!TIP], > [!IMPORTANT], > [!WARNING], > [!CAUTION].\nMermaid uses a fence whose language is mermaid.\nMath uses $inline$, a $$ block, or a fence whose language is math.\nEmbeds use ![[slug]], ![[slug#Heading]], and ![[slug@7]]. Three nested embeds render. A fourth does not.\nCharts use a fence whose language is chart and a Vega-Lite spec. Data is inline, a CSV under assets/, or a metrics query. External URLs are not allowed.\nMetrics-backed chart example:\n```chart\ntitle: Faithfulness by harness version\ndata:\n  metrics: { eval: summary-faithfulness@2, metric: faithfulness }\nmark: { type: line, point: true }\nencoding:\n  x: { field: date, type: temporal }\n  y: { field: value, type: quantitative }\n  color: { field: harness_version, type: nominal }\n```\nWiki links use [[slug]], [[slug@7]], and [[slug#Heading]].\n"
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message",
+        "hint"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ]
+        },
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message",
+        "hint",
+        "valid",
+        "errors"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valid": {
+          "const": false
+        },
+        "errors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        }
+      }
+    },
+    "edit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "find",
+        "replace"
+      ],
+      "properties": {
+        "find": {
+          "type": "string",
+          "description": "Exact case-sensitive substring. It must match once."
+        },
+        "replace": {
+          "type": "string",
+          "description": "Replacement text. An empty string deletes the match."
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+      "description": "UTC time with seconds and a Z suffix."
+    },
+    "backlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "slug",
+        "title"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "slug",
+        "title",
+        "type",
+        "markdown",
+        "frontmatter",
+        "revision_id",
+        "backlinks",
+        "archived"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "markdown": {
+          "type": "string",
+          "description": "Full Markdown of the selected revision, including frontmatter."
+        },
+        "frontmatter": {
+          "type": "object",
+          "description": "Parsed YAML map. Dates stay YYYY-MM-DD strings."
+        },
+        "revision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 999999999
+        },
+        "backlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/backlink"
+          }
+        },
+        "archived": {
+          "type": "boolean"
+        }
+      }
+    },
+    "listItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "slug",
+        "title",
+        "type",
+        "status",
+        "updated_at",
+        "archived"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "description": "UTC time with seconds and a Z suffix."
+        },
+        "archived": {
+          "type": "boolean"
+        }
+      }
+    },
+    "hit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "slug",
+        "title",
+        "type",
+        "snippet",
+        "score",
+        "updated_at"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "snippet": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "score": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "updated_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "description": "UTC time with seconds and a Z suffix."
+        }
+      }
+    },
+    "note": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "at"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "changes",
+            "reject"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "description": "UTC time with seconds and a Z suffix."
+        }
+      }
+    },
+    "author": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "label"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "key",
+            "grant",
+            "user"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposal_id",
+        "status",
+        "notes",
+        "merged_revision_id",
+        "action",
+        "path",
+        "summary",
+        "url",
+        "stale",
+        "conflicted",
+        "author",
+        "validation"
+      ],
+      "properties": {
+        "proposal_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "enum": [
+            "open",
+            "changes_requested",
+            "merged",
+            "rejected",
+            "withdrawn"
+          ]
+        },
+        "notes": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/note"
+          }
+        },
+        "merged_revision_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "action": {
+          "enum": [
+            "create",
+            "update"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "stale": {
+          "type": "boolean"
+        },
+        "conflicted": {
+          "type": "boolean"
+        },
+        "author": {
+          "$ref": "#/$defs/author"
+        },
+        "validation": {
+          "$ref": "#/$defs/validateOutput"
+        }
+      }
+    },
+    "proposalCreated": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposal_id",
+        "status",
+        "url",
+        "warnings"
+      ],
+      "properties": {
+        "proposal_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "const": "open"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        }
+      }
+    },
+    "metricPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eval",
+        "eval_version",
+        "metric",
+        "unit",
+        "better",
+        "value",
+        "harness",
+        "harness_version",
+        "date",
+        "environment",
+        "sample_size",
+        "verdict",
+        "experiment",
+        "revision_id"
+      ],
+      "properties": {
+        "eval": {
+          "type": "string"
+        },
+        "eval_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "metric": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "better": {
+          "enum": [
+            "higher",
+            "lower"
+          ]
+        },
+        "value": {
+          "type": "number"
+        },
+        "harness": {
+          "type": "string"
+        },
+        "harness_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "environment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sample_size": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "verdict": {
+          "enum": [
+            "supported",
+            "refuted",
+            "inconclusive"
+          ]
+        },
+        "experiment": {
+          "type": "string",
+          "description": "Experiment slug."
+        },
+        "revision_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "validateOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "valid",
+        "errors",
+        "warnings"
+      ],
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        }
+      }
+    },
+    "getContextInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "enum": [
+            "brief",
+            "full"
+          ],
+          "description": "Accepted and ignored. brief and full return the same pack. Omit it for the same pack."
+        }
+      }
+    },
+    "getContextOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detail",
+        "tokens",
+        "bytes",
+        "trimmed",
+        "pack"
+      ],
+      "properties": {
+        "detail": {
+          "enum": [
+            "brief",
+            "full"
+          ]
+        },
+        "tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6000
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24000
+        },
+        "trimmed": {
+          "type": "boolean"
+        },
+        "pack": {
+          "type": "string",
+          "description": "The measured text. tokens is ceil(UTF-8 byte length / 4)."
+        }
+      }
+    },
+    "listDocumentsInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Document type name."
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Status word for that type. doc has no status."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 50
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Opaque cursor from the previous page."
+        }
+      }
+    },
+    "listDocumentsOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documents",
+        "next_cursor"
+      ],
+      "properties": {
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/listItem"
+          }
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "readDocumentInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Relative .md path. Send path or slug."
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "Document slug. Send path or slug."
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 999999999,
+          "description": "Return the first revision saved with this version. Omit for the head."
+        }
+      }
+    },
+    "readDocumentOutput": {
+      "$ref": "#/$defs/document"
+    },
+    "searchInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "query"
+      ],
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Terms and optional filters type:, status:, harness:, verdict:, and after:."
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Document type. AND-ed with a type: filter in query."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 20
+        }
+      }
+    },
+    "searchOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hits"
+      ],
+      "properties": {
+        "hits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hit"
+          }
+        }
+      }
+    },
+    "getTemplateInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Type name, for example experiment."
+        }
+      }
+    },
+    "getTemplateOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "folder",
+        "filename_pattern",
+        "fields",
+        "guidance",
+        "template",
+        "syntax"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "folder": {
+          "type": "string"
+        },
+        "filename_pattern": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object"
+        },
+        "guidance": {
+          "type": "string"
+        },
+        "template": {
+          "type": "string"
+        },
+        "syntax": {
+          "$ref": "#/$defs/syntaxReference"
+        }
+      }
+    },
+    "validateInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "content"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "content": {
+          "type": "string",
+          "description": "Full Markdown including frontmatter. This call stores nothing."
+        }
+      }
+    },
+    "proposeChangeInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "path"
+      ],
+      "properties": {
+        "action": {
+          "enum": [
+            "create",
+            "update"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "content": {
+          "type": "string",
+          "description": "Full Markdown. Omit when sending edits."
+        },
+        "edits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edit"
+          },
+          "description": "Find and replace pairs for an update. Omit when sending content."
+        },
+        "base_revision_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required for update. The revision you read."
+        },
+        "summary": {
+          "type": "string",
+          "description": "One line, 1 to 120 characters. Checked by summary_invalid."
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this change exists. Optional."
+        }
+      }
+    },
+    "proposeChangeOutput": {
+      "$ref": "#/$defs/proposalCreated"
+    },
+    "getProposalInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposal_id"
+      ],
+      "properties": {
+        "proposal_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "getProposalOutput": {
+      "$ref": "#/$defs/proposal"
+    },
+    "updateProposalInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposal_id"
+      ],
+      "properties": {
+        "proposal_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "edits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edit"
+          }
+        },
+        "summary": {
+          "type": "string",
+          "description": "Replacement summary. Omit to keep the current one."
+        }
+      }
+    },
+    "updateProposalOutput": {
+      "$ref": "#/$defs/proposal"
+    },
+    "getMetricsInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eval"
+      ],
+      "properties": {
+        "eval": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Eval slug."
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Metric key. Omit for every key."
+        },
+        "harness": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Harness slug, or slug@version."
+        }
+      }
+    },
+    "getMetricsOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eval",
+        "points"
+      ],
+      "properties": {
+        "eval": {
+          "type": "string"
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/metricPoint"
+          }
+        }
+      }
+    }
+  }
+}

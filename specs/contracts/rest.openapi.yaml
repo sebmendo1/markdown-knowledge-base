@@ -1,0 +1,1323 @@
+openapi: 3.1.0
+info:
+  title: Ledger REST API
+  version: 1.0.0
+  description: REST mirror of the ten Ledger MCP tools, under /api/v1. The same functions serve /api/mcp.
+    API keys are a later target, and the current release has no auth and does not serve these routes.
+    OAuth handshake is F14. A grant, once issued, uses these routes and the same rate limits, with its
+    own counters. No route merges, deletes, or administers. Request and response bodies match specs/contracts/mcp-tools.json.
+servers:
+- url: /api/v1
+security:
+- agentKey: []
+tags:
+- name: ledger
+  description: Read, validate, and propose. These operations do not merge, delete, or administer.
+paths:
+  /context:
+    get:
+      operationId: getContext
+      summary: Read the context pack
+      description: 'Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns the pack in
+        output.pack: agents.md, the active harness, active evals, current findings, accepted decisions,
+        and the last 10 experiments. detail brief and full return the same pack. This tool does not merge,
+        delete, or administer.'
+      x-ledger-tool: get_context
+      tags:
+      - ledger
+      parameters:
+      - name: detail
+        in: query
+        required: false
+        description: Accepted. brief and full return the same pack.
+        schema:
+          enum:
+          - brief
+          - full
+      responses:
+        '200':
+          description: The pack. tokens is at most 6000.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextPack'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents:
+    get:
+      operationId: getDocuments
+      summary: List documents, or read one by slug
+      description: 'Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns paths, titles,
+        types, status, and updated dates. This tool does not merge, delete, or administer. When slug is
+        set, the call is read_document instead: Call get_context first. Call get_template before creating
+        a document. Call validate when unsure. Submit one document per proposal. Never invent metric values.
+        Returns the Markdown, parsed frontmatter, revision id, and backlinks. This tool does not merge,
+        delete, or administer.'
+      x-ledger-tool: list_documents
+      tags:
+      - ledger
+      parameters:
+      - name: type
+        in: query
+        required: false
+        description: List filter. Document type name.
+        schema:
+          type: string
+          minLength: 1
+      - name: status
+        in: query
+        required: false
+        description: List filter. Status word.
+        schema:
+          type: string
+          minLength: 1
+      - name: limit
+        in: query
+        required: false
+        description: Page size. Default 50.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: cursor
+        in: query
+        required: false
+        description: Opaque cursor from next_cursor.
+        schema:
+          type: string
+          minLength: 1
+      - name: slug
+        in: query
+        required: false
+        description: When set, this call is read_document and list filters are refused.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 80
+      - name: version
+        in: query
+        required: false
+        description: With slug, the pinned version. Omit for the head.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 999999999
+      responses:
+        '200':
+          description: A page of documents, or one document when slug is set.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentCollection'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No document has that slug, or the pinned version does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /documents/{path}:
+    get:
+      operationId: readDocument
+      summary: Read one document by path
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns the Markdown,
+        parsed frontmatter, revision id, and backlinks. This tool does not merge, delete, or administer.
+      x-ledger-tool: read_document
+      tags:
+      - ledger
+      parameters:
+      - name: path
+        in: path
+        required: true
+        description: Document path, percent-encoded. Encode each slash as %2F. The server decodes it and
+          refuses an absolute path, a backslash, an empty segment, or a .. segment.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 512
+      - name: version
+        in: query
+        required: false
+        description: Pinned version. Omit for the head.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 999999999
+      responses:
+        '200':
+          description: The selected revision.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No document has that path, or the pinned version does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /search:
+    get:
+      operationId: searchDocuments
+      summary: Search documents
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns hits with path,
+        title, snippet, and score. This tool does not merge, delete, or administer.
+      x-ledger-tool: search
+      tags:
+      - ledger
+      parameters:
+      - name: q
+        in: query
+        required: true
+        description: Terms and optional inline filters.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 500
+      - name: type
+        in: query
+        required: false
+        description: 'Document type. AND-ed with a type: filter in q.'
+        schema:
+          type: string
+          minLength: 1
+      - name: limit
+        in: query
+        required: false
+        description: Maximum hits. Default 20.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
+      responses:
+        '200':
+          description: Hits ordered by title match, then recency, then slug.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /templates/{type}:
+    get:
+      operationId: getTemplate
+      summary: Read a type template
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns the template
+        Markdown, the field schema, writing guidance, and the filename pattern. This tool does not merge,
+        delete, or administer.
+      x-ledger-tool: get_template
+      tags:
+      - ledger
+      parameters:
+      - name: type
+        in: path
+        required: true
+        description: Type name, for example experiment.
+        schema:
+          type: string
+          minLength: 1
+      responses:
+        '200':
+          description: Template, schema, guidance, filename pattern, and syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No loaded schema has that type name.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /validate:
+    post:
+      operationId: validateDocument
+      summary: Validate one document without storing it
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns valid, errors,
+        and warnings, and creates nothing. This tool does not merge, delete, or administer.
+      x-ledger-tool: validate
+      tags:
+      - ledger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateRequest'
+        description: Path and full Markdown.
+      responses:
+        '200':
+          description: Always 200 when the call ran. valid is false when the document has errors. Nothing
+            is stored.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Validation'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /proposals:
+    post:
+      operationId: createProposal
+      summary: Submit one proposal
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns the proposal
+        id, status, and url. This tool does not merge, delete, or administer.
+      x-ledger-tool: propose_change
+      tags:
+      - ledger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalRequest'
+        description: One create or update. This does not merge.
+      responses:
+        '200':
+          description: The new open proposal.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalCreated'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: The update path is not a document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: The proposal was refused or failed validation. Nothing was stored.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /proposals/{id}:
+    get:
+      operationId: getProposal
+      summary: Read one proposal
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns the status,
+        reviewer notes, and merged revision id. This tool does not merge, delete, or administer.
+      x-ledger-tool: get_proposal
+      tags:
+      - ledger
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Proposal id, a decimal integer of 1 or greater.
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Status, reviewer notes, and merged revision id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No proposal in this space has that id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      operationId: updateProposal
+      summary: Update a proposal after changes were requested
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Updates a proposal
+        only after changes were requested. This tool does not merge, delete, or administer.
+      x-ledger-tool: update_proposal
+      tags:
+      - ledger
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Proposal id.
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalUpdate'
+        description: Content, edits, or a summary. The id is the path parameter.
+      responses:
+        '200':
+          description: The revised proposal, status open.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No proposal in this space has that id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: The update was refused or failed validation. The stored proposal is unchanged.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Read metric points
+      description: Call get_context first. Call get_template before creating a document. Call validate
+        when unsure. Submit one document per proposal. Never invent metric values. Returns the time series
+        of metric points with experiment links. This tool does not merge, delete, or administer.
+      x-ledger-tool: get_metrics
+      tags:
+      - ledger
+      parameters:
+      - name: eval
+        in: query
+        required: true
+        description: Eval slug.
+        schema:
+          type: string
+          minLength: 1
+      - name: metric
+        in: query
+        required: false
+        description: Metric key. Omit for every key.
+        schema:
+          type: string
+          minLength: 1
+      - name: harness
+        in: query
+        required: false
+        description: Harness slug, or slug@version.
+        schema:
+          type: string
+          minLength: 1
+      responses:
+        '200':
+          description: Current metric points. This route does not draw a chart.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricSeries'
+        '400':
+          description: The arguments are not acceptable. The body is an Error with code, message, and
+            hint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: The bearer credential is missing, unknown, or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The credential cannot perform this call.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No eval has that slug.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: The request body is larger than 262144 bytes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The key or grant exceeded a limit. Retry-After is set. Nothing was stored.
+          headers:
+            Retry-After:
+              description: Whole seconds until the client should retry. Minimum 1.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    agentKey:
+      type: http
+      scheme: bearer
+      description: 'Bearer agent key lk_<space>_<32 chars>, or a grant access token from F14. Send Authorization:
+        Bearer. A browser session is not a credential. API keys are a later target. The current release
+        has no auth.'
+  schemas:
+    Issue:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - hint
+      properties:
+        code:
+          type: string
+          minLength: 1
+        message:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+        severity:
+          enum:
+          - error
+          - warning
+        field:
+          type: string
+          minLength: 1
+        line:
+          type: integer
+          minimum: 1
+    Error:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - hint
+      - valid
+      - errors
+      properties:
+        code:
+          type: string
+          minLength: 1
+        message:
+          type: string
+          minLength: 1
+        hint:
+          type: string
+          minLength: 1
+        valid:
+          const: false
+        errors:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Issue'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+      example:
+        code: link_unpinned
+        message: harness link needs a version.
+        hint: Use [[memento-journal@7]]. Active version is 7.
+        valid: false
+        errors:
+        - field: harness
+          code: link_unpinned
+          severity: error
+          message: harness link needs a version.
+          hint: Use [[memento-journal@7]]. Active version is 7.
+    Edit:
+      type: object
+      additionalProperties: false
+      required:
+      - find
+      - replace
+      properties:
+        find:
+          type: string
+        replace:
+          type: string
+    Backlink:
+      type: object
+      additionalProperties: false
+      required:
+      - path
+      - slug
+      - title
+      properties:
+        path:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+    Author:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - label
+      properties:
+        kind:
+          enum:
+          - key
+          - grant
+          - user
+        label:
+          type: string
+          minLength: 1
+    Note:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - text
+      - at
+      properties:
+        kind:
+          enum:
+          - changes
+          - reject
+        text:
+          type: string
+          minLength: 1
+        at:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$
+    Validation:
+      type: object
+      additionalProperties: false
+      required:
+      - valid
+      - errors
+      - warnings
+      properties:
+        valid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+    ContextPack:
+      type: object
+      additionalProperties: false
+      required:
+      - detail
+      - tokens
+      - bytes
+      - trimmed
+      - pack
+      properties:
+        detail:
+          enum:
+          - brief
+          - full
+        tokens:
+          type: integer
+          minimum: 0
+          maximum: 6000
+        bytes:
+          type: integer
+          minimum: 0
+          maximum: 24000
+        trimmed:
+          type: boolean
+        pack:
+          type: string
+    ListItem:
+      type: object
+      additionalProperties: false
+      required:
+      - path
+      - slug
+      - title
+      - type
+      - status
+      - updated_at
+      - archived
+      properties:
+        path:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        status:
+          type:
+          - string
+          - 'null'
+        updated_at:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$
+        archived:
+          type: boolean
+    DocumentPage:
+      type: object
+      additionalProperties: false
+      required:
+      - documents
+      - next_cursor
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListItem'
+        next_cursor:
+          type:
+          - string
+          - 'null'
+    Document:
+      type: object
+      additionalProperties: false
+      required:
+      - path
+      - slug
+      - title
+      - type
+      - markdown
+      - frontmatter
+      - revision_id
+      - backlinks
+      - archived
+      properties:
+        path:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        markdown:
+          type: string
+        frontmatter:
+          type: object
+          additionalProperties: true
+        revision_id:
+          type: string
+          minLength: 1
+        version:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          maximum: 999999999
+        backlinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Backlink'
+        archived:
+          type: boolean
+    DocumentCollection:
+      oneOf:
+      - $ref: '#/components/schemas/DocumentPage'
+      - $ref: '#/components/schemas/Document'
+    Hit:
+      type: object
+      additionalProperties: false
+      required:
+      - path
+      - slug
+      - title
+      - type
+      - snippet
+      - score
+      - updated_at
+      properties:
+        path:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        snippet:
+          type: string
+          maxLength: 240
+        score:
+          type: integer
+          enum:
+          - 0
+          - 1
+        updated_at:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$
+    SearchResult:
+      type: object
+      additionalProperties: false
+      required:
+      - hits
+      properties:
+        hits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hit'
+    Template:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - folder
+      - filename_pattern
+      - fields
+      - guidance
+      - template
+      - syntax
+      properties:
+        type:
+          type: string
+        folder:
+          type: string
+        filename_pattern:
+          type: string
+        fields:
+          type: object
+          additionalProperties: true
+        guidance:
+          type: string
+        template:
+          type: string
+        syntax:
+          type: string
+          description: Byte-for-byte equal to $defs.syntaxReference.const in specs/contracts/mcp-tools.json.
+    ValidateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - path
+      - content
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 512
+        content:
+          type: string
+    ProposalRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - action
+      - path
+      properties:
+        action:
+          enum:
+          - create
+          - update
+        path:
+          type: string
+          minLength: 1
+          maxLength: 512
+        content:
+          type: string
+        edits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Edit'
+        base_revision_id:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+        rationale:
+          type: string
+    ProposalCreated:
+      type: object
+      additionalProperties: false
+      required:
+      - proposal_id
+      - status
+      - url
+      - warnings
+      properties:
+        proposal_id:
+          type: integer
+          minimum: 1
+        status:
+          const: open
+        url:
+          type: string
+          format: uri
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+    Proposal:
+      type: object
+      additionalProperties: false
+      required:
+      - proposal_id
+      - status
+      - notes
+      - merged_revision_id
+      - action
+      - path
+      - summary
+      - url
+      - stale
+      - conflicted
+      - author
+      - validation
+      properties:
+        proposal_id:
+          type: integer
+          minimum: 1
+        status:
+          enum:
+          - open
+          - changes_requested
+          - merged
+          - rejected
+          - withdrawn
+        notes:
+          type: array
+          maxItems: 1
+          items:
+            $ref: '#/components/schemas/Note'
+        merged_revision_id:
+          type:
+          - string
+          - 'null'
+        action:
+          enum:
+          - create
+          - update
+        path:
+          type: string
+        summary:
+          type: string
+        url:
+          type: string
+          format: uri
+        stale:
+          type: boolean
+        conflicted:
+          type: boolean
+        author:
+          $ref: '#/components/schemas/Author'
+        validation:
+          $ref: '#/components/schemas/Validation'
+    ProposalUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        content:
+          type: string
+        edits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Edit'
+        summary:
+          type: string
+    MetricPoint:
+      type: object
+      additionalProperties: false
+      required:
+      - eval
+      - eval_version
+      - metric
+      - unit
+      - better
+      - value
+      - harness
+      - harness_version
+      - date
+      - environment
+      - sample_size
+      - verdict
+      - experiment
+      - revision_id
+      properties:
+        eval:
+          type: string
+        eval_version:
+          type: integer
+          minimum: 1
+        metric:
+          type: string
+        unit:
+          type: string
+        better:
+          enum:
+          - higher
+          - lower
+        value:
+          type: number
+        harness:
+          type: string
+        harness_version:
+          type: integer
+          minimum: 1
+        date:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+        environment:
+          type:
+          - string
+          - 'null'
+        sample_size:
+          type:
+          - number
+          - 'null'
+        verdict:
+          enum:
+          - supported
+          - refuted
+          - inconclusive
+        experiment:
+          type: string
+        revision_id:
+          type: string
+          minLength: 1
+    MetricSeries:
+      type: object
+      additionalProperties: false
+      required:
+      - eval
+      - points
+      properties:
+        eval:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricPoint'
