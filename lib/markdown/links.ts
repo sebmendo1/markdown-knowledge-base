@@ -8,6 +8,8 @@ export type DocRef = {
 
 export function resolveDoc<T extends DocRef>(docs: T[], ref: string): T | undefined {
   const normalized = ref.trim().replace(/\.md$/i, "").replace(/^\/+/, "");
+  // A version pin never resolves until revisions exist, even to a file whose name contains "@" (ADR-0035).
+  if (normalized.includes("@")) return undefined;
   const exact = docs.find((doc) => doc.path.replace(/\.md$/i, "") === normalized);
   if (exact) return exact;
 

@@ -1,6 +1,6 @@
 # ADR-0018: Rename and existing links
 
-**Status:** Proposed
+**Status:** Superseded by [ADR-0035](ADR-0035-link-targets-and-rename.md). Only the rule that agents cannot rename still stands.
 
 ## Context
 

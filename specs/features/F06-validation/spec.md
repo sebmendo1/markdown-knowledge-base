@@ -30,7 +30,7 @@ The product name is markdown-kb. Sign-in is not built. When roles exist, Owner a
 - **F06-REQ-008** If a required field is absent or null, including a field whose `required_when` condition is true, the system shall report `field_missing`.
 - **F06-REQ-009** If a value has the wrong kind, the system shall report `field_kind` with the variant message for that kind.
 - **F06-REQ-010** If a frontmatter key is outside the schema, the system shall report `field_unknown` as a warning.
-- **F06-REQ-011** If a wiki link's slug matches no document, the system shall report `link_broken` as an error in frontmatter and as a warning in the body. An archived document matches.
+- **F06-REQ-011** If a wiki link's slug matches no document, the system shall report `link_broken` as an error in frontmatter and as a warning in the body. An archived document matches. Superseded by F06-REQ-030 (ADR-0035).
 - **F06-REQ-012** If a `pinned: true` field is a wiki link without `@version`, the system shall report `link_unpinned` and shall not also report `field_kind` for that value.
 - **F06-REQ-013** If a link names `@version` and no revision of that document has that version, the system shall report `version_missing`.
 - **F06-REQ-014** If a `results` key is not defined on the linked eval, the system shall report `metric_unknown`.
@@ -49,6 +49,7 @@ The product name is markdown-kb. Sign-in is not built. When roles exist, Owner a
 - **F06-REQ-027** When a `mermaid` fence is rendered for reading or for review and Mermaid rejects it, the system shall report `mermaid_invalid` as a warning. The server `validate` tool shall not run Mermaid.
 - **F06-REQ-028** If a file at `.ledger/types/<name>.md` fails a schema-file check, the system shall report `schema_invalid` and shall not apply the document field rules to that file.
 - **F06-REQ-029** While sign-in is not built, the system shall run these checks for the person at the keyboard with no role gate. When sign-in exists, the system shall still run the same checks after F01 has allowed the caller. A Viewer, a Contributor's direct save, an agent key, and an OAuth grant are refused by F01 before these codes apply.
+- **F06-REQ-030** If a wiki link's target does not resolve under F03-REQ-001, including a file name that more than one page has, the system shall report `link_broken` as an error in frontmatter and as a warning in the body. An archived document resolves. A heading that does not match is not `link_broken`.
 
 ## Acceptance scenarios
 
@@ -224,6 +225,18 @@ Given sign-in is not built, when the person at the keyboard saves a file with `f
 
 Given sign-in is built and the caller is a Viewer, when they submit bytes, then F01 returns `permission_denied` and the validator does not write a file.
 
+### F06-AC-030a
+
+Given frontmatter `evidence: ["[[missing-page]]"]`, when validate runs, then `link_broken` is an error and the message is `No document matches "missing-page".`
+
+### F06-AC-030b
+
+Given pages `a/notes.md` and `b/notes.md`, and a body line `See [[notes]].`, when validate runs, then `link_broken` is a warning on that line, and `See [[a/notes|notes]].` has no `link_broken`.
+
+### F06-AC-030c
+
+Given a link to a document that is archived, when validate runs, then `link_broken` is absent.
+
 ## Edge cases and errors
 
 Normative strings live in `specs/contracts/errors.md`. This table is the same catalog, for review beside the requirements.
@@ -237,7 +250,7 @@ Normative strings live in `specs/contracts/errors.md`. This table is the same ca
 | `field_missing` | Error | `{field}` | `{field} is required.` | `Add {field}.` or `Add {field} when {watch} is {value}.` |
 | `field_kind` | Error | `{field}` | The kind variant in `errors.md` | The kind variant in `errors.md` |
 | `field_unknown` | Warning | `{field}` | `{field} is not a field on {type}.` | `Remove {field}, or add it to the type schema.` |
-| `link_broken` | Error in frontmatter, warning in the body | Field or body line | `No document has slug "{slug}".` | `Use a slug that exists in this space. Archived documents still count.` |
+| `link_broken` | Error in frontmatter, warning in the body | Field or body line | `No document matches "{target}".` | `Link to a page path, or to a file name only one page has. Archived documents still count.` |
 | `link_unpinned` | Error | `{field}` | `{field} link needs a version.` | `Use [[{slug}@{version}]]. Active version is {version}.` or `Add @ and a version, for example [[slug@7]].` |
 | `version_missing` | Error | Field or body line | `{slug} has no version {version}.` | `Use a version saved on that document.` |
 | `metric_unknown` | Error | `results.{key}` | `{key} is not a metric on {eval}.` | `Use a key from that eval's metrics list.` |
@@ -268,7 +281,7 @@ Normative strings live in `specs/contracts/errors.md`. This table is the same ca
 
 A heading matches a section when the body has an ATX heading of level 1 to 6 whose text equals the section name after trim. A closing hash run is ignored. The match is case-sensitive.
 
-`link_broken` ignores the heading fragment. A missing heading on a slug that exists is not this code.
+`link_broken` ignores the heading fragment. A missing heading on a target that resolves is not this code.
 
 Until server revisions exist, the only version on a document is the `version` in the current file. `version_missing` uses that value. When revisions exist, any revision with that version counts, and the pin still returns the earliest (F03, F07).
 
@@ -328,6 +341,6 @@ ADR-0015, ADR-0016, ADR-0017, ADR-0019, and ADR-0020 are Proposed and already ap
 - PRD anchors (`cursor/rebuild-prd-tables-f4c0`, `specs/source/ledger-prd.md`): `<!-- prd:error-format -->` (lines 537–547), `<!-- prd:limits -->` (lines 570–573), `<!-- prd:validation -->` through `<!-- prd:validation-behavior -->` (lines 575–608), `<!-- prd:write-or-edit -->` (lines 274–276), `<!-- prd:performance-and-safety -->` (lines 420–423), `<!-- prd:roles -->` (lines 648–656).
 - Decisions: D3, D7. Humans with the Editor role save directly once sign-in exists. Agents never merge.
 - Change requests: none.
-- ADRs: ADR-0002, ADR-0012, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0017, ADR-0018, ADR-0019, ADR-0020.
+- ADRs: ADR-0002, ADR-0012, ADR-0013, ADR-0014, ADR-0015, ADR-0016, ADR-0017, ADR-0018 (superseded by ADR-0035), ADR-0019, ADR-0020, ADR-0035.
 - Contracts: `specs/contracts/errors.md`, `specs/contracts/type-schema.schema.json`, `specs/contracts/frontmatter/`.
 - Depends on F01 and F02. Link rendering beyond these codes is F03.

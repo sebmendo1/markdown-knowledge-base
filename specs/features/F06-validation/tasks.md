@@ -71,10 +71,10 @@ A doc key `mood` is `field_unknown` at severity `warning`. `valid` is true when 
 
 - **Size:** one module
 - **Depends on:** F06-T04
-- **Requirements:** F06-REQ-011
-- **Tests:** `lib/validate/rules/links.test.ts` › `F06-AC-011a`, `F06-AC-011b`, `F06-AC-011c`
+- **Requirements:** F06-REQ-011, F06-REQ-030
+- **Tests:** `lib/validate/rules/links.test.ts` › `F06-AC-030a`, `F06-AC-030b`, `F06-AC-030c`
 
-Frontmatter `evidence: ["[[missing-slug]]"]` is an error, message `No document has slug "missing-slug".` A body line `See [[missing-slug]].` is a warning on that line. A link to an archived document omits `link_broken`.
+F06-REQ-011 is superseded (ADR-0035), and its scenarios F06-AC-011a to F06-AC-011c are replaced by F06-AC-030a to F06-AC-030c. The rule resolves targets with `resolveDoc` from `lib/markdown/links.ts`. Frontmatter `evidence: ["[[missing-page]]"]` is an error, message `No document matches "missing-page".` A body link to a file name two pages share is a warning on that line. A link to an archived document omits `link_broken`.
 
 ## F06-T09. `link_unpinned`
 
@@ -279,7 +279,7 @@ While sign-in is off, a keyboard save of a file with `field_missing` returns tha
 | F06-REQ-008 | F06-T05 | F06-AC-008a, F06-AC-008b |
 | F06-REQ-009 | F06-T06 | F06-AC-009a, F06-AC-009b |
 | F06-REQ-010 | F06-T07 | F06-AC-010a |
-| F06-REQ-011 | F06-T08 | F06-AC-011a, F06-AC-011b, F06-AC-011c |
+| F06-REQ-011 | F06-T08 | F06-AC-011a, F06-AC-011b, F06-AC-011c (superseded) |
 | F06-REQ-012 | F06-T09 | F06-AC-012a |
 | F06-REQ-013 | F06-T10 | F06-AC-013a |
 | F06-REQ-014 | F06-T11 | F06-AC-014a |
@@ -298,3 +298,4 @@ While sign-in is off, a keyboard save of a file with `field_missing` returns tha
 | F06-REQ-027 | F06-T26 | F06-AC-027a, F06-AC-027b |
 | F06-REQ-028 | F06-T27 | F06-AC-028a |
 | F06-REQ-029 | F06-T29 | F06-AC-029a, F06-AC-029b |
+| F06-REQ-030 | F06-T08 | F06-AC-030a, F06-AC-030b, F06-AC-030c |

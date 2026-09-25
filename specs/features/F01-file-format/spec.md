@@ -37,13 +37,15 @@ ADR-0012, ADR-0013, and ADR-0014 are Proposed. This spec follows them.
 - **F01-REQ-011** The system shall treat each file at `.ledger/types/<name>.md` as a type schema file, with frontmatter `type: schema`, and shall not treat it as one of the six document types.
 - **F01-REQ-012** The system shall treat `.ledger/space.md` and `.ledger/agents.md` as documents with `type: doc` and a non-empty `title`, at those exact paths.
 - **F01-REQ-013** The system shall treat a file under `assets/` as an asset. An asset is not a document and is not a page.
-- **F01-REQ-014** The system shall accept a wiki-link string of the form `[[slug]]`, `[[slug@N]]`, `[[slug#Heading]]`, or `[[slug@N#Heading]]`. `N` is an integer from 1 to 999999999. `Heading` is 1 to 200 characters and contains no `]` and no line break.
+- **F01-REQ-014** The system shall accept a wiki-link string of the form `[[slug]]`, `[[slug@N]]`, `[[slug#Heading]]`, or `[[slug@N#Heading]]`. `N` is an integer from 1 to 999999999. `Heading` is 1 to 200 characters and contains no `]` and no line break. Superseded by F01-REQ-021 (ADR-0035).
 - **F01-REQ-015** The system shall serve a document at `/{project}/{page-path}`, with each path segment percent-encoded, and shall not put a space slug in the URL.
 - **F01-REQ-016** While sign-in is not built, the system shall accept a create, an update, and a rename from the person at the keyboard, and shall not check a role.
 - **F01-REQ-017** When sign-in is built, the system shall allow a direct file write and a rename only for the Owner and Editor roles.
-- **F01-REQ-018** When a human renames a document, the system shall change that document's slug and path only, in one save, and shall leave every other file unchanged.
+- **F01-REQ-018** When a human renames a document, the system shall change that document's slug and path only, in one save, and shall leave every other file unchanged. Superseded by F01-REQ-022 (ADR-0035).
 - **F01-REQ-019** The system shall accept LF (`\n`) and CRLF (`\r\n`) as the line break in the frontmatter delimiters.
 - **F01-REQ-020** The system shall recover a document's slug from its path by reversing the type's filename pattern. When the pattern has no `{slug}`, the filename without `.md` is the slug.
+- **F01-REQ-021** The system shall accept a wiki-link string of the form `[[target]]`, followed inside the brackets by an optional `@N`, an optional `#Heading`, and an optional `|label`, in that order. `target` is a page path or a file name, resolved by F03-REQ-001; a slug is a file name. `N` is an integer from 1 to 999999999. `Heading` and `label` are 1 to 200 characters and contain no `]`, no `|`, and no line break.
+- **F01-REQ-022** When a human renames or moves a document, the system shall change that document's path, and slug where the slug changes, and shall rewrite every wiki target that resolved to the old path so it resolves to the new path, keeping `#Heading` and `|label`, all in one save.
 
 ## Acceptance scenarios
 
@@ -179,6 +181,14 @@ Given frontmatter delimited with CRLF, when the file is parsed, then the YAML ma
 
 Given path `experiments/2026-09-22-context-window-8k-vs-4k.md` and pattern `{date}-{slug}`, when the slug is recovered, then the slug is `context-window-8k-vs-4k`.
 
+### F01-AC-021a
+
+Given the strings `[[summary-faithfulness@2]]`, `[[docs/writing#Links|how links work]]`, and `[[slug@N#Heading|label]]` with `N` of 3, when they are parsed, then all three match the wiki-link grammar, and `[[a|b|c]]` does not.
+
+### F01-AC-022a
+
+Given page `notes/hello.md` and page `index.md` containing `[[notes/hello#Intro|hi]]`, when a human renames `notes/hello.md` to `notes/hello-notes.md`, then the file is at the new path and `index.md` contains `[[notes/hello-notes#Intro|hi]]`.
+
 ## Edge cases and errors
 
 Format failures use the F06 codes. The message and hint are the templates in `specs/contracts/errors.md`.
@@ -257,6 +267,6 @@ The rules below are the ones this spec uses. The product owner has not confirmed
 - PRD anchors in the rebuilt source (`cursor/rebuild-prd-tables-f4c0`, `specs/source/ledger-prd.md`): `<!-- prd:product-principles -->` (line 8), `<!-- prd:core-concepts -->` (lines 60–70), `<!-- prd:markdown-format -->` through `<!-- prd:space-and-agents -->` (lines 100–249), `<!-- prd:links -->` (lines 240–246), `<!-- prd:limits -->` (lines 570–573).
 - Decisions in `specs/source/decisions-and-changes.md`: D2, D3, D5, D6, D7, D8.
 - Change requests: none of C1–C9 change this format. C2 and C8 change the editor, which this spec leaves alone.
-- ADRs: ADR-0001 (name markdown-kb; the `/docs/…` route is overridden by the live `/{project}/{page-path}` pages), ADR-0002, ADR-0003, ADR-0012, ADR-0013, ADR-0014, ADR-0018.
+- ADRs: ADR-0001 (name markdown-kb; the `/docs/…` route is overridden by the live `/{project}/{page-path}` pages), ADR-0002, ADR-0003, ADR-0012, ADR-0013, ADR-0014, ADR-0018 (superseded by ADR-0035), ADR-0035.
 - Contracts: `specs/contracts/frontmatter/`, `specs/contracts/type-schema.schema.json`, `specs/contracts/errors.md`.
 - Shipped code this spec does not treat as the target layout: `lib/markdown/frontmatter.ts`, `lib/workspace/paths.ts`, `app/[project]/[...slug]/page.tsx`, `content/`.

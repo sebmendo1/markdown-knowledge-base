@@ -23,7 +23,7 @@ Questions only the owner can answer are in [open-questions.md](open-questions.md
 | [ADR-0015](ADR-0015-schema-file-errors.md) | Schema file errors | Proposed | A broken schema file fails `schema_invalid`, does not load, and that type then fails `type_unknown`. |
 | [ADR-0016](ADR-0016-required-when.md) | required_when grammar | Proposed | `required_when` is equality on exactly one other field. Any other shape fails schema load. |
 | [ADR-0017](ADR-0017-pinned-version.md) | Pinned version target | Proposed | `[[slug@7]]` returns the earliest revision with version 7, and later saves do not move the pin. |
-| [ADR-0018](ADR-0018-rename.md) | Rename and existing links | Proposed | Only a human renames. Other files are not rewritten, and links to the old slug are `link_broken`. |
+| [ADR-0018](ADR-0018-rename.md) | Rename and existing links | Superseded by ADR-0035 | Only a human renames. Other files are not rewritten, and links to the old slug are `link_broken`. |
 | [ADR-0019](ADR-0019-archived-links.md) | Links to archived documents | Proposed | A link to an archived document still resolves. `link_broken` is only a missing slug. |
 | [ADR-0020](ADR-0020-embed-depth.md) | Embed depth and cycles | Proposed | Three transclusions render. A fourth level or a cycle shows a link and a fixed sentence, plus `embed_broken`. |
 | [ADR-0021](ADR-0021-proposal-edits.md) | Proposal edit matches | Proposed | Each `find` must match exactly once, in order, or the submission is rejected and no proposal is created. |
@@ -40,6 +40,7 @@ Questions only the owner can answer are in [open-questions.md](open-questions.md
 | [ADR-0032](ADR-0032-import-batch.md) | Import batch outcome | Proposed | Each file is all or nothing. A mixed batch saves the valid files and does not roll them back. |
 | [ADR-0033](ADR-0033-export-identity.md) | Export and re-import identity | Proposed | Identical means the same UTF-8 bytes, including line endings and YAML key order. |
 | [ADR-0034](ADR-0034-accessibility.md) | Accessibility | Proposed | The bar is WCAG 2.2 Level AA, with a fixed focus order and a named Editing or Preview state. |
+| [ADR-0035](ADR-0035-link-targets-and-rename.md) | Link targets and rename | Accepted | A wiki target is a page path or a unique file name, with an optional label. Rename and move rewrite links. `link_broken` is a target that does not resolve. |
 
 ## Gaps with no ADR
 

@@ -28,7 +28,7 @@ An issue is one object:
 | `field_missing` | A required field is absent or null, including a field whose `required_when` condition is true | Error | `{field}` | `{field} is required.` | See variants |
 | `field_kind` | The value is the wrong YAML type, outside an enum, over a max, under a min, or not a real calendar date | Error | `{field}` | See variants | See variants |
 | `field_unknown` | A frontmatter key is not `type` and is not in the loaded schema | Warning | `{field}` | `{field} is not a field on {type}.` | `Remove {field}, or add it to the type schema.` |
-| `link_broken` | The slug matches no document in the space, archived documents included | Error in frontmatter. Warning in the body | Field, or the body line | `No document has slug "{slug}".` | `Use a slug that exists in this space. Archived documents still count.` |
+| `link_broken` | The target does not resolve to a document under F03-REQ-001 (a page path, or a file name only one page has), archived documents included | Error in frontmatter. Warning in the body | Field, or the body line | `No document matches "{target}".` | `Link to a page path, or to a file name only one page has. Archived documents still count.` |
 | `link_unpinned` | A field with `pinned: true` is a wiki link and has no `@version` | Error | `{field}` | `{field} link needs a version.` | See variants |
 | `version_missing` | The link names `@version` and no revision of that document has that version | Error | Field, or the body line | `{slug} has no version {version}.` | `Use a version saved on that document.` |
 | `metric_unknown` | A key in `results` is not a metric `key` on the linked eval | Error | `results.{key}` | `{key} is not a metric on {eval}.` | `Use a key from that eval's metrics list.` |
@@ -188,7 +188,7 @@ For type `doc`, `{expected}` may include extra slug segments under `docs/`. `.le
 5. Null on an optional field is treated as absent.
 6. A create does not report `base_missing`, `version_not_bumped`, or `no_change`.
 7. A human direct save does not report `base_missing`. That code is for a proposal `update`.
-8. `link_broken` looks at the slug. A missing heading is not this code.
+8. `link_broken` looks at the target, resolved as in F03-REQ-001 (ADR-0035). A missing heading is not this code.
 9. An archived document is not `link_broken`.
 10. `metric_range` is skipped when the eval declares no `range`, and when the value is not a number (`field_kind` covers that).
 11. `version_missing` is skipped when the link has no `@version` (`link_unpinned` covers a pinned field).

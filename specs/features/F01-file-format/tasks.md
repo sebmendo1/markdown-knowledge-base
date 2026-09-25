@@ -143,10 +143,10 @@ Path `experiments/2026-09-22-context-window-8k-vs-4k.md` and pattern `{date}-{sl
 
 - **Size:** one module
 - **Depends on:** none
-- **Requirements:** F01-REQ-014
-- **Test:** `lib/format/wiki-link.test.ts` › `F01-AC-014a`
+- **Requirements:** F01-REQ-014, F01-REQ-021
+- **Tests:** `lib/format/wiki-link.test.ts` › `F01-AC-014a`, `F01-AC-021a`
 
-`[[summary-faithfulness@2]]` and `[[slug#Heading]]` match. The parser also accepts `[[slug]]` and `[[slug@N#Heading]]` with `N` from 1 to 999999999.
+`[[summary-faithfulness@2]]` and `[[slug#Heading]]` match. The parser also accepts a path target and `|label`, as in `[[docs/writing#Links|how links work]]`, with `N` from 1 to 999999999. Target resolution reuses `resolveDoc` in `lib/markdown/links.ts` (ADR-0035).
 
 ## F01-T17. Page URL
 
@@ -179,10 +179,10 @@ A Viewer leaves the file unchanged and receives `permission_denied`. An Owner wr
 
 - **Size:** several modules
 - **Depends on:** F01-T06, F01-T08, F01-T19
-- **Requirements:** F01-REQ-018
-- **Test:** `lib/format/save.test.ts` › `F01-AC-018a`
+- **Requirements:** F01-REQ-018, F01-REQ-022
+- **Tests:** `lib/format/save.test.ts` › `F01-AC-018a`, `F01-AC-022a`
 
-An Owner rename from `hello` to `hello-notes` updates that document's path in one save. Every other file stays byte-identical.
+F01-REQ-018 is superseded (ADR-0035). A rename from `notes/hello.md` to `notes/hello-notes.md` moves the file and rewrites `[[notes/hello#Intro|hi]]` to `[[notes/hello-notes#Intro|hi]]` in the same save. The rewrite reuses `lib/workspace/relink.ts`.
 
 ## Coverage
 
@@ -201,10 +201,12 @@ An Owner rename from `hello` to `hello-notes` updates that document's path in on
 | F01-REQ-011 | F01-T13 | F01-AC-011a |
 | F01-REQ-012 | F01-T14 | F01-AC-012a, F01-AC-012b |
 | F01-REQ-013 | F01-T15 | F01-AC-013a |
-| F01-REQ-014 | F01-T16 | F01-AC-014a |
+| F01-REQ-014 | F01-T16 | F01-AC-014a (superseded) |
 | F01-REQ-015 | F01-T17 | F01-AC-015a |
 | F01-REQ-016 | F01-T18 | F01-AC-016a |
 | F01-REQ-017 | F01-T19 | F01-AC-017a, F01-AC-017b, F01-AC-017c, F01-AC-017d |
-| F01-REQ-018 | F01-T20 | F01-AC-018a |
+| F01-REQ-018 | F01-T20 | F01-AC-018a (superseded) |
 | F01-REQ-019 | F01-T03 | F01-AC-019a |
 | F01-REQ-020 | F01-T12 | F01-AC-020a |
+| F01-REQ-021 | F01-T16 | F01-AC-021a |
+| F01-REQ-022 | F01-T20 | F01-AC-022a |

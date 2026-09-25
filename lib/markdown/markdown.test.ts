@@ -38,6 +38,13 @@ test("wiki refs resolve by file name when the path is unique", () => {
   assert.equal(hrefFor("guide", "docs/shortcuts.md", "Keyboard"), "/guide/docs/shortcuts#keyboard");
 });
 
+test("a wiki target with @ does not resolve, even to a file named that way (F03-AC-003a)", () => {
+  const docs = [{ path: "notes/x@7.md", title: "Odd name" }, { path: "notes/x.md", title: "X" }];
+  assert.equal(resolveDoc(docs, "notes/x@7"), undefined);
+  assert.equal(resolveDoc(docs, "x@7"), undefined);
+  assert.equal(resolveDoc(docs, "x")?.path, "notes/x.md");
+});
+
 test("quick titles match the full parser", () => {
   const samples = [
     "# Plain title\n\nBody",
