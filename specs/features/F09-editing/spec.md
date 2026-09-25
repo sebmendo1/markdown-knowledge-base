@@ -114,6 +114,8 @@ There is no sign-in. The person at the keyboard can edit the copy in that browse
 
 **F09-REQ-036** If that merge conflicts, the system shall not save, and shall open a side-by-side resolver on the page, not in a dialog, showing the reader's text, the other text, and the base. No revision shall be written until the reader submits a resolved document.
 
+**F09-REQ-037** When the reader edits and saves an untouched document, the system shall produce an empty diff.
+
 ## Acceptance scenarios
 
 ### F09-AC-001a Preview is the default
@@ -338,6 +340,12 @@ Given both sides changed the same line, when the reader saves, then no revision 
 
 Test name: `a conflict opens the three texts and does not save`. Not run.
 
+### F09-AC-037a An untouched save is an empty diff
+
+Given a document the reader has opened and not changed, when the reader saves, then the diff is empty.
+
+Test name: `editing and saving an untouched document produces an empty diff`. Not run.
+
 ## Edge cases and errors
 
 The shipped local save has no product error code. Where a message exists for that save, it is the whole report, and there is no hint.
@@ -443,6 +451,7 @@ ADR-0017 and ADR-0022 are Proposed. This spec follows them for the pin target an
 - PRD Editor, and Behavior: live preview is not this editor (F09-REQ-017); frontmatter form (F09-REQ-018 through F09-REQ-020); `[[` picker and `@` version (F09-REQ-022, F09-REQ-023); slash menu of structure only (F09-REQ-021); image paste into `assets/` (F09-REQ-024).
 - PRD Saving: server draft every 2 seconds (F09-REQ-025, F09-REQ-026); Command-S commit message (F09-REQ-027); errors block a save (F09-REQ-028); warnings do not (F09-REQ-029); contributors see Propose (F09-REQ-030); Owner and Editor see Save (F09-REQ-031); a Viewer sees neither (F09-REQ-032).
 - PRD Conflicts: banner `This document changed. Review changes.` (F09-REQ-033); three-way merge (F09-REQ-034, F09-REQ-035); side-by-side resolver (F09-REQ-036).
+- PRD acceptance: editing and saving an untouched document produces an empty diff (F09-REQ-037).
 - PRD Links: `[[slug@7]]` is a harness or eval at a version. PRD Validation, Behavior: errors block proposals and saves; warnings do not. PRD Roles per space, and Keyboard shortcuts (`⌘S` saves a revision).
 - Plan section 2.2, row "Editor model": the shipped modes replace inline live preview for this editor. The row's phrase "source beside a preview" is not what the code does. C2, C8. ADR-0004.
 - Plan section 2.2, row "Storage": the shipped save is files in `content/` and drafts in browser local storage. The Ledger target adds the server draft. D2, D5. ADR-0003.
