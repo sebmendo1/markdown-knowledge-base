@@ -54,6 +54,8 @@ There is no sign-in. "Reader" means the person looking at the page.
 
 **F04-REQ-016** The system shall set the reading column to 17px type and a line height of 1.7. The column width shall be `min(100%, 66ch + 64px)` and shall not exceed 760px. On a narrow screen the type size shall stay 17px.
 
+**F04-REQ-017** When one document uses every syntax in Markdown capabilities, the system shall render that document the same in view, in the editor preview, and in review.
+
 ## Acceptance scenarios
 
 ### F04-AC-001a CommonMark on the guide page
@@ -156,6 +158,12 @@ Given the writing page in preview at 1280×900, when the column is measured, the
 
 Test name: `reading column stays 17px and does not overflow at 390px`. Manual, passed. Chrome, local dev server, both viewports.
 
+### F04-AC-017a One document, three surfaces
+
+Given one document that uses every syntax in Markdown capabilities, when that document is shown in view, in the editor preview, and in review, then the three renders are the same.
+
+Test name: `one document using every Markdown capability renders the same in view, editor preview, and review`. Not run.
+
 ## Edge cases and errors
 
 No rendering failure in this feature has a product error code or a hint. The visible message is the whole report.
@@ -217,6 +225,7 @@ Production `https://markdown-kb-editor.vercel.app/guide/docs/writing` returned t
 ## Trace
 
 - PRD sections: Markdown capabilities (Supported syntax, Performance and safety, Portability); Document view (body max width, which section 2.2 replaces).
+- PRD acceptance: one document using every syntax in Markdown capabilities renders the same in view, editor preview, and review (F04-REQ-017).
 - Plan section 2.2, rows "Reading type" and "Phones": 17px, line height 1.7, about 66 characters. C4. The older 16px, 1.6, and 720px values do not apply.
 - Plan section 2.2, row "Surfaces": solid fills rather than hairline borders. C2. Token values belong to F21.
 - Decisions: D5 (reading the editor comes first), D6 (the product is markdown-kb), D8 (attachments and the experiment run-log are out of scope).
