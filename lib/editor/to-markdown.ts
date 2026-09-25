@@ -179,10 +179,11 @@ function tidy(content: PMNode[]): PMNode[] {
     const bare = (value: string): PMNode[] => (value ? [{ type: "text", text: value, ...(plain.length ? { marks: plain } : {}) }] : []);
     return [...bare(before), ...(middle ? [{ ...item, text: middle }] : []), ...bare(after)];
   });
+  const isCode = (item: PMNode) => item.marks?.some((mark) => mark.type === "code");
   const first = out[0];
-  if (first?.type === "text") out[0] = { ...first, text: (first.text ?? "").replace(/^[ \t]+/, "") };
+  if (first?.type === "text" && !isCode(first)) out[0] = { ...first, text: (first.text ?? "").replace(/^[ \t]+/, "") };
   const last = out.at(-1);
-  if (last?.type === "text") out[out.length - 1] = { ...last, text: (last.text ?? "").replace(/[ \t]+$/, "") };
+  if (last?.type === "text" && !isCode(last)) out[out.length - 1] = { ...last, text: (last.text ?? "").replace(/[ \t]+$/, "") };
   return out.filter((item) => item.type !== "text" || item.text);
 }
 

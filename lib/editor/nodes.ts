@@ -1,4 +1,5 @@
 import { mergeAttributes, Node, type Extensions } from "@tiptap/core";
+import Code from "@tiptap/extension-code";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
 import { BulletList, OrderedList, TaskItem, TaskList } from "@tiptap/extension-list";
@@ -7,6 +8,9 @@ import StarterKit from "@tiptap/starter-kit";
 import { wikiSource } from "./json";
 
 const tight = { tight: { default: true, rendered: false } };
+
+// Markdown lets inline code sit inside a link, as in [`name`](url). Tiptap's code mark refuses every other mark.
+export const LinkableCode = Code.extend({ excludes: "" });
 
 export const TightBulletList = BulletList.extend({
   addAttributes() {
@@ -207,6 +211,7 @@ export function baseExtensions(views: NodeViews = {}): Extensions {
   return [
     StarterKit.configure({
       codeBlock: false,
+      code: false,
       bulletList: false,
       orderedList: false,
       underline: false,
@@ -214,6 +219,7 @@ export function baseExtensions(views: NodeViews = {}): Extensions {
       heading: { levels: [1, 2, 3, 4, 5, 6] },
       link: { openOnClick: false, autolink: true, linkOnPaste: true },
     }),
+    LinkableCode,
     TightBulletList,
     TightOrderedList,
     TightTaskList,
