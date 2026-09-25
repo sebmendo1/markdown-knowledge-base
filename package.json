@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test lib/markdown/*.test.ts lib/workspace/*.test.ts lib/editor/*.test.ts lib/store/*.test.ts lib/mcp/*.test.ts lib/specs/*.test.ts",
+    "test": "tsx --test 'lib/**/*.test.ts'",
     "mcp": "tsx mcp/server.ts",
     "mcp:inspect": "npx -y @modelcontextprotocol/inspector tsx mcp/server.ts",
-    "spec:coverage": "tsx scripts/spec-coverage.ts"
+    "spec:coverage": "tsx scripts/spec-coverage.ts",
+    "test:e2e": "playwright test",
+    "test:all": "npm run lint && npm test && npm run test:e2e"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",
@@ -60,6 +62,8 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
