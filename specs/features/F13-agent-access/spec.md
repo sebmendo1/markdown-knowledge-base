@@ -60,6 +60,8 @@ The space comes from the credential. Tools and routes do not take a space argume
 - **F13-REQ-032** The system shall answer `search` in under 100 ms at the 95th percentile in the search environment in Limits and budgets.
 - **F13-REQ-033** The system shall answer each other tool and REST call in under 2 seconds at the 95th percentile in the call environment in Limits and budgets.
 - **F13-REQ-034** The system shall finish one `get_context`, one `get_template`, and one `propose_change`, excluding model time, in under 10 seconds at the 95th percentile in the call environment.
+- **F13-REQ-035** When Cursor is given the sentence "log this experiment to Ledger", the system shall store a valid proposal produced with only the ten MCP tools, and that proposal shall need no manual fixes.
+- **F13-REQ-036** When `propose_change` has returned a structured error for an invalid proposal, and the agent retries with a valid proposal, the system shall accept that retry and store the proposal.
 
 ### Pack
 
@@ -382,6 +384,14 @@ Given the call environment, when the 95th percentile of `read_document` is measu
 
 Given the call environment, when the 95th percentile of the server time for one `get_context`, one `get_template`, and one `propose_change` is measured, excluding model time, then it is under 10 seconds.
 
+### F13-AC-035a
+
+Given Cursor and the sentence "log this experiment to Ledger", when the agent uses only the ten MCP tools, then the stored proposal is valid and needs no manual fixes.
+
+### F13-AC-036a
+
+Given `propose_change` returned a structured error for an invalid proposal, when the agent retries with a valid proposal, then the retry succeeds and the proposal is stored.
+
 ## Edge cases and errors
 
 F06 codes keep the message and hint in `specs/contracts/errors.md`. F12 codes keep the message and hint in the F12 spec. The rows below are the codes this feature adds, plus the F06 and F12 codes the tools return most directly. `{find}`, `{count}`, and the summary variants are the F12 sentences.
@@ -549,6 +559,7 @@ PRD anchors in `specs/source/ledger-prd.md` on `cursor/rebuild-prd-tables-f4c0`:
 - `<!-- prd:agent-keys -->` — label, scope, hash, prefix, last used, revoke.
 - `<!-- prd:oauth-grants -->` — a grant reaches the same tools. The handshake is F14.
 - `<!-- prd:acceptance-milestones-1-4 -->` — a key cannot merge, a revoked key is refused, `get_context` stays under 6k tokens for 100 experiments.
+- `<!-- prd:acceptance-criteria -->` — "log this experiment to Ledger" needs no manual fixes (F13-REQ-035). After a structured error, the agent's retry succeeds (F13-REQ-036).
 
 Decisions in `specs/source/decisions-and-changes.md`: D3 (no auth yet), D4 (agents later), D6 (markdown-kb, no space segment), D7 (agents never merge).
 
