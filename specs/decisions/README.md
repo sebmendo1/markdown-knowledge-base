@@ -6,11 +6,11 @@ Questions only the owner can answer are in [open-questions.md](open-questions.md
 
 | ID | Title | Status | Decision |
 | --- | --- | --- | --- |
-| [ADR-0001](ADR-0001-name-and-routes.md) | Product name and routes | Accepted | The UI name is markdown-kb, and pages are at `/docs/…` with no space segment. |
+| [ADR-0001](ADR-0001-name-and-routes.md) | Product name and routes | Accepted | The UI name is markdown-kb. Pages are `/{project}/{page-path}` (for example `/guide/docs/layout`). `/docs` and `/ledger` redirect into the guide project. There is no space segment. |
 | [ADR-0002](ADR-0002-sign-in-and-roles.md) | Sign-in and roles | Accepted | The first release has no auth. The four roles, and direct save for Owner and Editor, are the later target. |
 | [ADR-0003](ADR-0003-storage.md) | Storage | Accepted | The first release reads `content/` at build time and stores drafts in `localStorage`. |
 | [ADR-0004](ADR-0004-editor-model.md) | Editor model | Accepted | Preview is the default. Editing is a block editor in the reading column. Source is a full-page editor. Command-/ or Control-/ switches between them. Edit turns editing on from preview and off from editing or source. Inline live preview is a later F09 option. |
-| [ADR-0005](ADR-0005-reading-type.md) | Reading type | Accepted | Reading text is 17px, line height 1.7, and a 66-character measure. |
+| [ADR-0005](ADR-0005-reading-type.md) | Reading type | Accepted | Body text is 17px with line-height 1.7. The column is capped at 760px, which binds, so the text is 696px wide. |
 | [ADR-0006](ADR-0006-surfaces.md) | Surfaces | Accepted | Surfaces are solid fills, and the hairline borders between them are removed. |
 | [ADR-0007](ADR-0007-radius.md) | Radius | Accepted | Radii are 12px controls, 10px outline rows, 18px blocks, 20px dialogs, 8px inline code, and 6px mark. |
 | [ADR-0008](ADR-0008-right-panel.md) | Right panel | Accepted | The third column is a full-height outline only, and the title row and status line use the page color. |
