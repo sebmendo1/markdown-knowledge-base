@@ -11,11 +11,12 @@ Requirements are the `Fnn-REQ-nnn` and `X-REQ-nnn` lines that open a requirement
 | Feature | Requirements read from | Tasks read from |
 | --- | --- | --- |
 | F01, F02, F06 | `cursor/file-format-types-validation-3ed9` | `cursor/design-tasks-format-types-validation-279e` |
-| F03, F04 | `cursor/spec-rest-of-editing-b39a` (same ids as `cursor/spec-links-rendering-editing-7df9`) | `cursor/design-tasks-editor-shell-bbc1` |
+| F03 | `cursor/spec-rest-of-editing-b39a` (same ids as `cursor/spec-links-rendering-editing-7df9`) | `cursor/design-tasks-editor-shell-bbc1` |
+| F04 | `cursor/spec-links-rendering-editing-7df9` (`F04-REQ-017` is not on `cursor/spec-rest-of-editing-b39a`) | `cursor/design-tasks-editor-shell-bbc1` |
 | F05, F16 | `cursor/spec-charts-metrics-58b3` | `cursor/design-charts-metrics-history-import-home-4ba1` |
 | F07 | `cursor/spec-storage-db-f59c` | `cursor/storage-design-tasks-5c9d` |
 | F08, F10, F20, F21 | `cursor/reading-shell-specs-6322` (same ids on `cursor/spec-invites-public-link-5902` and `cursor/spec-rest-of-search-b39a`) | `cursor/design-tasks-editor-shell-bbc1` |
-| F09 | `cursor/spec-rest-of-editing-b39a` (`F09-REQ-017` through `F09-REQ-036` are not on `cursor/spec-links-rendering-editing-7df9`) | `cursor/design-tasks-editor-shell-bbc1` |
+| F09 | `cursor/spec-rest-of-editing-b39a` (`F09-REQ-017` through `F09-REQ-037` are not on `cursor/spec-links-rendering-editing-7df9`) | `cursor/design-tasks-editor-shell-bbc1` |
 | F11 | `cursor/spec-invites-public-link-5902` (`F11-REQ-015` through `F11-REQ-037` are not on the earlier sharing specs) | `cursor/design-tasks-editor-shell-bbc1` |
 | F12 | `cursor/spec-proposals-review-a40a` | `cursor/design-review-agents-auth-9270` |
 | F13 | `cursor/spec-mcp-rest-069c` | `cursor/design-review-agents-auth-9270` |
@@ -29,7 +30,7 @@ The 18 acceptance criteria are the checklist under `<!-- prd:acceptance-criteria
 
 ## Requirement to task to test
 
-598 requirements, 613 rows. A requirement named by more than one step has one row per step.
+602 requirements, 617 rows. A requirement named by more than one step has one row per step.
 
 | Requirement | Feature | Task file and step | Test |
 | --- | --- | --- | --- |
@@ -95,6 +96,7 @@ The 18 acceptance criteria are the checklist under `<!-- prd:acceptance-criteria
 | F04-REQ-014 | F04 Rendering | specs/features/F04-rendering/tasks.md — F04-T-010 Strip unsafe HTML | `script tags are stripped without an error` (F04-AC-014a) |
 | F04-REQ-015 | F04 Rendering | specs/features/F04-rendering/tasks.md — F04-T-011 Show a bad frontmatter message | `bad frontmatter shows the message and the body` (F04-AC-015a) |
 | F04-REQ-016 | F04 Rendering | specs/features/F04-rendering/tasks.md — F04-T-012 Keep the reading measure | `reading column stays 17px and does not overflow at 390px` (F04-AC-016a) |
+| F04-REQ-017 | F04 Rendering | specs/features/F04-rendering/tasks.md — F04-T-013 Render one document the same in view, preview, and review | `one document using every Markdown capability renders the same in view, editor preview, and review` (F04-AC-017a) |
 | F05-REQ-001 | F05 Charts | specs/features/F05-charts/tasks.md — 1. Draw an inline fence | F05-AC-001a; F05-AC-001b; F05-AC-001c |
 | F05-REQ-002 | F05 Charts | specs/features/F05-charts/tasks.md — 1. Draw an inline fence | F05-AC-002a; F05-AC-002b |
 | F05-REQ-003 | F05 Charts | specs/features/F05-charts/tasks.md — 1. Draw an inline fence | F05-AC-003a |
@@ -248,6 +250,7 @@ The 18 acceptance criteria are the checklist under `<!-- prd:acceptance-criteria
 | F09-REQ-034 | F09 Editing | specs/features/F09-editing/tasks.md — F09-T-020 Merge or stop when the head moved | `save merges the three texts as lines` (F09-AC-034a) |
 | F09-REQ-035 | F09 Editing | specs/features/F09-editing/tasks.md — F09-T-020 Merge or stop when the head moved | `a clean merge notices rebased onto latest` (F09-AC-035a) |
 | F09-REQ-036 | F09 Editing | specs/features/F09-editing/tasks.md — F09-T-020 Merge or stop when the head moved | `a conflict opens the three texts and does not save` (F09-AC-036a) |
+| F09-REQ-037 | F09 Editing | specs/features/F09-editing/tasks.md — F09-T-021 Produce an empty diff for an untouched save | `editing and saving an untouched document produces an empty diff` (F09-AC-037a) |
 | F10-REQ-001 | F10 Settings and theme | specs/features/F10-settings/tasks.md — F10-T-001 Open Settings as a dialog with three sections | `settings opens as a dialog` (F10-AC-001a) |
 | F10-REQ-002 | F10 Settings and theme | specs/features/F10-settings/tasks.md — F10-T-002 Open on Appearance, and toggle without changing the section | `settings from the file column opens appearance` (F10-AC-002a); `phone gear opens settings` (F10-AC-002b) |
 | F10-REQ-003 | F10 Settings and theme | specs/features/F10-settings/tasks.md — F10-T-002 Open on Appearance, and toggle without changing the section | `control comma toggles settings` (F10-AC-003a) |
@@ -402,6 +405,8 @@ The 18 acceptance criteria are the checklist under `<!-- prd:acceptance-criteria
 | F13-REQ-032 | F13 Agent access | specs/features/F13-agent-access/tasks.md — F13-T12 Search documents | F13-AC-032a |
 | F13-REQ-033 | F13 Agent access | specs/features/F13-agent-access/tasks.md — F13-T23 Answer a tool within 2 seconds | F13-AC-033a |
 | F13-REQ-034 | F13 Agent access | specs/features/F13-agent-access/tasks.md — F13-T24 Finish the log-an-experiment server path | F13-AC-034a |
+| F13-REQ-035 | F13 Agent access | specs/features/F13-agent-access/tasks.md — F13-T25 Log this experiment with no manual fixes | `log this experiment to Ledger needs no manual fixes` (F13-AC-035a) |
+| F13-REQ-036 | F13 Agent access | specs/features/F13-agent-access/tasks.md — F13-T26 Accept the agent's retry | `the agent retries and that retry succeeds` (F13-AC-036a) |
 | F14-REQ-001 | F14 OAuth | specs/features/F14-oauth/tasks.md — F14-T01 Keep OAuth off | F14-AC-001a; F14-AC-001b |
 | F14-REQ-002 | F14 OAuth | specs/features/F14-oauth/tasks.md — F14-T04 Publish protected-resource metadata | F14-AC-002a; F14-AC-002b |
 | F14-REQ-003 | F14 OAuth | specs/features/F14-oauth/tasks.md — F14-T05 Publish authorization-server metadata | F14-AC-003a; F14-AC-003b |
@@ -657,8 +662,8 @@ Eighteen criteria. The Test column uses the test the task file names. Where the 
 
 | Criterion | Feature | Test |
 | --- | --- | --- |
-| AC-01. From Cursor, "log this experiment to Ledger" produces a valid proposal with no manual fixes, using only MCP tools. | F13 Agent access; X Cross-cutting | F13-AC-021a on F13-T17; F13-AC-002a on F13-T19; `one sentence produces one proposal within 10 seconds` (X-AC-011a) on X-T-020 |
-| AC-02. An invalid proposal returns structured errors, and the agent's retry succeeds. | F06 Validation | F06-AC-001b on F06-T01; F06-AC-004a on F06-T02 |
+| AC-01. From Cursor, "log this experiment to Ledger" produces a valid proposal with no manual fixes, using only MCP tools. | F13 Agent access; X Cross-cutting | F13-AC-021a on F13-T17; F13-AC-002a on F13-T19; `one sentence produces one proposal within 10 seconds` (X-AC-011a) on X-T-020; `log this experiment to Ledger needs no manual fixes` (F13-AC-035a) on F13-T25 |
+| AC-02. An invalid proposal returns structured errors, and the agent's retry succeeds. | F06 Validation; F13 Agent access | F06-AC-001b on F06-T01; F06-AC-004a on F06-T02; `the agent retries and that retry succeeds` (F13-AC-036a) on F13-T26 |
 | AC-03. The proposal appears in the Inbox within 2 seconds. | F12 Proposals and review; X Cross-cutting | F12-AC-050a on F12-T24; `a stored proposal is in the inbox within 2 seconds` (X-AC-009a) on X-T-021 |
 | AC-04. Merging creates a revision, updates the document, and marks the proposal merged for get_proposal. | F12 Proposals and review; F13 Agent access | F12-AC-036a on F12-T17; F13-AC-023a on F13-T17 |
 | AC-05. An agent key cannot merge, and a revoked key is refused immediately. | F13 Agent access; F12 Proposals and review | F13-AC-003a on F13-T05; F13-AC-009a on F13-T08; F12-AC-042a on F12-T19 |
@@ -669,20 +674,16 @@ Eighteen criteria. The Test column uses the test the task file names. Where the 
 | AC-10. Merging a concluded experiment adds its points to the chart without a reload. | F16 Metrics | F16-AC-001a on step 1; F16-AC-019a on step 10 |
 | AC-11. Two harness versions on the same eval show as separate colored series with correct deltas. | F16 Metrics | F16-AC-008a on step 5; F16-AC-014a on step 6 |
 | AC-12. Bumping an eval version splits the chart. | F16 Metrics | F16-AC-009b on step 5 |
-| AC-13. Editing and saving an untouched document produces an empty diff. | F09 Editing | No task names a test for this criterion. |
+| AC-13. Editing and saving an untouched document produces an empty diff. | F09 Editing | `editing and saving an untouched document produces an empty diff` (F09-AC-037a) on F09-T-021 |
 | AC-14. Exporting and re-importing a space yields identical files. | F19 Import and export | F19-AC-014a on step 7 |
 | AC-15. Every screen is usable with the keyboard alone. | X Cross-cutting; F20 Keyboard | `editor shortcuts run from the keyboard` (X-AC-012a) on X-T-008; `inbox timeline and metrics work from the keyboard alone` (X-AC-012b) on X-T-023; F20-AC-001a through F20-AC-014a on F20-T-001 through F20-T-006 |
 | AC-16. Review of a typical experiment proposal takes under two minutes. | X Cross-cutting; F12 Proposals and review | `median review duration is reviewed_at minus created_at` (X-AC-025a) on X-T-026 |
-| AC-17. A test document using every syntax in Markdown capabilities renders identically in view, editor preview, and review. | F04 Rendering | No task names a test for this criterion. |
+| AC-17. A test document using every syntax in Markdown capabilities renders identically in view, editor preview, and review. | F04 Rendering | `one document using every Markdown capability renders the same in view, editor preview, and review` (F04-AC-017a) on F04-T-013 |
 | AC-18. A metrics-backed chart embedded in a finding updates after a new experiment merges. | F05 Charts | F05-AC-015b on step 9 |
 
 Where a criterion is only partly named by a test:
 
-- AC-01. F13-AC-021a stores a valid `propose_change`. F13-AC-002a lists the ten tools and no delete tool. X-AC-011a starts from the sentence "Log this run to Ledger" and expects one valid proposal. No task names a test whose words are "no manual fixes" or "log this experiment to Ledger".
-- AC-02. F06-AC-001b returns the same `errors` array for an invalid proposal, and F06-AC-004a requires `code`, `message`, and `hint`. No task names a test in which the agent retries and that retry succeeds.
-- AC-13. No step names an empty diff of an untouched save. F09-AC-020a checks that one frontmatter edit writes one YAML value. F06-AC-022a returns `no_change` when proposal bytes equal the head. Neither is this criterion.
 - AC-16. F12's Limits table states a median under 2 minutes and says instrumentation of that median is out of scope, so F12 names no test. The measuring test is X-AC-025a.
-- AC-17. F04-T-001 through F04-T-010 test each syntax on its own. F12-AC-030b renders a math span, a callout, and an embed in the review diff. No step names one document rendered the same in view, editor preview, and review.
 
 ## Success metrics
 
@@ -698,4 +699,4 @@ Each metric is a row under `<!-- prd:success-metrics -->`. The query is the func
 
 ## Check
 
-Every requirement has at least one task and one test. No task step lacks a requirement. AC-13 and AC-17 have no test that states them. AC-02 has no test for the retry. AC-01 and AC-16 are only partly named by the tests in the table above.
+Every requirement has at least one task and one test. No task step lacks a requirement. AC-16 is only partly named by the tests in the table above.
