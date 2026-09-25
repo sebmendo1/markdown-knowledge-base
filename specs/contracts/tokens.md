@@ -95,11 +95,11 @@ Shipped, from `reading.css`, and it wins over `globals.css`:
 | --- | --- | --- |
 | Font size | 17px on `.md-column`; `.md` inherits | `globals.css` sets `.md` to 16.5px |
 | Line height | 1.7 on `.md` | `globals.css` sets 1.65 |
-| Measure | `width: min(100%, calc(66ch + 64px))` | PRD 720px, and `globals.css` `max-width: 760px`, are not what shipped |
+| Measure | Column capped at 760px; text 696px wide | `reading.css` sets `width: min(100%, calc(66ch + 64px))`. 66ch at 17px is 744px, so that width is 808px and `max-width: 760px` from `globals.css` binds. Padding is 32px on each side inside the border box, so the text is 696px wide. PRD 720px is not what shipped. A line near 66 characters is not the shipped width |
 
-The 64px is the 32px of padding on each side, so the text line is near 66 characters. Below the 640px container breakpoint the column becomes `width: 100%` and that cap drops.
+Below the 640px container breakpoint the column `width` becomes `100%`, and the 760px cap does not bind.
 
-C4 asked for this reading line. It matches the CSS.
+C4 asked for a line near 66 characters at 17px and 1.7 line height. The type size matches the CSS. The width that ships is the 760px cap.
 
 ### Reading headings
 

@@ -10,7 +10,7 @@ A term marked **Replaced** kept its PRD meaning in `specs/source/ledger-prd.md`,
 
 A top-level knowledge base: members, agent keys, document types, and space settings. The PRD URL is `/memento` for the first space.
 
-**Replaced** for routes. markdown-kb has no space segment. A project is the folder the editor uses today. A space is still the Ledger noun sharing and agent keys will belong to.
+**Replaced** for routes. Pages are `/{project}/{page-path}` (for example `/guide/docs/layout`), not `/docs/…`. `/docs` and `/ledger` redirect into the guide project. There is no space segment. The product name stays markdown-kb. A project is the folder the editor uses today. A space is still the Ledger noun sharing and agent keys will belong to.
 
 ### Document
 
@@ -114,7 +114,7 @@ The block-editor mode (`edit`). The status line says "Editing". `E`, and the Edi
 
 The rendered mode (`preview`). The status line says "Viewing". It is the default. The Edit button is off. `⌘/` from viewing opens Markdown source, not editing.
 
-**Replaced** as the screen. The PRD document view is a 16px, 1.6 line-height, 720px column with a right panel of properties, backlinks, and history. The shipped reading line is near 66 characters at 17px and 1.7 line height, and the right column is the outline only. Backlinks render under the page, not in that column.
+**Replaced** as the screen. The PRD document view is a 16px, 1.6 line-height, 720px column with a right panel of properties, backlinks, and history. The shipped reading text is 17px with line-height 1.7. The column is capped at 760px, and the text is 696px wide. The right column is the outline only. Backlinks render under the page, not in that column.
 
 ### Preview
 
@@ -142,13 +142,13 @@ Light, dark, or system. Unset means dark. The choice is stored in browser localS
 
 ### Project
 
-A named folder of pages in markdown-kb. The URL is `/{project}/…`. Three kinds exist: repository, this browser, and a folder on this computer. A project has a slug, a name, and a description.
+A named folder of pages in markdown-kb. A page lives at `/{project}/{page-path}`, for example `/guide/docs/layout`, not at `/docs/…`. `/docs` and `/ledger` redirect into the guide project. Three kinds exist: repository, this browser, and a folder on this computer. A project has a slug, a name, and a description.
 
-A project is not a space. It is the stand-in the editor uses until spaces exist. There is no space segment in the URL.
+A project is not a space. It is the stand-in the editor uses until spaces exist. There is no space segment in the URL. The product name stays markdown-kb.
 
 ### Page
 
-One Markdown file in a project. The path ends in `.md`. The editor's page is the stand-in for a document: it has content, a path, and optional repository origin, and it may have no document type yet.
+One Markdown file in a project. The path ends in `.md`. Its URL is `/{project}/{page-path}`, for example `/guide/docs/layout`. The editor's page is the stand-in for a document: it has content, a path, and optional repository origin, and it may have no document type yet.
 
 The page field `base` is repository file text. See base. It is not a base.
 
@@ -223,7 +223,7 @@ A non-goal, as are a board and a database. None of them is the model for a docum
 
 ### Reading line
 
-The shipped measure: near 66 characters at 17px and 1.7 line height. Defined with viewing. The PRD 16px, 1.6 line height, and 720px column are replaced.
+The shipped measure: 17px, line-height 1.7, column capped at 760px, text 696px wide. 66ch at 17px is 744px, so the 760px cap binds. Defined with viewing. The PRD 16px, 1.6 line height, and 720px column are replaced.
 
 ### Craft
 
