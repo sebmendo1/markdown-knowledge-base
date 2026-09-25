@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "frontmatter/doc.schema.json",
+  "title": "Doc frontmatter",
+  "description": "Seed shape of a doc document, including .ledger/space.md and .ledger/agents.md. Those two paths must use type doc. maxLength counts Unicode code points. x-ledger.nested means extra folder segments under docs/ are valid paths.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "title"],
+  "properties": {
+    "type": { "const": "doc" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 40 }
+    }
+  },
+  "x-ledger": {
+    "folder": "docs",
+    "filename": "{slug}",
+    "nested": true,
+    "sections": []
+  },
+  "examples": [
+    {
+      "type": "doc",
+      "title": "About this space",
+      "tags": ["overview"]
+    }
+  ]
+}
