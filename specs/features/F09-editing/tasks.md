@@ -173,3 +173,11 @@ These steps are the target. They are not in the tree. Do not treat F09-T-006 or 
 - Size: several modules
 - Depends on: F09-T-018
 - Modules: a page banner reading `This document changed. Review changes.` (not a dialog), a three-way line merge, and a side-by-side resolver on the page. The merge splits on `\n`, does not parse YAML, does not sort keys, and does not treat list items as a set. A line changed on both sides in different ways, or two overlapping hunks, is a conflict. A clean merge saves and shows `Rebased onto latest`, with YAML key order taken from the surviving lines. A conflict does not save. The resolver shows the reader's text, the other text, and the base, and no revision is written until the reader submits a resolved document. The shipped disk banner `This page changed on disk.` is F08 and is not this banner.
+
+### F09-T-021 Produce an empty diff for an untouched save
+
+- Requirements: F09-REQ-037
+- Test: `editing and saving an untouched document produces an empty diff` (F09-AC-037a).
+- Size: one module
+- Depends on: F09-T-018
+- Module: the save path. The reader opens a document, changes nothing, and saves. The diff is empty. The save does not rewrite the Markdown. F09-AC-020a writes one YAML value, and F06-AC-022a returns `no_change` for identical proposal bytes. Neither is this step.

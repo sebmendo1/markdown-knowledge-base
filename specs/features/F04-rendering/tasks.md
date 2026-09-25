@@ -2,7 +2,7 @@
 
 Steps are in dependency order. Size is the parts a step touches: one module, several modules, or a schema change. There is no calendar estimate.
 
-Every step here is shipped. The tests named below already prove it.
+Steps under Shipped are in the tree, and the tests named there already prove them. F04-T-013 is not started.
 
 ## Shipped
 
@@ -101,3 +101,15 @@ Every step here is shipped. The tests named below already prove it.
 - Size: one module
 - Depends on: none
 - Module: `app/reading.css`. The numbers match [`specs/contracts/tokens.md`](../../contracts/tokens.md).
+
+## Not started
+
+This step is the target. It is not in the tree. F04-T-001 through F04-T-010 test each syntax on its own and do not satisfy it.
+
+### F04-T-013 Render one document the same in view, preview, and review
+
+- Requirements: F04-REQ-017
+- Test: `one document using every Markdown capability renders the same in view, editor preview, and review` (F04-AC-017a).
+- Size: several modules
+- Depends on: F04-T-001, F04-T-002, F04-T-003, F04-T-004, F04-T-005, F04-T-006, F04-T-007, F04-T-008, F04-T-009, F04-T-010, F04-T-011
+- Modules: one fixture document that uses every syntax in Markdown capabilities, shown in view, in the editor preview, and in review. The three renders are the same. A review diff that shows a math span, a callout, and an embed is not this step.

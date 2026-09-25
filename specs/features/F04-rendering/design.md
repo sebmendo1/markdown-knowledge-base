@@ -1,6 +1,8 @@
 # F04 design
 
-Written against `spec.md` in this folder, from `origin/cursor/spec-links-rendering-editing-7df9`. That branch is not merged. The syntax in this spec is what preview renders today. Charts are F05. Wiki links and embeds are F03. The outline is F08. Editing the source is F09.
+Written against `spec.md` in this folder, from `origin/cursor/spec-links-rendering-editing-7df9`. That branch is not merged. The syntax in F04-REQ-001 through F04-REQ-016 is what preview renders today. Charts are F05. Wiki links and embeds are F03. The outline is F08. Editing the source is F09.
+
+F04-REQ-017 is not in the tree. One document that uses every syntax in Markdown capabilities renders the same in view, in the editor preview, and in review.
 
 Emoji shortcodes, subscript and superscript markers, fenced line highlights, footnote hover previews, ticking a task in preview, image zoom, and a video player are not in this spec and are not in this design.
 

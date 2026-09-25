@@ -2,7 +2,7 @@
 
 Written against `spec.md` in this folder, from `origin/cursor/spec-rest-of-editing-b39a`. That branch is not merged. It contains the editor that shipped and the Ledger editor that did not.
 
-F09-REQ-001 through F09-REQ-016 are in the tree. F09-REQ-017 records that inline CodeMirror live preview is not this editor. F09-REQ-018 through F09-REQ-036 are not in the tree. They do not replace the shipped save. Until revisions and a signed-in role exist, Command-S still stores a local snapshot.
+F09-REQ-001 through F09-REQ-016 are in the tree. F09-REQ-017 records that inline CodeMirror live preview is not this editor. F09-REQ-018 through F09-REQ-037 are not in the tree. They do not replace the shipped save. Until revisions and a signed-in role exist, Command-S still stores a local snapshot.
 
 The block editor already opens a `/` menu and a `[[` picker. Those menus are wider than F09-REQ-021 and do not insert `[[slug@n]]`. They are not the shipped requirements. F20 records the keys that open them.
 
@@ -74,6 +74,7 @@ These modules are not in the tree. Building them does not change F09-REQ-001 thr
 | Inline validation | F09-REQ-028, F09-REQ-029 | An error blocks the revision, the proposal, and the commit field, and shows each error beside its field or line with the validator's code, message, and hint. Warnings show the same way and still allow Save or Propose |
 | Save and Propose by role | F09-REQ-030, F09-REQ-031, F09-REQ-032 | Contributor sees `Propose` and not `Save`. Propose creates a proposal and not a revision. Owner or Editor sees `Save`, which follows the commit line. Viewer sees neither and creates neither |
 | Conflict banner and line merge | F09-REQ-033 through F09-REQ-036 | Banner text is `This document changed. Review changes.` It is not a dialog. Save then runs a three-way line merge of the base the editor opened, the current head, and the draft. The split is `\n`. The merge does not parse YAML, does not sort keys, and does not treat list items as a set. A line changed on both sides in different ways, or two overlapping hunks, is a conflict. A clean merge saves and shows `Rebased onto latest`. Key order is the order of the surviving lines. A conflict does not save, and opens a side-by-side resolver on the page with the reader's text, the other text, and the base. No revision is written until the reader submits a resolved document |
+| Untouched save | F09-REQ-037 | The reader opens a document, changes nothing, and saves. The diff is empty. The save does not rewrite the Markdown |
 
 The disk banner `This page changed on disk.` stays the local-folder case (F08). It is not the revision banner.
 
