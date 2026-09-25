@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "tsx --test lib/markdown/*.test.ts lib/workspace/*.test.ts lib/editor/*.test.ts lib/store/*.test.ts lib/mcp/*.test.ts lib/specs/*.test.ts",
     "mcp": "tsx mcp/server.ts",
-    "mcp:inspect": "npx -y @modelcontextprotocol/inspector tsx mcp/server.ts"
+    "mcp:inspect": "npx -y @modelcontextprotocol/inspector tsx mcp/server.ts",
+    "spec:coverage": "tsx scripts/spec-coverage.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",

@@ -10,6 +10,8 @@ const ADR_ID = /ADR-\d{4}/g;
 const PRD_CITATION = /prd:([a-z0-9-]+)/g;
 const PRD_ANCHOR = /<!--\s*prd:([a-z0-9-]+)\s*-->/g;
 const MARKDOWN_LINK = /!?\[[^\]]*\]\(([^)\s]+)\)/g;
+const ACCEPTANCE_ID = /\b(?:F\d{2}|X)-AC-\d+[a-z]?\b/g;
+const TEST_FILE = /\.(?:test|spec)\.tsx?$/;
 
 function relative(root: string, file: string): string {
   return path.relative(root, file).split(path.sep).join("/");
@@ -196,4 +198,62 @@ function checkContracts(root: string): string[] {
 
 export function checkSpecs(root: string): string[] {
   return [...checkRequirements(root), ...checkAdrs(root), ...checkPrdAnchors(root), ...checkContracts(root)];
+}
+
+export type AcceptanceCoverage = {
+  feature: string;
+  cited: string[];
+  covered: string[];
+  missing: string[];
+};
+
+function acceptanceIds(source: string): string[] {
+  ACCEPTANCE_ID.lastIndex = 0;
+  return source.match(ACCEPTANCE_ID) ?? [];
+}
+
+function supersededRequirements(spec: string): Set<string> {
+  const ids = new Set<string>();
+  for (const line of spec.split(/\r?\n/)) {
+    const match = DEFINITION.exec(line.trim());
+    if (match && /Superseded by/i.test(line)) ids.add(match[1] || match[2] || match[3]);
+  }
+  return ids;
+}
+
+function testFiles(dir: string): string[] {
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir, { recursive: true, encoding: "utf8" })
+    .filter((entry) => TEST_FILE.test(entry) && !entry.split(path.sep).includes("node_modules"))
+    .map((entry) => path.join(dir, entry));
+}
+
+// Each acceptance id a task step names should appear in a test file, in the test name or a comment beside it.
+export function acceptanceCoverage(root: string): AcceptanceCoverage[] {
+  const features = path.join(root, "specs", "features");
+  if (!fs.existsSync(features)) return [];
+
+  const tested = new Set<string>();
+  // lib/specs tests use made-up ids as fixtures, so they do not count.
+  const specTests = path.join(root, "lib", "specs") + path.sep;
+  const files = [...testFiles(path.join(root, "lib")), ...testFiles(path.join(root, "e2e"))].filter((file) => !file.startsWith(specTests));
+  for (const file of files) {
+    for (const id of acceptanceIds(read(file))) tested.add(id);
+  }
+
+  const result: AcceptanceCoverage[] = [];
+  for (const entry of fs.readdirSync(features, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    const tasksFile = path.join(features, entry.name, "tasks.md");
+    if (!entry.isDirectory() || !fs.existsSync(tasksFile)) continue;
+    const specFile = path.join(features, entry.name, "spec.md");
+    const superseded = fs.existsSync(specFile) ? supersededRequirements(read(specFile)) : new Set<string>();
+    const cited = [...new Set(acceptanceIds(read(tasksFile)))]
+      .filter((id) => !superseded.has(id.replace(/-AC-(\d+)[a-z]?$/, "-REQ-$1")))
+      .sort();
+    const covered = cited.filter((id) => tested.has(id));
+    const missing = cited.filter((id) => !tested.has(id));
+    result.push({ feature: entry.name, cited, covered, missing });
+  }
+  return result;
 }
