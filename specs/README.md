@@ -13,8 +13,16 @@ This branch contains:
 - `specs/source/ledger-prd.md`
 - `specs/source/decisions-and-changes.md`
 - `specs/features/X-cross-cutting/spec.md`
+- `specs/features/X-cross-cutting/design.md`
+- `specs/features/X-cross-cutting/tasks.md`
 
-No other `spec.md` is in this branch. `design.md` and `tasks.md` exist for F01, F02, F06, and F07 on their own branches. They are in progress for F03, F04, F05, F08, F09, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20, F21, F22, and X. None of those `design.md` or `tasks.md` files are in this branch.
+No other `spec.md` is in this branch. `design.md` and `tasks.md` now exist for every feature, including X. On this branch, that pair is present only for X. The pairs for F01 through F22 exist on their own branches, not in this one:
+
+- F01, F02, and F06 on `origin/cursor/design-tasks-format-types-validation-279e`
+- F07 on `origin/cursor/storage-design-tasks-5c9d`
+- F03, F04, F08, F09, F10, F11, F17, F20, and F21 on `origin/cursor/design-tasks-editor-shell-bbc1`
+- F05, F16, F18, F19, and F22 on `origin/cursor/design-charts-metrics-history-import-home-4ba1`
+- F12, F13, F14, and F15 on `origin/cursor/design-review-agents-auth-9270`
 
 ## Feature index
 
@@ -48,4 +56,4 @@ Status is against the product today: the markdown editor on Vercel, with no sign
 
 F04's own spec describes rendering as mostly built. This index uses partly built, because emoji shortcodes, task ticks that save a revision, and several other Markdown capabilities are not started.
 
-`design.md` and `tasks.md` sit next to `spec.md` in that feature's folder. They exist for F01, F02, F06, and F07. They are in progress for the other rows, including X.
+`design.md` and `tasks.md` sit next to `spec.md` in that feature's folder. They now exist for every feature, including X. On this branch, that pair is present only for X. The pairs for F01 through F22 are on the branches named above, not in this one.
