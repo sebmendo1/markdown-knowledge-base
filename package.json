@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test lib/markdown/*.test.ts lib/workspace/*.test.ts lib/editor/*.test.ts lib/store/*.test.ts lib/mcp/*.test.ts",
+    "test": "tsx --test lib/markdown/*.test.ts lib/workspace/*.test.ts lib/editor/*.test.ts lib/store/*.test.ts lib/mcp/*.test.ts lib/specs/*.test.ts",
     "mcp": "tsx mcp/server.ts",
     "mcp:inspect": "npx -y @modelcontextprotocol/inspector tsx mcp/server.ts"
   },
