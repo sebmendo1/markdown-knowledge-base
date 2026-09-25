@@ -184,6 +184,24 @@ F13-AC-004a is the shared F12 `summary_invalid` sentence on both transports.
 
 The sum is one `get_context`, one `get_template`, and one `propose_change`, model time excluded, under 10 seconds at the 95th percentile.
 
+## F13-T25 Log this experiment with no manual fixes
+
+- Depends on: F13-T17, F13-T19
+- Size: one module
+- Requirements: F13-REQ-035
+- Test: `lib/agent/log-experiment.test.ts` proves `log this experiment to Ledger needs no manual fixes` (F13-AC-035a)
+
+The sentence is "log this experiment to Ledger". The agent uses only the ten MCP tools. The stored proposal is valid and needs no manual fixes.
+
+## F13-T26 Accept the agent's retry
+
+- Depends on: F13-T03, F13-T17
+- Size: one module
+- Requirements: F13-REQ-036
+- Test: `lib/agent/retry.test.ts` proves `the agent retries and that retry succeeds` (F13-AC-036a)
+
+`propose_change` first returns a structured error for an invalid proposal. The agent retries with a valid proposal. That retry succeeds and the proposal is stored.
+
 ## Coverage
 
 | Requirement | Task | Test |
@@ -222,3 +240,5 @@ The sum is one `get_context`, one `get_template`, and one `propose_change`, mode
 | F13-REQ-032 | F13-T12 | F13-AC-032a |
 | F13-REQ-033 | F13-T23 | F13-AC-033a |
 | F13-REQ-034 | F13-T24 | F13-AC-034a |
+| F13-REQ-035 | F13-T25 | F13-AC-035a |
+| F13-REQ-036 | F13-T26 | F13-AC-036a |
