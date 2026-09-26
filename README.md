@@ -36,43 +36,19 @@ Repository projects are folders in this repository, listed in `lib/docs.ts`: `co
 
 ## Connect your agents
 
-The MCP server runs on your machine over stdio. It does not listen on the network. Point `KB_DIR` at the same folder the dev server uses, which is `kb/` inside this repository unless you set the variable.
+The MCP server runs on your machine over stdio. It does not listen on the network. It reads the same folder as the dev server: `KB_DIR` when set, otherwise `kb/` inside this repository, wherever the agent starts it from. On launch it writes `markdown-kb MCP: reading <folder>` to stderr, which your agent shows in its MCP logs.
+
+Print the config for Cursor, Claude Code, and Codex, filled in with this checkout's paths:
 
 ```bash
-npm run mcp
+npm run mcp:config
 ```
 
-`npm run mcp:inspect` opens the MCP Inspector against that server.
+The same snippets are in the app under Settings → MCP. Copy them from either place rather than typing paths by hand. After adding the server, reconnect it in your agent (`/mcp` in Claude Code).
 
-Cursor, in `~/.cursor/mcp.json`:
+`npm run mcp` starts the server in this terminal, and `npm run mcp:inspect` opens the MCP Inspector against it.
 
-```json
-{
-  "mcpServers": {
-    "markdown-kb": {
-      "command": "npx",
-      "args": ["tsx", "/absolute/path/to/markdown-knowledge-base/mcp/server.ts"],
-      "env": { "KB_DIR": "/absolute/path/to/markdown-knowledge-base/kb" }
-    }
-  }
-}
-```
-
-Claude Code:
-
-```bash
-claude mcp add markdown-kb --scope user -e KB_DIR=/absolute/path/to/markdown-knowledge-base/kb \
-  -- npx tsx /absolute/path/to/markdown-knowledge-base/mcp/server.ts
-```
-
-Codex, in `~/.codex/config.toml`:
-
-```toml
-[mcp_servers.markdown-kb]
-command = "npx"
-args = ["tsx", "/absolute/path/to/markdown-knowledge-base/mcp/server.ts"]
-env = { KB_DIR = "/absolute/path/to/markdown-knowledge-base/kb" }
-```
+The tools are `list_projects`, `create_project`, `list_files` (paths, titles, versions, and sizes, not page text), `read_file`, `create_file`, `update_file`, `create_folder`, `move_file`, `delete_file`, and `search`.
 
 Start the app with `npm run dev`, then ask an agent to create a project and a page. The page shows up in the browser within a few seconds. Edits you type are written back to the same files. Open the site at [http://localhost:3000](http://localhost:3000); `127.0.0.1` works too. The save route is on only while `KB_LOCAL=1`, which `npm run dev` sets, so a deployed build does not expose it.
 

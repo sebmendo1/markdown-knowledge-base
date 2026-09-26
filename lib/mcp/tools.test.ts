@@ -65,9 +65,12 @@ test("mcp tools create a project and edit a page", async () => {
     );
     assert.match(String(removed.json.path), /^\.trash\//);
     const listed = textOf(await client.callTool({ name: "list_files", arguments: { project: "field-notes" } }));
-    const files = (listed.json.files as { path: string }[]).map((file) => file.path);
+    const entries = listed.json.files as Record<string, unknown>[];
+    const files = entries.map((file) => file.path);
     assert.equal(files.includes("ideas/mcp.md"), false);
-    assert.equal(files.includes("project.md"), true);
+    assert.equal(files.includes("project.md"), false);
+    assert.equal(entries.some((file) => "content" in file), false);
+    assert.deepEqual(listed.json.folders, ["ideas"]);
   } finally {
     await client.close();
     await mcp.close();

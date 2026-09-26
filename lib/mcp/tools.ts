@@ -50,11 +50,11 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
   server.registerTool(
     "list_files",
     {
-      description: "List the Markdown files and folders in one project. Paths are relative to the project. Read a page before changing it.",
+      description: "List the pages and folders in one project, with each page's path, title, version, and size in bytes. Paths are relative to the project. Call read_file for a page's Markdown, and read a page before changing it.",
       annotations: { readOnlyHint: true },
       inputSchema: { project },
     },
-    async ({ project: slug }) => run(() => store.listFiles(slug, { includeMeta: true })),
+    async ({ project: slug }) => run(() => store.listIndex(slug)),
   );
 
   server.registerTool(
@@ -147,7 +147,7 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
   server.registerTool(
     "search",
     {
-      description: "Search page paths, titles, and Markdown in one project. The match is case-insensitive.",
+      description: "Search page paths, titles, and Markdown in one project. The match is case-insensitive. Pages whose title or path match come first. Each snippet is taken from the page body, without frontmatter.",
       annotations: { readOnlyHint: true },
       inputSchema: {
         project,

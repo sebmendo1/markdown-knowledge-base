@@ -15,6 +15,7 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export type DiskFile = { path: string; content: string; version: string };
 export type DiskProject = { slug: string; name: string; description: string; paths: string[] };
 export type SearchHit = { path: string; title: string; snippet: string };
+export type IndexEntry = { path: string; title: string; version: string; bytes: number };
 export type Edit = { find: string; replace: string };
 
 export type ChangeReport = {
@@ -98,7 +99,7 @@ export function openStore(rootDir: string) {
       throw new StoreError("not_found", `No page at ${safe}. Call list_files to see this project.`);
     }
     const content = fs.readFileSync(abs, "utf8");
-    return { path: safe, content, version: versionOf(content) };
+    return { path: onDisk(dir, safe), content, version: versionOf(content) };
   }
 
   function conflict(file: DiskFile) {
@@ -123,6 +124,20 @@ export function openStore(rootDir: string) {
     const dest = locate(dir, to);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.renameSync(src, dest);
+  }
+
+  // On a case-insensitive disk, notes/Idea.md opens notes/idea.md. Report the name as it is on disk,
+  // so later calls use the same path list_files shows.
+  function onDisk(dir: string, rel: string): string {
+    let current = dir;
+    const parts = rel.split("/").map((part) => {
+      const entries = fs.readdirSync(current);
+      const matches = entries.includes(part) ? [part] : entries.filter((entry) => entry.toLowerCase() === part.toLowerCase());
+      const name = matches.length === 1 ? matches[0] : part;
+      current = path.join(current, name);
+      return name;
+    });
+    return parts.join("/");
   }
 
   function listFiles(slug: string, options?: { includeMeta?: boolean }): { files: DiskFile[]; folders: string[] } {
@@ -188,6 +203,20 @@ export function openStore(rootDir: string) {
     },
 
     listFiles,
+
+    // What an agent needs to choose a page to read, without every page's Markdown.
+    listIndex(slug: string): { files: IndexEntry[]; folders: string[] } {
+      const { files, folders } = listFiles(slug);
+      return {
+        files: files.map((file) => ({
+          path: file.path,
+          title: quickTitle(file.content, nameOf(file.path).replace(/-/g, " ")),
+          version: file.version,
+          bytes: Buffer.byteLength(file.content, "utf8"),
+        })),
+        folders,
+      };
+    },
 
     readFile(slug: string, rel: string): DiskFile {
       return readAt(projectDir(slug), rel);
@@ -273,18 +302,19 @@ export function openStore(rootDir: string) {
     search(slug: string, query: string, limit = 20): SearchHit[] {
       const needle = query.trim().toLowerCase();
       if (!needle) return [];
-      const hits: SearchHit[] = [];
-      for (const file of listFiles(slug, { includeMeta: true }).files) {
+      const named: SearchHit[] = [];
+      const inBody: SearchHit[] = [];
+      for (const file of listFiles(slug).files) {
         const title = quickTitle(file.content, nameOf(file.path).replace(/-/g, " "));
-        const at = file.content.toLowerCase().indexOf(needle);
-        const inPath = file.path.toLowerCase().includes(needle) || title.toLowerCase().includes(needle);
-        if (at < 0 && !inPath) continue;
+        const body = splitFrontmatter(file.content).body;
+        const at = body.toLowerCase().indexOf(needle);
+        const byName = file.path.toLowerCase().includes(needle) || title.toLowerCase().includes(needle);
+        if (!byName && at < 0 && !file.content.toLowerCase().includes(needle)) continue;
         const start = at < 0 ? 0 : Math.max(0, at - 40);
-        const snippet = file.content.slice(start, start + needle.length + 80).replace(/\s+/g, " ").trim();
-        hits.push({ path: file.path, title, snippet });
-        if (hits.length >= limit) break;
+        const snippet = body.slice(start, start + needle.length + 80).replace(/\s+/g, " ").trim();
+        (byName ? named : inBody).push({ path: file.path, title, snippet });
       }
-      return hits;
+      return [...named, ...inBody].slice(0, limit);
     },
 
     applyChanges(slug: string, changes: Change[]): ChangeReport {
