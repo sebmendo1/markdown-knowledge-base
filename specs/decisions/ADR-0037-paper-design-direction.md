@@ -28,7 +28,7 @@ Option 2. The product owner chose it on 2026-09-26.
 - The primary action uses the cobalt gradient with a white label. The accent `#7AA2F7` stays for focus, links, and agent marks.
 - Two soft vertical gradients are allowed, on the primary button and the search field. ADR-0006 still rules out hairlines between surfaces and shadows on columns.
 - Seb Sans Display sets the page title, the lead paragraph, and the project name. Seb Sans Var sets the primary button label. Geist and Geist Mono set everything else. Until the font files ship, Geist is the fallback.
-- The outline is a card inside a page-colored column. This replaces ADR-0008's full-height sidebar-colored outline. The right column still shows only the outline.
+- The outline is a card inside a page-colored column. It sits under the title row, beside the page, and the title row spans both, as in the Paper file. An icon control beside Edit shows or hides it. This replaces ADR-0008's full-height sidebar-colored outline. The right column still shows only the outline.
 - Faint text is `#8C8C8C` in Dark, not the file's `#737373`.
 
 Where the file leaves a gap, the recommended answers in design.md D-Q-1 to D-Q-5 apply until the owner answers.
@@ -38,6 +38,7 @@ Where the file leaves a gap, the recommended answers in design.md D-Q-1 to D-Q-5
 - ADR-0008, for the outline surface and shape.
 - F21-REQ-004 and F21-REQ-009, replaced by F21-REQ-020 to F21-REQ-022.
 - F08-REQ-006, F08-REQ-013, and F08-REQ-015, replaced by F08-REQ-036 to F08-REQ-038.
+- F08-REQ-005 and F08-REQ-024, replaced by F08-REQ-042 and F08-REQ-044.
 
 ## Consequences
 

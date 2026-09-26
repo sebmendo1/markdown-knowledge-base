@@ -82,6 +82,7 @@ At 1200px wide (grid `248px 1fr`, with the outline inside the page column):
   - The paragraph measure stays under ADR-0005's cap.
   - Tables and code blocks are clipped to radius 18.
 - **Outline.**
+  - It sits under the header, beside the page; the header spans both. An icon button before Edit shows or hides it (F08-REQ-042, F08-REQ-043).
   - A 240px column in the page color, padded 16px on the sides and 24px on top.
   - It holds a floating card, 208px wide, radius 16, filled `#2C2C2C` at 20%.
   - The card lists:

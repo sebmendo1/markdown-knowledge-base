@@ -137,3 +137,11 @@ Built on 2026-09-26 and proven by `e2e/design.spec.ts` and `lib/markdown/outline
 - Size: one module
 - Depends on: F21-T-011 for the display face
 - Module: `components/project-switcher.tsx`.
+
+### F08-T-017 Outline under the title row, its toggle, and scroll tracking
+
+- Requirements: F08-REQ-005, F08-REQ-024, F08-REQ-042, F08-REQ-043, F08-REQ-044, F08-REQ-045
+- Test: `F08-AC-042a outline sits under the title row beside the page`. `F08-AC-043a outline button beside edit shows and hides the outline`. `F08-AC-044a outline marks the heading at the top and the last heading at the end`. `F08-AC-045a outline scrolls to keep the marked row visible`.
+- Size: several modules
+- Depends on: F08-T-013
+- Modules: `components/workspace-view.tsx` renders the outline inside the main column, next to the stage; `components/document-chrome.tsx` adds the outline toggle; `components/use-active-heading.ts` tracks the heading from the scroll position; `components/outline-panel.tsx` keeps the marked row in view; `lib/markdown/active-heading.ts` holds the pure choice of heading. F08-REQ-005 and F08-REQ-024 are superseded (ADR-0037).

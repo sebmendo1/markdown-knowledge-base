@@ -31,7 +31,7 @@ No sign-in exists (decision D3). Anyone who can open the app is the owner for th
 - F08-REQ-002 When the request path is `/docs` or `/ledger`, the system shall respond with a temporary redirect to `/guide`.
 - F08-REQ-003 When the request path is `/docs/{path}` or `/ledger/{path}`, the system shall respond with a permanent redirect to `/guide/docs/{path}` or `/guide/ledger/{path}`.
 - F08-REQ-004 When the owner opens a project URL with no page, and that project has a home page, the system shall redirect to the home page.
-- F08-REQ-005 While the viewport is wider than 860px, the file column is expanded, the outline choice is open, and the mode is not Markdown source, the system shall show three full-height columns: the file column at 248px, the page in the remaining width, and the outline at 220px.
+- F08-REQ-005 While the viewport is wider than 860px, the file column is expanded, the outline choice is open, and the mode is not Markdown source, the system shall show three full-height columns: the file column at 248px, the page in the remaining width, and the outline at 220px. Superseded by F08-REQ-042 (ADR-0037).
 - F08-REQ-006 The system shall paint the file column and the outline with the sidebar surface, and the title row, page, and status line with the page surface, with a border width of 0px between those columns. Superseded by F08-REQ-036 (ADR-0037).
 - F08-REQ-007 While the stored sidebar choice is shown, or no choice is stored, and the viewport is wider than 860px, the system shall show the file column.
 - F08-REQ-008 When the owner hides the file column, the system shall remove it, show a panel control labeled "Show sidebar" at the top left of the page, and store the choice as hidden.
@@ -50,7 +50,7 @@ No sign-in exists (decision D3). Anyone who can open the app is the owner for th
 - F08-REQ-021 While the viewport is 390px wide, the system shall show the page without horizontal scrolling and shall keep Edit available.
 - F08-REQ-022 The system shall fill the outline from the page's headings, skipping headings inside an embed, a backlink list, or footnotes.
 - F08-REQ-023 If the open page has no headings, then the system shall show "No headings" in the outline.
-- F08-REQ-024 While a heading is the highest one visible in the page, the system shall mark that outline row.
+- F08-REQ-024 While a heading is the highest one visible in the page, the system shall mark that outline row. Superseded by F08-REQ-044 (ADR-0037).
 - F08-REQ-025 When the owner chooses an outline row, the system shall scroll that heading to the top of the page, smoothly unless the owner prefers reduced motion.
 - F08-REQ-026 The system shall hide the outline while the outline choice is closed, while the mode is Markdown source, while the route has no page, or while the viewport is 860px wide or narrower.
 - F08-REQ-027 The system shall indent an outline row by 8px plus 12px for each heading level below the first.
@@ -68,6 +68,10 @@ No sign-in exists (decision D3). Anyone who can open the app is the owner for th
 - F08-REQ-039 The system shall head the outline card with "Outline", then the page title, then one row for each H2, each with a 24px chevron slot at the right, whether or not that row has children.
 - F08-REQ-040 When the owner chooses an H2 row's chevron, the system shall show or hide that section's H3 rows beneath it, indented by 12px, and shall show the section of the heading that is highest in view.
 - F08-REQ-041 The system shall show the project name at the top of the file column with an up-down chevron that opens the project switcher, and no letter tile.
+- F08-REQ-042 While the viewport is wider than 860px, the outline choice is open, and the mode is not Markdown source, the system shall show the outline below the title row, at the right of the page and beside it, 220px wide, and shall let the title row span the page and the outline. The outline shall scroll on its own, apart from the page.
+- F08-REQ-043 When a page is open, the system shall show an icon control immediately before Edit, labeled "Hide outline" while the outline is shown and "Show outline" while it is hidden, pressed while the outline is shown. Choosing it, or pressing Command-\ or Control-\, shall show or hide the outline and store that choice on this machine. The control shall be absent while the mode is Markdown source and while the viewport is 860px wide or narrower.
+- F08-REQ-044 While the page scrolls, the system shall mark the outline row of the last heading whose top is at or above 96px below the top of the page, or the first heading when none is. When the page is scrolled to its end, the system shall mark the last heading. The mark shall follow within one animation frame of a scroll and after the page content changes.
+- F08-REQ-045 When the marked outline row is outside the outline's visible area, the system shall scroll the outline so that the row is visible, without moving the page.
 
 The page state words are "Repository copy", "Edited in this browser", "Created in this browser", and "No page here yet". The mode words are "Viewing", "Editing", and "Markdown source". The word count is the number of whitespace-separated words in the page text, followed by the word "words". Edit reads "Edit" in viewing and "Editing" in editing and in Markdown source.
 
@@ -396,6 +400,30 @@ Given an H2 with two H3s, when the owner chooses its chevron, then the two H3 ro
 Test name: `F08-AC-041a project name has a chevron and no tile`
 
 Given a project is open, when the file column renders, then the project name is shown with an up-down chevron, choosing it opens the project switcher, and no letter tile is drawn.
+
+### F08-AC-042a Outline under the title row
+
+Test name: `F08-AC-042a outline sits under the title row beside the page`
+
+Given a page with headings at 1280px, when the shell renders, then the title row spans the page and the outline, the outline's top is at or below the title row's bottom, the outline's left edge meets the page column's right edge, and scrolling the page does not move the outline.
+
+### F08-AC-043a Outline toggle
+
+Test name: `F08-AC-043a outline button beside edit shows and hides the outline`
+
+Given a page is open, when the owner chooses "Hide outline" before Edit, then the outline is gone and the control reads "Show outline". After a reload, the outline stays hidden until "Show outline" is chosen.
+
+### F08-AC-044a Scroll tracking
+
+Test name: `F08-AC-044a outline marks the heading at the top and the last heading at the end`
+
+Given a long page with headings "One" through "Eight", when the page is scrolled so "Five" is near the top, then the "Five" row is marked. When the page is scrolled to its end, then the "Eight" row is marked.
+
+### F08-AC-045a Active row stays visible
+
+Test name: `F08-AC-045a outline scrolls to keep the marked row visible`
+
+Given an outline taller than its area, when the page scrolls to a heading whose row is below the outline's visible area, then the outline scrolls so the row is visible.
 
 ## Edge cases and errors
 
