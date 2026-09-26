@@ -41,6 +41,7 @@ Questions only the owner can answer are in [open-questions.md](open-questions.md
 | [ADR-0033](ADR-0033-export-identity.md) | Export and re-import identity | Proposed | Identical means the same UTF-8 bytes, including line endings and YAML key order. |
 | [ADR-0034](ADR-0034-accessibility.md) | Accessibility | Proposed | The bar is WCAG 2.2 Level AA, with a fixed focus order and a named Editing or Preview state. |
 | [ADR-0035](ADR-0035-link-targets-and-rename.md) | Link targets and rename | Accepted | A wiki target is a page path or a unique file name, with an optional label. Rename and move rewrite links. `link_broken` is a target that does not resolve. |
+| [ADR-0036](ADR-0036-settings-sections.md) | Settings sections | Accepted | Settings has General, Appearance, Editor, Agents, Keyboard, and About. Each holds only controls that change behavior, or state shown nowhere else. |
 
 ## Gaps with no ADR
 

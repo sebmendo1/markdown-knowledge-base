@@ -6,7 +6,11 @@ Written against `spec.md` in this folder, from `origin/cursor/reading-shell-spec
 
 | Module | Role |
 | --- | --- |
-| `components/settings-host.tsx` | The dialog, the section list, and the three panes |
+| `components/settings-host.tsx` | The dialog and the section list |
+| `components/settings/{general,appearance,editor,agents,keyboard,about}.tsx` | One pane per section (ADR-0036) |
+| `lib/settings/preferences.ts`, `components/preferences.ts` | Parse, store, and publish `markdown-kb:prefs`; `data-motion` and `prefersReducedMotion()` |
+| `lib/settings/storage.ts` | Storage summary and the keys a reset removes |
+| `app/api/activity/route.ts` | Live activity stream, and `?recent=N` for the Agents pane |
 | `components/theme-store.ts` | `ThemeChoice`, storage, and the painted theme |
 | `app/layout.tsx` | Applies the stored theme before the first paint |
 | `lib/mcp/snippets.ts` | Cursor, Claude Code, and Codex snippets |
@@ -18,7 +22,14 @@ Written against `spec.md` in this folder, from `origin/cursor/reading-shell-spec
 ## Data shapes
 
 ```ts
-type Section = "general" | "appearance" | "mcp";
+type Section = "general" | "appearance" | "editor" | "agents" | "keyboard" | "about";
+
+type Preferences = {
+  followAgents: boolean;
+  highlightAgentChanges: boolean;
+  spellcheck: boolean;
+  motion: "system" | "reduce";
+};
 
 type ThemeChoice = "light" | "dark" | "system";
 

@@ -2,7 +2,7 @@
 
 Steps are in dependency order. Size is the parts a step touches: one module, several modules, or a schema change. There is no calendar estimate.
 
-Every step here is shipped. The tests named below already prove it.
+Steps F10-T-001 to F10-T-007 are shipped. Steps F10-T-008 to F10-T-014 follow ADR-0036.
 
 ## Shipped
 
@@ -61,3 +61,61 @@ Every step here is shipped. The tests named below already prove it.
 - Size: one module
 - Depends on: F10-T-001
 - Module: `app/settings.css`. Wider than 640px: at most 760px by 520px, with a 180px section list beside the section. At 640px or narrower: the viewport minus 16px on each axis, and the section list in a row. Those sizes are the settings row in [`specs/contracts/tokens.md`](../../contracts/tokens.md).
+
+## ADR-0036
+
+### F10-T-008 Six sections, with the snippets under Agents
+
+- Requirements: F10-REQ-005, F10-REQ-012, F10-REQ-017, F10-REQ-018
+- Test: `F10-AC-017a settings lists six sections in order`. `F10-AC-018a agents section shows the connection snippets`.
+- Size: several modules
+- Depends on: F10-T-001, F10-T-006
+- Modules: `components/settings-host.tsx` keeps the dialog and the section list. Each pane is its own module in `components/settings/`. F10-REQ-005 and F10-REQ-012 are superseded (ADR-0036); the MCP pane's copy moves to Agents under "Connect an agent".
+
+### F10-T-009 Preferences store
+
+- Requirements: F10-REQ-022, F10-REQ-024, F10-REQ-027, F10-REQ-028
+- Test: `F10-AC-022a appearance offers motion system and reduce`.
+- Size: several modules
+- Depends on: none
+- Modules: `lib/settings/preferences.ts` parses `markdown-kb:prefs` and falls back per value. `components/preferences.ts` stores and publishes it, like `components/theme-store.ts`.
+
+### F10-T-010 Storage summary and reset
+
+- Requirements: F10-REQ-019, F10-REQ-020, F10-REQ-021
+- Test: `F10-AC-019a storage summary counts this browser's pages`. `F10-AC-020a reset asks for confirmation`. `F10-AC-021a reset clears browser pages and keeps the theme`.
+- Size: several modules
+- Depends on: F10-T-008
+- Modules: `lib/settings/storage.ts` counts keys and lists the keys a reset removes. `components/settings/general.tsx` shows the summary, the folder from `/api/mcp`, and the two-step reset.
+
+### F10-T-011 Reduce motion
+
+- Requirements: F10-REQ-023
+- Test: `F10-AC-023a reduce motion stops animation and survives a reload`.
+- Size: several modules
+- Depends on: F10-T-009
+- Modules: `data-motion` on the root from `components/preferences.ts` and the inline script in `app/layout.tsx`; the reduce rule in `app/globals.css`; `prefersReducedMotion()` replaces the media query in `components/workspace.tsx` and `components/agent-stage.tsx`.
+
+### F10-T-012 Spellcheck
+
+- Requirements: F10-REQ-024
+- Test: `F10-AC-024a spellcheck off reaches the editor`.
+- Size: several modules
+- Depends on: F10-T-009
+- Modules: `components/settings/editor.tsx`, the `spellcheck` attribute in `components/block-editor/block-editor.tsx`, and CodeMirror content attributes in `components/editor.tsx`.
+
+### F10-T-013 Agent status, activity, follow, and highlight
+
+- Requirements: F10-REQ-025, F10-REQ-026, F10-REQ-027, F10-REQ-028
+- Test: `F10-AC-025a agents section names the last agent`. `F10-AC-026a agents section lists recent actions`. `F10-AC-027a follow off keeps the open page`. `F10-AC-028a highlight off marks no changes`.
+- Size: several modules
+- Depends on: F10-T-008, F10-T-009
+- Modules: `?recent=N` on `app/api/activity/route.ts`; `components/settings/agents.tsx`; the follow check in `components/workspace.tsx`; the changed lines in `components/agent-stage.tsx`.
+
+### F10-T-014 Keyboard and About
+
+- Requirements: F10-REQ-029, F10-REQ-030
+- Test: `F10-AC-029a keyboard section opens shortcut help`. `F10-AC-030a about shows the version and links`.
+- Size: several modules
+- Depends on: F10-T-008
+- Modules: `components/settings/keyboard.tsx` emits `markdown-kb-help`, which `components/workspace.tsx` handles. `components/settings/about.tsx` reads `NEXT_PUBLIC_APP_VERSION`, set from `package.json` in `next.config.ts`.
