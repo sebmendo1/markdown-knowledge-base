@@ -1,9 +1,6 @@
-.shell.has-outline {
-  grid-template-columns: 248px minmax(0, 1fr) 220px;
-}
-.shell.is-collapsed.has-outline {
-  grid-template-columns: minmax(0, 1fr) 220px;
-}
+/* The title row spans the page and the outline; the outline sits beside the page under it (F08-REQ-042). */
+.page-body { flex: 1; min-height: 0; display: flex; }
+.page-body > .stage { flex: 1; min-width: 0; }
 .brand-row { min-height: 56px; }
 .topbar,
 .status,
@@ -11,16 +8,44 @@
 .source-pane {
   background: var(--bg);
 }
-.stage.preview,
-.stage.preview.outline-hidden {
+.stage.preview {
   grid-template-columns: minmax(0, 1fr);
 }
+/* Opening and closing slide the outline in from the right while the page widens or narrows beside it. */
 .outline {
+  flex: none;
+  width: 220px;
   outline: none;
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
+  transition: width 220ms cubic-bezier(0.2, 0, 0, 1), padding 220ms cubic-bezier(0.2, 0, 0, 1), opacity 180ms ease,
+    transform 220ms cubic-bezier(0.2, 0, 0, 1);
 }
+.outline-card { width: 196px; }
+.outline.is-closed {
+  width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
+  transform: translateX(12px);
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Sections unfold by animating their rows' height from 0 to their natural size. */
+.outline-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 200ms cubic-bezier(0.2, 0, 0, 1), opacity 160ms ease;
+}
+.outline-children.is-open { grid-template-rows: 1fr; opacity: 1; }
+.outline-children-inner { min-height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .outline, .outline-children { transition: none; }
+}
+.outline-toggle-button[aria-pressed="true"] { color: var(--text); }
 
 @media (max-width: 860px) {
-  .outline { display: none; }
+  .outline, .outline-toggle-button { display: none; }
 }

@@ -46,6 +46,23 @@ export function setSidebarExpanded(expanded: boolean) {
   writeStorage("markdown-kb:sidebar", expanded ? "shown" : "hidden");
 }
 
+// Whether the outline beside the page is shown. Stored per machine; shown when nothing is stored (F08-REQ-043).
+export function useOutlineOpen() {
+  return useSyncExternalStore(subscribeDrafts, readOutline, () => true);
+}
+
+export function readOutline() {
+  return window.localStorage.getItem("markdown-kb:outline") !== "hidden";
+}
+
+export function setOutlineOpen(open: boolean) {
+  writeStorage("markdown-kb:outline", open ? "shown" : "hidden");
+}
+
+export function toggleOutline() {
+  setOutlineOpen(!readOutline());
+}
+
 export function snippet(content: string, query: string) {
   const needle = query.trim().toLowerCase();
   const index = content.toLowerCase().indexOf(needle);

@@ -154,13 +154,21 @@ test("F08-AC-039a F08-AC-040a outline lists the title and each h2, and a chevron
   await expect(card.locator(".outline-title")).toHaveText("Design check");
   await expect(card.locator(".outline-row .outline-jump")).toHaveText(["Sources", "Phases"]);
   await expect(card.locator(".outline-toggle-slot")).toHaveCount(2);
-  await expect(card.locator(".outline-child")).toHaveCount(0);
+  const children = card.locator(".outline-children");
+  const height = () => children.evaluate((element) => element.getBoundingClientRect().height);
+  await expect(children).toHaveAttribute("aria-hidden", "true");
+  await expect.poll(height).toBe(0);
   const toggle = card.getByRole("button", { name: "Show Sources subsections" });
   await toggle.click();
+  await expect(children).toHaveAttribute("aria-hidden", "false");
   await expect(card.locator(".outline-child")).toHaveText(["Ledger PRD", "Decisions"]);
+  await expect.poll(height).toBeGreaterThan(20);
   expect(await css(card.locator(".outline-child").first(), "padding-left")).toBe("24px");
+  // The rows unfold over a transition rather than appearing at once.
+  expect(await css(children, "transition-property")).toContain("grid-template-rows");
   await card.getByRole("button", { name: "Hide Sources subsections" }).click();
-  await expect(card.locator(".outline-child")).toHaveCount(0);
+  await expect(children).toHaveAttribute("aria-hidden", "true");
+  await expect.poll(height).toBe(0);
 });
 
 test("F08-AC-041a project name has a chevron and no tile", async ({ page }) => {
@@ -170,4 +178,83 @@ test("F08-AC-041a project name has a chevron and no tile", async ({ page }) => {
   await expect(trigger.locator(".project-switch-icon")).toBeVisible();
   await trigger.click();
   await expect(page.getByRole("menu", { name: "Projects" })).toBeVisible();
+});
+
+const LONG = ["# Long page", ...["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"].flatMap((name) => [`## ${name}`, ...Array(6).fill(`Paragraph under ${name}. `.repeat(12))])].join("\n\n");
+const MANY = ["# Many", ...Array.from({ length: 40 }, (_, index) => [`## Heading ${index + 1}`, "Short text."]).flat()].join("\n\n");
+
+async function openPage(page: Page, file: string, size = { width: 1280, height: 900 }) {
+  await page.setViewportSize(size);
+  await page.goto(`/${project}/${file}`);
+  await expect(page.locator(".md h1").first()).toBeVisible();
+}
+
+test.describe("outline placement and tracking", () => {
+  test.beforeEach(() => makeProject(project, { "check.md": PAGE, "other.md": "# Other\n", "long.md": LONG, "many.md": MANY }));
+
+  test("F08-AC-042a outline sits under the title row beside the page", async ({ page }) => {
+    await openPage(page, "long");
+    const bar = await page.locator(".topbar").boundingBox();
+    const outline = await page.locator(".outline").boundingBox();
+    const stage = await page.locator(".stage").boundingBox();
+    expect(bar && outline && stage).toBeTruthy();
+    expect(bar!.x + bar!.width).toBeGreaterThanOrEqual(outline!.x + outline!.width - 1);
+    expect(outline!.y).toBeGreaterThanOrEqual(bar!.y + bar!.height - 1);
+    expect(Math.abs(stage!.x + stage!.width - outline!.x)).toBeLessThanOrEqual(1);
+    await page.locator(".preview-pane").evaluate((element) => (element.scrollTop = 1500));
+    expect((await page.locator(".outline").boundingBox())!.y).toBe(outline!.y);
+  });
+
+  test("F08-AC-043a outline button beside edit shows and hides the outline", async ({ page }) => {
+    await openPage(page, "check");
+    const order = await page.locator(".topbar").evaluate((bar) => [...bar.querySelectorAll("button")].map((button) => button.getAttribute("aria-label") ?? button.textContent?.trim()));
+    expect(order[order.indexOf("Turn editing on") - 1]).toBe("Hide outline");
+    const outline = page.locator(".outline");
+    const width = () => outline.evaluate((element) => element.getBoundingClientRect().width);
+    // Closing and opening slide the outline rather than removing it at once.
+    expect(await css(outline, "transition-property")).toContain("width");
+    await page.getByRole("button", { name: "Hide outline" }).click();
+    await expect(outline).toHaveAttribute("aria-hidden", "true");
+    await expect.poll(width).toBe(0);
+    await expect(page.getByRole("button", { name: "Show outline" })).toHaveAttribute("aria-pressed", "false");
+    await page.reload();
+    await expect(page.locator(".md h1").first()).toBeVisible();
+    await expect(outline).toHaveAttribute("aria-hidden", "true");
+    await page.getByRole("button", { name: "Show outline" }).click();
+    await expect(outline).toHaveAttribute("aria-hidden", "false");
+    await expect.poll(width).toBe(220);
+    await page.keyboard.press("Control+\\");
+    await expect(outline).toHaveAttribute("aria-hidden", "true");
+  });
+
+  test("F08-AC-044a outline marks the heading at the top and the last heading at the end", async ({ page }) => {
+    await openPage(page, "long");
+    const pane = page.locator(".preview-pane");
+    const marked = page.locator(".outline [aria-current='location']");
+    await pane.evaluate((element) => {
+      const five = element.querySelector<HTMLElement>("#five")!;
+      element.scrollTop += five.getBoundingClientRect().top - element.getBoundingClientRect().top - 40;
+    });
+    await expect(marked).toHaveText("Five");
+    await pane.evaluate((element) => (element.scrollTop = element.scrollHeight));
+    await expect(marked).toHaveText("Eight");
+    await pane.evaluate((element) => (element.scrollTop = 0));
+    await expect(marked).toHaveText("Long page");
+  });
+
+  test("F08-AC-045a outline scrolls to keep the marked row visible", async ({ page }) => {
+    await openPage(page, "many", { width: 1280, height: 520 });
+    const outline = page.locator(".outline");
+    expect(await outline.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+    await page.locator(".preview-pane").evaluate((element) => (element.scrollTop = element.scrollHeight));
+    const row = page.locator(".outline [aria-current='location']");
+    await expect(row).toHaveText("Heading 40");
+    await expect
+      .poll(async () => {
+        const [view, box] = await Promise.all([outline.boundingBox(), row.boundingBox()]);
+        return Boolean(view && box && box.y >= view.y && box.y + box.height <= view.y + view.height);
+      })
+      .toBe(true);
+    expect(await page.locator(".preview-pane").evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  });
 });

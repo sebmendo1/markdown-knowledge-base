@@ -39,6 +39,7 @@ export function WorkspaceView(props: {
   mode: Mode;
   words: number;
   outlineOpen: boolean;
+  onToggleOutline: () => void;
   sidebarOpen: boolean;
   paletteOpen: boolean;
   helpOpen: boolean;
@@ -66,7 +67,7 @@ export function WorkspaceView(props: {
   const showOutline = props.outlineOpen && props.mode !== "source" && !missing;
   const expanded = useSidebarExpanded();
   const review = useAgentChanges(missing ? null : props.pageId, props.value);
-  const shell = ["shell", expanded ? "" : "is-collapsed", showOutline ? "has-outline" : ""].filter(Boolean).join(" ");
+  const shell = ["shell", expanded ? "" : "is-collapsed"].filter(Boolean).join(" ");
   function showSidebar() {
     setSidebarExpanded(true);
     props.setSidebarOpen(true);
@@ -132,6 +133,7 @@ export function WorkspaceView(props: {
           mode={props.mode}
           review={review}
           onOpenFiles={showSidebar}
+          outline={missing || props.mode === "source" ? null : { open: props.outlineOpen, toggle: props.onToggleOutline }}
           go={props.go}
           banner={
             <>
@@ -170,10 +172,16 @@ export function WorkspaceView(props: {
             </>
           }
         >
-          {body}
+          {/* The outline sits under the title row, beside the page (F08-REQ-042). */}
+          <div className="page-body">
+            {body}
+            {/* Kept mounted while it can show, so opening and closing animate (F08-REQ-043). */}
+            {missing || props.mode === "source" ? null : (
+              <OutlinePanel open={showOutline} headings={props.headings} activeHeading={props.activeHeading} onJump={props.jump} />
+            )}
+          </div>
         </DocumentChrome>
       </div>
-      {showOutline ? <OutlinePanel headings={props.headings} activeHeading={props.activeHeading} onJump={props.jump} /> : null}
       <PageSearch
         docs={props.docs}
         open={props.paletteOpen}

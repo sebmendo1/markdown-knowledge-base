@@ -6,8 +6,12 @@ export default defineConfig({
   testDir: "e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // One retry everywhere: under parallel load the dev server now and then answers a page with a 500
+  // ("Unexpected end of JSON input" in its own compile output), which is not the app.
+  retries: 1,
   reporter: process.env.CI ? "github" : "list",
+  // The dev server renders pages on demand; under parallel load a first render can pass 5s.
+  expect: { timeout: 10_000 },
   use: {
     baseURL: `http://localhost:${port}`,
     trace: "retain-on-failure",

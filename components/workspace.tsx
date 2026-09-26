@@ -1,14 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Doc } from "@/lib/docs";
 import type { Heading } from "@/lib/markdown/outline";
 import { folderOf, hrefOf } from "@/lib/workspace/paths";
 import type { ProjectEntry } from "@/lib/workspace/projects";
 import { backlinks, rendersAsRepo } from "@/lib/workspace/tree";
 import { onAgentEdit, resumeFollowing, useAgentActivity } from "./agent-activity";
-import { setMode, setSidebarExpanded, useMode } from "./draft-store";
+import { readOutline, setMode, setOutlineOpen as storeOutlineOpen, setSidebarExpanded, useMode, useOutlineOpen } from "./draft-store";
 import { prefersReducedMotion, usePreferences } from "./preferences";
 import { editPage } from "./history-store";
 import { ProjectContext } from "./project-context";
@@ -53,7 +53,8 @@ export function Workspace({
   const doc = page ? docOf(page) : undefined;
   const value = page?.content ?? "";
   const mode = useMode();
-  const [outlineOpen, setOutlineOpen] = useState(true);
+  const outlineOpen = useOutlineOpen();
+  const setOutlineOpen = useCallback((update: (open: boolean) => boolean) => storeOutlineOpen(update(readOutline())), []);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -185,6 +186,7 @@ export function Workspace({
         mode={mode}
         words={value.trim() ? value.trim().split(/\s+/).length : 0}
         outlineOpen={outlineOpen}
+        onToggleOutline={() => setOutlineOpen((open) => !open)}
         sidebarOpen={sidebarOpen}
         paletteOpen={paletteOpen}
         helpOpen={helpOpen}

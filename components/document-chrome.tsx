@@ -40,6 +40,7 @@ export function DocumentChrome({
   mode,
   review,
   onOpenFiles,
+  outline,
   go,
   banner,
   children,
@@ -52,6 +53,8 @@ export function DocumentChrome({
   mode: Mode;
   review?: AgentReview | null;
   onOpenFiles: () => void;
+  // Present when the page can show an outline (not in Markdown source, not a missing page).
+  outline?: { open: boolean; toggle: () => void } | null;
   go: (href: string) => void;
   banner?: ReactNode;
   children: ReactNode;
@@ -139,6 +142,18 @@ export function DocumentChrome({
         {pageId ? (
           <>
             {review ? <AgentDiffCounter pageId={pageId} review={review} /> : null}
+            {outline ? (
+              <button
+                type="button"
+                className="icon-button outline-toggle-button"
+                aria-pressed={outline.open}
+                aria-label={outline.open ? "Hide outline" : "Show outline"}
+                title={`${outline.open ? "Hide" : "Show"} outline (⌘\\)`}
+                onClick={outline.toggle}
+              >
+                <OutlineIcon />
+              </button>
+            ) : null}
             <button
               type="button"
               className={editing ? "edit-toggle is-on" : "edit-toggle"}
@@ -170,5 +185,15 @@ export function DocumentChrome({
       </footer>
       {menu && pageId ? <PopoverMenu x={menu.x} y={menu.y} label="Page actions" items={items(pageId)} onClose={() => setMenu(null)} /> : null}
     </>
+  );
+}
+
+// A page with a panel on its right: the outline beside the page.
+function OutlineIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="2.5" width="12" height="11" rx="2.5" />
+      <path d="M10 2.5v11M11.8 5.5h0M11.8 8h0M11.8 10.5h0" />
+    </svg>
   );
 }
