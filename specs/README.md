@@ -24,6 +24,8 @@ No other `spec.md` is in this branch. `design.md` and `tasks.md` now exist for e
 - F05, F16, F18, F19, and F22 on `origin/cursor/design-charts-metrics-history-import-home-4ba1`
 - F12, F13, F14, and F15 on `origin/cursor/design-review-agents-auth-9270`
 
+The target look is [design.md](design.md), read from the owner's Paper file and adopted in [ADR-0037](decisions/ADR-0037-paper-design-direction.md).
+
 ## Feature index
 
 Status is against the product today: the markdown editor on Vercel, with no sign-in. Paths are the spec location. A path other than X is not a file in this branch.

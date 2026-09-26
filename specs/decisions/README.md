@@ -13,7 +13,7 @@ Questions only the owner can answer are in [open-questions.md](open-questions.md
 | [ADR-0005](ADR-0005-reading-type.md) | Reading type | Accepted | Body text is 17px with line-height 1.7. The column is capped at 760px, which binds, so the text is 696px wide. |
 | [ADR-0006](ADR-0006-surfaces.md) | Surfaces | Accepted | Surfaces are solid fills, and the hairline borders between them are removed. |
 | [ADR-0007](ADR-0007-radius.md) | Radius | Accepted | Radii are 12px controls, 10px outline rows, 18px blocks, 20px dialogs, 8px inline code, and 6px mark. |
-| [ADR-0008](ADR-0008-right-panel.md) | Right panel | Accepted | The third column is a full-height outline only, and the title row and status line use the page color. |
+| [ADR-0008](ADR-0008-right-panel.md) | Right panel | Accepted; outline surface superseded by ADR-0037 | The third column is a full-height outline only, and the title row and status line use the page color. |
 | [ADR-0009](ADR-0009-modals.md) | Modals | Accepted | Settings, share, search, and shortcut help are dialogs. Editing and review flows are not. |
 | [ADR-0010](ADR-0010-sharing.md) | Sharing | Accepted | "Anyone with the link" sets Can view or Can edit as the starting mode and grants no rights. |
 | [ADR-0011](ADR-0011-phones.md) | Phones | Accepted | Phones stay readable, editing works, the split stacks at 900px, and coarse-pointer targets are at least 44px. |
@@ -42,6 +42,7 @@ Questions only the owner can answer are in [open-questions.md](open-questions.md
 | [ADR-0034](ADR-0034-accessibility.md) | Accessibility | Proposed | The bar is WCAG 2.2 Level AA, with a fixed focus order and a named Editing or Preview state. |
 | [ADR-0035](ADR-0035-link-targets-and-rename.md) | Link targets and rename | Accepted | A wiki target is a page path or a unique file name, with an optional label. Rename and move rewrite links. `link_broken` is a target that does not resolve. |
 | [ADR-0036](ADR-0036-settings-sections.md) | Settings sections | Accepted | Settings has General, Appearance, Editor, Agents, Keyboard, and About. Each holds only controls that change behavior, or state shown nowhere else. |
+| [ADR-0037](ADR-0037-paper-design-direction.md) | Paper design direction | Accepted | The Paper file is the target look: a cobalt gradient primary, display type for names, a floating outline card, and faint text raised to pass AA. See specs/design.md. |
 
 ## Gaps with no ADR
 

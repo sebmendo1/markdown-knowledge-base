@@ -112,6 +112,13 @@ test("each block survives a rewrite with the same structure", () => {
   }
 });
 
+test("bold that starts with inline code stays one bold run", () => {
+  for (const source of ["**`x` in**", "a **`#8A8A8A` in the product** b", "**x *y* z**"]) {
+    const [node] = markdownToNodes(source);
+    assert.equal(blockToMarkdown(node), source);
+  }
+});
+
 test("unsupported syntax stays as raw source", () => {
   const types = parsePage(SAMPLE).nodes.map((node) => node.type);
   assert.equal(types.filter((type) => type === "rawBlock").length, 3);

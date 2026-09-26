@@ -32,16 +32,16 @@ No sign-in exists (decision D3). Anyone who can open the app is the owner for th
 - F08-REQ-003 When the request path is `/docs/{path}` or `/ledger/{path}`, the system shall respond with a permanent redirect to `/guide/docs/{path}` or `/guide/ledger/{path}`.
 - F08-REQ-004 When the owner opens a project URL with no page, and that project has a home page, the system shall redirect to the home page.
 - F08-REQ-005 While the viewport is wider than 860px, the file column is expanded, the outline choice is open, and the mode is not Markdown source, the system shall show three full-height columns: the file column at 248px, the page in the remaining width, and the outline at 220px.
-- F08-REQ-006 The system shall paint the file column and the outline with the sidebar surface, and the title row, page, and status line with the page surface, with a border width of 0px between those columns.
+- F08-REQ-006 The system shall paint the file column and the outline with the sidebar surface, and the title row, page, and status line with the page surface, with a border width of 0px between those columns. Superseded by F08-REQ-036 (ADR-0037).
 - F08-REQ-007 While the stored sidebar choice is shown, or no choice is stored, and the viewport is wider than 860px, the system shall show the file column.
 - F08-REQ-008 When the owner hides the file column, the system shall remove it, show a panel control labeled "Show sidebar" at the top left of the page, and store the choice as hidden.
 - F08-REQ-009 When the owner activates "Show sidebar", the system shall show the file column and store the choice as shown.
 - F08-REQ-010 While the viewport is 860px wide or narrower, the system shall keep the outline off screen and keep the file column off screen until the owner opens it.
 - F08-REQ-011 When the owner opens the file column at a viewport 860px wide or narrower, the system shall show it as a drawer of `min(280px, 88vw)` with a scrim over the page.
 - F08-REQ-012 The system shall list the project's pages in the file column, mark the open page, and expand every folder on the path to that page.
-- F08-REQ-013 The system shall show a Search control at the top of the file column and Trash and Settings at the foot.
+- F08-REQ-013 The system shall show a Search control at the top of the file column and Trash and Settings at the foot. Superseded by F08-REQ-037 (ADR-0037).
 - F08-REQ-014 When a page is open, the system shall show its path in the title row, with folder segments separated by ` / ` and the file name, including `.md`, emphasized.
-- F08-REQ-015 When a page is open, the system shall show Edit, Share, and page actions in the title row.
+- F08-REQ-015 When a page is open, the system shall show Edit, Share, and page actions in the title row. Superseded by F08-REQ-038 (ADR-0037).
 - F08-REQ-016 The system shall show a status line naming the page state, and, when a page is open, the word count and the mode.
 - F08-REQ-017 The system shall open a page in viewing unless a stored mode or a share parameter says otherwise, and shall remember the mode on this machine.
 - F08-REQ-018 While the mode is viewing, the system shall show the page as rendered Markdown.
@@ -62,6 +62,12 @@ No sign-in exists (decision D3). Anyone who can open the app is the owner for th
 - F08-REQ-033 If the open page has changed on disk since it was loaded, then the system shall show "This page changed on disk." and a "Load disk version" control.
 - F08-REQ-034 When a page is open, the system shall set the document title to `{page title} · {project name}`.
 - F08-REQ-035 When the owner activates the phone file-column scrim, the system shall close the drawer.
+- F08-REQ-036 The system shall paint the file column with the sidebar surface, and the title row, page, status line, and outline column with the page surface, with a border width of 0px between those columns. The outline shall sit in a card 208px wide with a 16px radius, filled with `#2c2c2c` at 20% opacity in Dark and with the sunken surface in Light, inset 16px from the column sides and 24px from its top.
+- F08-REQ-037 The system shall show a Search control at the top of the file column and one account row at the foot, with a gear icon and the label "Settings", that opens Settings. When sign-in exists, the label shall be the person's name. The system shall offer Trash from the Pages menu.
+- F08-REQ-038 When a page is open, the system shall show, in the title row, the file name in Geist Mono with the page actions control directly after it on the left, and Edit and Share on the right.
+- F08-REQ-039 The system shall head the outline card with "Outline", then the page title, then one row for each H2, each with a 24px chevron slot at the right, whether or not that row has children.
+- F08-REQ-040 When the owner chooses an H2 row's chevron, the system shall show or hide that section's H3 rows beneath it, indented by 12px, and shall show the section of the heading that is highest in view.
+- F08-REQ-041 The system shall show the project name at the top of the file column with an up-down chevron that opens the project switcher, and no letter tile.
 
 The page state words are "Repository copy", "Edited in this browser", "Created in this browser", and "No page here yet". The mode words are "Viewing", "Editing", and "Markdown source". The word count is the number of whitespace-separated words in the page text, followed by the word "words". Edit reads "Edit" in viewing and "Editing" in editing and in Markdown source.
 
@@ -354,6 +360,42 @@ Test name: `document title joins page and project`
 Given `docs/layout.md` in the guide project, when it is open, then the document title is "Layout · markdown-kb guide".
 
 Checked: ran, Chrome, 1280×800.
+
+### F08-AC-036a Outline card
+
+Test name: `F08-AC-036a outline is a card in a page-colored column`
+
+Given a page with headings at 1280px, when the shell renders, then the outline column's background is the page color and the outline card is 208px wide with a 16px radius.
+
+### F08-AC-037a Account row
+
+Test name: `F08-AC-037a file column foot is one settings row`
+
+Given the file column is shown, when its foot renders, then it holds one row labeled "Settings" with a gear icon, choosing it opens Settings, and Trash is an item in the Pages menu.
+
+### F08-AC-038a Title row order
+
+Test name: `F08-AC-038a page actions sit beside the file name`
+
+Given a page is open, when the title row renders, then the page actions control is the next control after the file name, and Edit and Share are at the right end in that order.
+
+### F08-AC-039a Outline rows
+
+Test name: `F08-AC-039a outline lists the title and each h2 with a chevron slot`
+
+Given a page titled "Plan" with H2s "Sources" and "Phases", when the outline renders, then it shows "Outline", "Plan", "Sources", and "Phases", and each H2 row has a 24px chevron slot.
+
+### F08-AC-040a Collapsible sections
+
+Test name: `F08-AC-040a an h2 chevron shows and hides its h3 rows`
+
+Given an H2 with two H3s, when the owner chooses its chevron, then the two H3 rows appear indented by 12px, and choosing it again hides them.
+
+### F08-AC-041a Project name
+
+Test name: `F08-AC-041a project name has a chevron and no tile`
+
+Given a project is open, when the file column renders, then the project name is shown with an up-down chevron, choosing it opens the project switcher, and no letter tile is drawn.
 
 ## Edge cases and errors
 

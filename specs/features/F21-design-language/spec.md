@@ -27,12 +27,12 @@ No sign-in exists (decision D3). The rules apply to every person who can open th
 - F21-REQ-001 The system shall paint the shell in Dark or Light, and shall use Dark when the stored theme is missing or invalid.
 - F21-REQ-002 The system shall paint shell surfaces as solid fills. In Dark, the page surface is `#111111`, the file column and outline are `#1b1b1b`, and a dialog surface is `#242424`. In Light, those surfaces are `#f6f6f4`, `#efefec`, and `#ffffff`.
 - F21-REQ-003 The system shall separate the file column, the page, and the outline by those fills, with a border width of 0px and no drop shadow on those columns.
-- F21-REQ-004 The system shall use one accent for focus and the primary control: `#7aa2f7` in Dark and `#3b6fd6` in Light.
+- F21-REQ-004 The system shall use one accent for focus and the primary control: `#7aa2f7` in Dark and `#3b6fd6` in Light. Superseded by F21-REQ-020 and F21-REQ-021 (ADR-0037).
 - F21-REQ-005 The system shall use `#e6c07b` and `#f0a8a8` in Dark, and `#8a5a10` and `#a33b3b` in Light, for warning and danger text.
 - F21-REQ-006 The system shall round controls to 12px, outline rows to 10px, content blocks to 18px, and dialogs to 20px.
 - F21-REQ-007 The system shall round inline code and keyboard marks to 8px, and a highlight mark to 6px.
 - F21-REQ-008 The system shall set interface text at 13px with a line height of 1.45, reading text at 17px with a line height of 1.7, and the path and status line at 12px.
-- F21-REQ-009 The system shall use Geist Sans for interface and reading text, and Geist Mono for paths, the search hint, and the share link.
+- F21-REQ-009 The system shall use Geist Sans for interface and reading text, and Geist Mono for paths, the search hint, and the share link. Superseded by F21-REQ-022 (ADR-0037).
 - F21-REQ-010 The system shall keep the reading column within 760px and within 66ch plus 64px, as F08 requires.
 - F21-REQ-011 The system shall animate the file-tree disclosure in 120ms ease, and shall not animate the page text.
 - F21-REQ-012 While the owner prefers reduced motion, the system shall scroll with auto behavior and shall drop the 120ms transition on project cards.
@@ -43,6 +43,14 @@ No sign-in exists (decision D3). The rules apply to every person who can open th
 - F21-REQ-017 While the pointer is coarse, the system shall make icon controls, Search, Edit, and Share at least 44px tall.
 - F21-REQ-018 The system shall present settings, share, page search, and shortcut help as dialogs over a scrim of `rgba(0, 0, 0, 0.55)`.
 - F21-REQ-019 Menus, toasts, and the project switcher may use a drop shadow. The three shell columns shall not.
+- F21-REQ-020 The system shall fill the primary control (Share, and the confirm button of a dialog) with a top-to-bottom gradient from `#0E3ED2` to `#011FAD`, with a `#FFFFFF` label, in Dark and Light. No other control is filled with a hue.
+- F21-REQ-021 The system shall keep the accent, `#7aa2f7` in Dark and `#3b6fd6` in Light, for focus rings, links, and agent marks, and shall not use it to fill a control.
+- F21-REQ-022 The system shall set the page title (the first H1) in Seb Sans Display Bold at 30px with −0.03em tracking, the first paragraph directly after it in Seb Sans Display Regular at 17px with a line height of 1.7, the project name in the file column in Seb Sans Display Bold at 16px, and the primary control label in Seb Sans Var Medium at 13px. Every other text uses Geist, and paths, code, and key hints use Geist Mono. When a Seb Sans face is not loaded, the system shall use Geist at the same size and weight.
+- F21-REQ-023 The system shall draw the Search control 30px tall with a 10px radius, filled in Dark with a top-to-bottom gradient of `#484848` from 60% to 40% opacity over the file column, and in Light with a gradient from `#e2e2de` to `#ecece8`, with the placeholder in the dim text color and the key hint in Geist Mono 11px `#B0B0B0` on a `#1F1F1F` chip with an 8px radius.
+- F21-REQ-024 The system shall draw a file-column page row 30px tall with a 12px radius, Geist 13px in the dim text color, and shall fill the open page's row with white at 8% opacity and set its text in the text color.
+- F21-REQ-025 The system shall clip a table to an 18px radius, pad each cell 8px by 10px, fill the header row and every even body row with the sunken surface, and draw no cell borders.
+- F21-REQ-026 The system shall set faint text (section labels, outline rows, and inactive icons) to `#8a8a8a` in Dark, so that it reaches a contrast ratio of at least 4.5:1 on the page, the file column, and the outline card.
+- F21-REQ-027 The system shall set section labels ("Pages", "Outline") in Geist 11px uppercase with 0.06em tracking.
 
 Green and red for insertions and deletions are not part of this shell. They belong to review, which is not started.
 
@@ -207,6 +215,60 @@ Test name: `menus may shadow and columns do not`
 Given a menu or the project switcher is open, when it is measured, then it may have a drop shadow. The file column's shadow is none.
 
 Checked: the file column ran, Chrome, 1280×800. A menu was not opened, so its shadow was not sampled. The stylesheet gives menus, toasts, and the project switcher a shadow.
+
+### F21-AC-020a Cobalt primary
+
+Test name: `F21-AC-020a share is the cobalt gradient with a white label`
+
+Given a page is open in Dark, when the title row renders, then Share has a background image that runs from `rgb(14, 62, 210)` to `rgb(1, 31, 173)`, its label is `rgb(255, 255, 255)`, and Edit has no fill.
+
+### F21-AC-021a Accent stays for focus
+
+Test name: `F21-AC-021a focus ring keeps the accent`
+
+Given Dark, when Share has visible focus, then its outline color is `rgb(122, 162, 247)`.
+
+### F21-AC-022a Display type
+
+Test name: `F21-AC-022a title lead and project name use the display face`
+
+Given a page with an H1 followed by a paragraph, when it renders, then the H1 and that paragraph list Seb Sans Display first in their font family, the second paragraph lists Geist first, and the project name lists Seb Sans Display first.
+
+### F21-AC-022b Display fallback
+
+Test name: `F21-AC-022b missing display face falls back to geist`
+
+Given Seb Sans Display is not loaded, when the title renders, then it is drawn in Geist at 30px and weight 700.
+
+### F21-AC-023a Search field
+
+Test name: `F21-AC-023a search field is the gradient with a mono key hint`
+
+Given the file column is shown, when Search renders, then it is 30px tall with a 10px radius and a gradient background, and ⌘K is Geist Mono 11px on `rgb(31, 31, 31)`.
+
+### F21-AC-024a Page rows
+
+Test name: `F21-AC-024a open page row has the white tint`
+
+Given a page is open, when the file list renders, then that row's background is white at 8% opacity and its text is `rgb(236, 236, 236)`, and another row has no background and dim text.
+
+### F21-AC-025a Rounded tables
+
+Test name: `F21-AC-025a tables clip to 18px with striped rows`
+
+Given a page with a table, when it renders, then the table's container has an 18px radius and clips, the header and second body row have the sunken fill, and no cell has a border.
+
+### F21-AC-026a Faint text passes AA
+
+Test name: `F21-AC-026a faint text meets 4.5 to 1 in dark`
+
+Given Dark, when the file column and outline render, then the "Pages" label and an outline row have a contrast ratio of at least 4.5:1 against their surface.
+
+### F21-AC-027a Section labels
+
+Test name: `F21-AC-027a section labels are small caps`
+
+Given the file column and outline are shown, when they render, then "Pages" and "Outline" are 11px, uppercase, with 0.06em tracking.
 
 ## Edge cases and errors
 

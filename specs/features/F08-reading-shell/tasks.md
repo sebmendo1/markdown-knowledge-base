@@ -101,3 +101,37 @@ Every step here is shipped. The tests named below already prove it.
 - Size: one module
 - Depends on: F08-T-006
 - Module: `components/disk-sync.ts` (`useDiskConflicts`, `loadDiskVersion`), banner in the document chrome
+
+## ADR-0037
+
+### F08-T-013 Outline card and collapsible sections
+
+- Requirements: F08-REQ-006, F08-REQ-036, F08-REQ-039, F08-REQ-040
+- Test: `F08-AC-036a outline is a card in a page-colored column`. `F08-AC-039a outline lists the title and each h2 with a chevron slot`. `F08-AC-040a an h2 chevron shows and hides its h3 rows`.
+- Size: several modules
+- Depends on: F08-T-007
+- Modules: `components/outline-panel.tsx` groups headings by H2 and keeps an expanded set; `.outline` in `app/globals.css` and `app/columns.css`. F08-REQ-006 is superseded (ADR-0037).
+
+### F08-T-014 One account row, Trash in the Pages menu
+
+- Requirements: F08-REQ-013, F08-REQ-037
+- Test: `F08-AC-037a file column foot is one settings row`.
+- Size: several modules
+- Depends on: none
+- Modules: the foot of `components/file-sidebar.tsx`; the Pages menu items in `components/tree-items.ts`. F08-REQ-013 is superseded (ADR-0037).
+
+### F08-T-015 Title row order
+
+- Requirements: F08-REQ-015, F08-REQ-038
+- Test: `F08-AC-038a page actions sit beside the file name`.
+- Size: one module
+- Depends on: none
+- Module: `components/document-chrome.tsx`. F08-REQ-015 is superseded (ADR-0037).
+
+### F08-T-016 Project name without a tile
+
+- Requirements: F08-REQ-041
+- Test: `F08-AC-041a project name has a chevron and no tile`.
+- Size: one module
+- Depends on: F21-T-011 for the display face
+- Module: `components/project-switcher.tsx`.

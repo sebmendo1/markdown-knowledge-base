@@ -169,15 +169,20 @@ function markNode(mark: PMMark): Wrapper {
 const FLANKING = new Set(["bold", "italic", "strike", "highlight"]);
 
 // Markdown drops whitespace at block edges and cannot open or close emphasis next to a
-// space, so remark would escape those spaces as `&#x20;`. Move them outside the marks.
+// space, so remark would escape those spaces as `&#x20;`. Move them outside the marks, but only
+// the marks that actually open or close there: in **`x` in**, the space after the code is inside
+// the bold run, so it keeps bold.
 function tidy(content: PMNode[]): PMNode[] {
-  const out = content.flatMap((item): PMNode[] => {
+  const sameMark = (a: PMMark, b: PMMark) => a.type === b.type && JSON.stringify(a.attrs ?? null) === JSON.stringify(b.attrs ?? null);
+  const shares = (neighbor: PMNode | undefined, mark: PMMark) => Boolean(neighbor?.marks?.some((other) => sameMark(other, mark)));
+  const out = content.flatMap((item, index): PMNode[] => {
     if (item.type !== "text" || !item.marks?.some((mark) => FLANKING.has(mark.type))) return [item];
     const text = item.text ?? "";
     const [, before, middle, after] = /^(\s*)([\s\S]*?)(\s*)$/.exec(text) ?? ["", "", text, ""];
-    const plain = item.marks.filter((mark) => !FLANKING.has(mark.type));
-    const bare = (value: string): PMNode[] => (value ? [{ type: "text", text: value, ...(plain.length ? { marks: plain } : {}) }] : []);
-    return [...bare(before), ...(middle ? [{ ...item, text: middle }] : []), ...bare(after)];
+    const edge = (neighbor: PMNode | undefined) => item.marks!.filter((mark) => !FLANKING.has(mark.type) || shares(neighbor, mark));
+    const piece = (value: string, marks: PMMark[]): PMNode[] => (value ? [{ type: "text", text: value, ...(marks.length ? { marks } : {}) }] : []);
+    if (!middle) return piece(text, edge(content[index - 1]).filter((mark) => !FLANKING.has(mark.type) || shares(content[index + 1], mark)));
+    return [...piece(before, edge(content[index - 1])), { ...item, text: middle }, ...piece(after, edge(content[index + 1]))];
   });
   const isCode = (item: PMNode) => item.marks?.some((mark) => mark.type === "code");
   const first = out[0];

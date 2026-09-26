@@ -1,6 +1,6 @@
 # ADR-0008: Right panel
 
-**Status:** Accepted
+**Status:** Accepted. The outline's surface and shape are superseded by [ADR-0037](ADR-0037-paper-design-direction.md); the right column still shows only the outline.
 
 ## Context
 

@@ -85,3 +85,45 @@ Every step here is shipped. The tests named below already prove it. The numbers 
 - Size: several modules
 - Depends on: F21-T-002
 - Modules: the overlay in `app/globals.css` and the dialogs in settings, share, page search, and shortcut help. The scrim is `rgba(0, 0, 0, 0.55)`. Menus, toasts, and the project switcher may use a drop shadow. The three shell columns do not.
+
+## ADR-0037
+
+### F21-T-011 Ship the display faces
+
+- Requirements: F21-REQ-009, F21-REQ-022
+- Test: `F21-AC-022a title lead and project name use the display face`. `F21-AC-022b missing display face falls back to geist`.
+- Size: several modules
+- Depends on: the owner supplying the Seb Sans files and a license to ship them (design.md D-Q-4)
+- Modules: `next/font/local` in `app/layout.tsx` for Seb Sans Display (Regular, Bold) and Seb Sans Var, as `--font-display` and `--font-ui-display`, each with Geist as the fallback; the title, lead, and project-name rules in `app/reading.css` and `app/sidebar.css`. F21-REQ-009 is superseded (ADR-0037).
+
+### F21-T-012 Cobalt primary, accent for focus only
+
+- Requirements: F21-REQ-004, F21-REQ-020, F21-REQ-021
+- Test: `F21-AC-020a share is the cobalt gradient with a white label`. `F21-AC-021a focus ring keeps the accent`.
+- Size: several modules
+- Depends on: none
+- Modules: `--primary-top`, `--primary-bottom` in `app/globals.css` and `app/theme.css`; `.share-button` and dialog confirm buttons in `app/share.css` and `app/settings.css`. F21-REQ-004 is superseded (ADR-0037).
+
+### F21-T-013 Search field, page rows, and section labels
+
+- Requirements: F21-REQ-023, F21-REQ-024, F21-REQ-027
+- Test: `F21-AC-023a search field is the gradient with a mono key hint`. `F21-AC-024a open page row has the white tint`. `F21-AC-027a section labels are small caps`.
+- Size: several modules
+- Depends on: none
+- Modules: `.search-button` in `app/globals.css`, `.tree-row` and `.tree-head` in `app/tree.css`, `.outline h2` in `app/globals.css`.
+
+### F21-T-014 Rounded, striped tables
+
+- Requirements: F21-REQ-025
+- Test: `F21-AC-025a tables clip to 18px with striped rows`.
+- Size: one module
+- Depends on: none
+- Module: `.table-scroll` and `.md table` in `app/globals.css`.
+
+### F21-T-015 Raise faint text
+
+- Requirements: F21-REQ-026
+- Test: `F21-AC-026a faint text meets 4.5 to 1 in dark`.
+- Size: one module
+- Depends on: none
+- Module: `--text-faint` in `app/globals.css`. This also satisfies X-T-013 for Dark.
