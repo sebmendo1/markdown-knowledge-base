@@ -161,3 +161,39 @@ export function rehypeSinglePrefix() {
     });
   };
 }
+
+// Marks the blocks that contain a changed line, so a page can show what an agent just wrote. It runs after
+// sanitizing, so the class it adds is not stripped. Lists and tables are marked per item and per row.
+export function rehypeMarkChanged(lines: ReadonlySet<number>) {
+  return (tree: HastRoot) => {
+    if (lines.size === 0) return;
+    const touched = (node: { position?: { start: { line: number }; end: { line: number } } }) => {
+      const span = node.position;
+      if (!span) return false;
+      for (let line = span.start.line; line <= span.end.line; line += 1) if (lines.has(line)) return true;
+      return false;
+    };
+    const mark = (node: Element) => {
+      const current: unknown = node.properties.className;
+      const names = Array.isArray(current) ? current.map(String) : typeof current === "string" ? current.split(" ") : [];
+      node.properties.className = [...names, "agent-change"];
+    };
+    const parts = (node: Element): Element[] => {
+      if (node.tagName === "ul" || node.tagName === "ol") {
+        return node.children.filter((child): child is Element => child.type === "element" && child.tagName === "li" && touched(child));
+      }
+      if (node.tagName === "table") {
+        return node.children
+          .filter((child): child is Element => child.type === "element")
+          .flatMap((section) => section.children.filter((row): row is Element => row.type === "element" && row.tagName === "tr" && touched(row)));
+      }
+      return [];
+    };
+    for (const node of tree.children) {
+      if (node.type !== "element" || !touched(node)) continue;
+      const inner = parts(node);
+      if (inner.length) inner.forEach(mark);
+      else mark(node);
+    }
+  };
+}

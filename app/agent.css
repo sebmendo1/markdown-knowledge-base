@@ -1,0 +1,155 @@
+/* Agent activity: the working indicator, the agent editing screen, and the marks on changed blocks. */
+
+.agent-pulse {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.agent-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: agent-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes agent-ping {
+  0% { transform: scale(1); opacity: 0.6; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+.agent-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: min(360px, 40vw);
+  height: 30px;
+  margin-right: 8px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.agent-indicator:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.agent-indicator-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.tree-agent {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: agent-blink 1.2s ease-in-out infinite;
+}
+@keyframes agent-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.agent-banner { justify-content: flex-start; }
+.agent-banner > span:not(.agent-pulse) { flex: 1; min-width: 0; }
+
+/* The editing screen */
+.agent-stage { position: relative; }
+.agent-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 2px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.agent-progress.is-active { opacity: 1; }
+.agent-progress::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: agent-sweep 1s ease-in-out infinite;
+}
+@keyframes agent-sweep {
+  from { left: -40%; }
+  to { left: 100%; }
+}
+
+.agent-bar {
+  position: sticky;
+  top: 12px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 10px 12px 10px 14px;
+  border-radius: 12px;
+  background: var(--bg-raised);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.agent-bar-text { flex: 1; min-width: 0; color: var(--text-dim); }
+.agent-bar-text strong { color: var(--text); font-weight: 600; }
+.agent-bar-meta { font-variant-numeric: tabular-nums; }
+.agent-bar-button {
+  flex: none;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--bg-hover);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.agent-bar-button:hover { background: var(--bg-sunken); }
+
+/* A block the agent changed in this session. Lists and tables mark items and rows. */
+.md .agent-change {
+  position: relative;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  animation: agent-land 900ms ease-out;
+}
+.md .agent-change::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: -10px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.md tr.agent-change::before { display: none; }
+.md tr.agent-change td,
+.md tr.agent-change th { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+@keyframes agent-land {
+  from { background: color-mix(in srgb, var(--accent) 34%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-pulse::after,
+  .tree-agent,
+  .agent-progress::before,
+  .md .agent-change { animation: none; }
+  .agent-progress.is-active::before { left: 0; width: 100%; opacity: 0.6; }
+}
+
+@media (max-width: 640px) {
+  .agent-indicator { max-width: 44px; padding: 0 18px; }
+  .agent-indicator-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .agent-bar { top: 8px; }
+}

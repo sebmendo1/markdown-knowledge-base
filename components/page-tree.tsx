@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEven
 import type { Workspace } from "@/lib/workspace/model";
 import { ancestors, folderOf, hrefOf } from "@/lib/workspace/paths";
 import { buildTree, type PageDoc, type TreeNode } from "@/lib/workspace/tree";
+import { useAgentActivity } from "./agent-activity";
 import { setMode } from "./draft-store";
 import { DotsIcon, PlusIcon } from "./action-icons";
 import { importInto, moveFolderTo, movePageTo, newFolder, newPage, renameFolderTo, renamePageTo } from "./page-actions";
@@ -25,6 +26,11 @@ const same = (a: Target, b: Target) =>
 
 export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs: PageDoc[]; currentPath: string; onGo: (href: string) => void }) {
   const project = useProject();
+  const agentSessions = useAgentActivity().sessions;
+  const agentPaths = useMemo(
+    () => new Map(agentSessions.filter((item) => item.project === project).map((item) => [item.path, item.agent])),
+    [agentSessions, project],
+  );
   const collapsed = useCollapsed();
   const tree = useMemo(() => buildTree(ws, docs), [ws, docs]);
   const [editing, setEditing] = useState<Editing>(null);
@@ -165,6 +171,9 @@ export function PageTree({ ws, docs, currentPath, onGo }: { ws: Workspace; docs:
       <div key={doc.id} className="tree-row" style={{ "--depth": depth } as CSSProperties} onContextMenu={openMenu(target)} {...dragProps(target, folderOf(doc.path))}>
         <Link href={hrefOf(project, doc.path)} className="tree-link" aria-current={doc.path === currentPath ? "page" : undefined} onClick={() => onGo("")}>
           {doc.title}
+          {agentPaths.has(doc.path) ? (
+            <span className="tree-agent" role="img" aria-label={`${agentPaths.get(doc.path)} is editing`} title={`${agentPaths.get(doc.path)} is editing`} />
+          ) : null}
         </Link>
         <span className="tree-actions">
           <button type="button" className="tree-action" aria-label={`${doc.title} actions`} onClick={openMenu(target)}>

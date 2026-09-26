@@ -1,6 +1,7 @@
 import path from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { agentName, recordActivity } from "../lib/store/activity";
 import { defaultStore } from "../lib/store/fs-store";
 import { registerKbTools } from "../lib/mcp/tools";
 
@@ -12,7 +13,8 @@ const store = defaultStore();
 console.error(`markdown-kb MCP: reading ${store.root}`);
 
 const server = new McpServer({ name: "markdown-kb", version: "0.1.0" });
-registerKbTools(server, store);
+// The client's own name (claude-code, cursor, ...) labels its edits in the browser.
+registerKbTools(server, store, (event) => recordActivity(store.root, { ...event, agent: agentName(server.server.getClientVersion()) }));
 // No top-level await: package.json has no "type": "module", so tsx compiles this as CommonJS.
 server.connect(new StdioServerTransport()).catch((error) => {
   console.error(error);

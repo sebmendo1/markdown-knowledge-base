@@ -6,6 +6,8 @@ import type { Workspace } from "@/lib/workspace/model";
 import { hrefOf } from "@/lib/workspace/paths";
 import type { ProjectEntry } from "@/lib/workspace/projects";
 import type { PageDoc } from "@/lib/workspace/tree";
+import type { AgentSession } from "./agent-activity";
+import { AgentStage } from "./agent-stage";
 import { setSidebarExpanded, useSidebarExpanded, type Mode } from "./draft-store";
 import { DocumentChrome } from "./document-chrome";
 import { FileSidebar } from "./file-sidebar";
@@ -49,6 +51,11 @@ export function WorkspaceView(props: {
   setPaletteOpen: (open: boolean) => void;
   setHelpOpen: (open: boolean) => void;
   onChange: (next: string) => void;
+  agentSession?: AgentSession;
+  agentFollowing: boolean;
+  agentWatch: { agent: string; path: string } | null;
+  onWatchAgent: () => void;
+  onResumeFollowing: () => void;
   diskConflict?: boolean;
   onLoadDisk?: () => void;
   go: (href: string) => void;
@@ -77,6 +84,14 @@ export function WorkspaceView(props: {
     ) : (
       <div className="stage preview" />
     )
+  ) : props.agentSession && props.mode === "preview" && props.agentFollowing ? (
+    <AgentStage
+      session={props.agentSession}
+      value={props.value}
+      docs={props.docs}
+      path={props.currentPath}
+      previewRef={props.previewRef}
+    />
   ) : (
     <PreviewStage
       mode={props.mode}
@@ -115,14 +130,40 @@ export function WorkspaceView(props: {
           onOpenFiles={showSidebar}
           go={props.go}
           banner={
-            props.diskConflict ? (
-              <div className="disk-banner" role="status">
-                <span>This page changed on disk.</span>
-                <button type="button" onClick={props.onLoadDisk}>
-                  Load disk version
-                </button>
-              </div>
-            ) : null
+            <>
+              {props.diskConflict ? (
+                <div className="disk-banner" role="status">
+                  <span>This page changed on disk.</span>
+                  <button type="button" onClick={props.onLoadDisk}>
+                    Load disk version
+                  </button>
+                </div>
+              ) : null}
+              {props.agentSession && props.mode !== "preview" ? (
+                <div className="disk-banner agent-banner" role="status">
+                  <span className="agent-pulse" aria-hidden="true" />
+                  <span>{props.agentSession.agent} is editing this page too. Your changes and theirs may conflict.</span>
+                </div>
+              ) : props.agentSession && !props.agentFollowing && props.mode === "preview" ? (
+                <div className="disk-banner agent-banner" role="status">
+                  <span className="agent-pulse" aria-hidden="true" />
+                  <span>{props.agentSession.agent} is editing this page.</span>
+                  <button type="button" onClick={props.onResumeFollowing}>
+                    Follow
+                  </button>
+                </div>
+              ) : props.agentWatch ? (
+                <div className="disk-banner agent-banner" role="status">
+                  <span className="agent-pulse" aria-hidden="true" />
+                  <span>
+                    {props.agentWatch.agent} is editing {props.agentWatch.path.split("/").pop()}.
+                  </span>
+                  <button type="button" onClick={props.onWatchAgent}>
+                    Watch
+                  </button>
+                </div>
+              ) : null}
+            </>
           }
         >
           {body}

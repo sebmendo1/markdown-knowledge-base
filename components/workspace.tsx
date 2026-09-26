@@ -7,6 +7,7 @@ import type { Heading } from "@/lib/markdown/outline";
 import { folderOf, hrefOf } from "@/lib/workspace/paths";
 import type { ProjectEntry } from "@/lib/workspace/projects";
 import { backlinks, rendersAsRepo } from "@/lib/workspace/tree";
+import { onAgentEdit, resumeFollowing, useAgentActivity } from "./agent-activity";
 import { setMode, setSidebarExpanded, useMode } from "./draft-store";
 import { editPage } from "./history-store";
 import { ProjectContext } from "./project-context";
@@ -58,6 +59,28 @@ export function Workspace({
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const last = useRef<{ id: string; path: string } | null>(null);
+  const agents = useAgentActivity();
+  const [watch, setWatch] = useState<{ agent: string; path: string } | null>(null);
+  const followRef = useRef({ currentPath, mode, paused: agents.followPaused });
+  useEffect(() => {
+    followRef.current = { currentPath, mode, paused: agents.followPaused };
+  }, [currentPath, mode, agents.followPaused]);
+
+  // Follow an agent to the page it is editing, once the browser has its edit. Someone typing is not
+  // pulled away; they get a Watch prompt instead.
+  useEffect(
+    () =>
+      onAgentEdit((event) => {
+        if (event.project !== project || !event.path) return;
+        if (event.op !== "create" && event.op !== "update" && event.op !== "move") return;
+        const now = followRef.current;
+        if (event.path === now.currentPath) return;
+        if (now.mode === "preview" && !now.paused) router.push(hrefOf(project, event.path));
+        else setWatch({ agent: event.agent, path: event.path });
+      }),
+    [project, router],
+  );
+  const watching = watch && agents.sessions.some((item) => item.project === project && item.path === watch.path) ? watch : null;
 
   function newPageHere() {
     setSidebarExpanded(true);
@@ -117,7 +140,9 @@ export function Workspace({
     () => Boolean(page && page.path === page.origin && rendersAsRepo(currentPath, docs, repoDocs)),
     [page, currentPath, docs, repoDocs],
   );
-  const headings = useHeadings(previewRef, asRepo ? repoHeadings : [], currentPath);
+  const agentScreen = Boolean(page && mode === "preview" && !agents.followPaused && agents.sessions.some((item) => item.project === project && item.path === currentPath));
+  // The agent editing screen mounts a new preview element, so the outline has to watch that one.
+  const headings = useHeadings(previewRef, asRepo ? repoHeadings : [], `${currentPath}${agentScreen ? "#agent" : ""}`);
   const linkedFrom = useMemo(() => (page ? backlinks(docs, currentPath) : []), [docs, currentPath, page]);
   useActiveHeading(previewRef, value, mode, setActiveHeading);
 
@@ -169,6 +194,17 @@ export function Workspace({
         setPaletteOpen={setPaletteOpen}
         setHelpOpen={setHelpOpen}
         onChange={(next) => page && editPage(page.id, next)}
+        agentSession={page ? agents.sessions.find((item) => item.project === project && item.path === currentPath) : undefined}
+        agentFollowing={!agents.followPaused}
+        agentWatch={watching && watching.path !== currentPath ? watching : null}
+        onWatchAgent={() => {
+          if (!watching) return;
+          setMode("preview");
+          resumeFollowing();
+          setWatch(null);
+          go(hrefOf(project, watching.path));
+        }}
+        onResumeFollowing={resumeFollowing}
         diskConflict={Boolean(page && conflicts.some((item) => item.id === page.id))}
         onLoadDisk={() => page && loadDiskVersion(page.id)}
         go={go}

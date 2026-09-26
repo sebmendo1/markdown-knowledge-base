@@ -2,6 +2,9 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { humanize, nameOf } from "../workspace/paths";
 import { defaultStore, StoreError, type Store } from "../store/fs-store";
+import type { ActivityEvent } from "../store/activity";
+
+export type ToolActivity = Omit<ActivityEvent, "id" | "at" | "agent">;
 
 const project = z.string().describe("Project slug from list_projects or create_project.");
 const filePath = z.string().describe("Page path relative to the project, ending in .md, such as notes/idea.md.");
@@ -17,22 +20,31 @@ function fail(error: unknown) {
   return { isError: true, content: [{ type: "text" as const, text: JSON.stringify(body, null, 2) }] };
 }
 
-async function run(work: () => unknown) {
-  try {
-    return ok(await work());
-  } catch (error) {
-    return fail(error);
+export function registerKbTools(server: McpServer, store: Store = defaultStore(), onActivity?: (event: ToolActivity) => void) {
+  // Report each successful call so the app can show what the agent is doing. A failed report never fails the tool.
+  async function run(work: () => unknown, activity?: (result: unknown) => ToolActivity) {
+    try {
+      const result = await work();
+      if (activity && onActivity) {
+        try {
+          onActivity(activity(result));
+        } catch {
+          /* Activity is a display aid only. */
+        }
+      }
+      return ok(result);
+    } catch (error) {
+      return fail(error);
+    }
   }
-}
 
-export function registerKbTools(server: McpServer, store: Store = defaultStore()) {
   server.registerTool(
     "list_projects",
     {
       description: "List knowledge-base projects on disk, with their slugs, names, descriptions, and page paths. Call this before creating a project so you don't duplicate one.",
       annotations: { readOnlyHint: true },
     },
-    async () => run(() => store.listProjects()),
+    async () => run(() => store.listProjects(), () => ({ op: "browse" })),
   );
 
   server.registerTool(
@@ -44,7 +56,11 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
         description: z.string().optional().describe("One line about what this project holds."),
       },
     },
-    async ({ name, description }) => run(() => store.createProject(name, description)),
+    async ({ name, description }) =>
+      run(
+        () => store.createProject(name, description),
+        (result) => ({ op: "create_project", project: (result as { slug: string }).slug }),
+      ),
   );
 
   server.registerTool(
@@ -54,7 +70,7 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
       annotations: { readOnlyHint: true },
       inputSchema: { project },
     },
-    async ({ project: slug }) => run(() => store.listIndex(slug)),
+    async ({ project: slug }) => run(() => store.listIndex(slug), () => ({ op: "browse", project: slug })),
   );
 
   server.registerTool(
@@ -64,7 +80,11 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
       annotations: { readOnlyHint: true },
       inputSchema: { project, path: filePath },
     },
-    async ({ project: slug, path }) => run(() => store.readFile(slug, path)),
+    async ({ project: slug, path }) =>
+      run(
+        () => store.readFile(slug, path),
+        (result) => ({ op: "read", project: slug, path: (result as { path: string }).path }),
+      ),
   );
 
   server.registerTool(
@@ -81,7 +101,7 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
       run(() => {
         const body = content ?? `# ${humanize(nameOf(path))}\n\n`;
         return store.createFile(slug, path, body);
-      }),
+      }, (result) => ({ op: "create", project: slug, path: (result as { path: string }).path })),
   );
 
   server.registerTool(
@@ -105,7 +125,10 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
       },
     },
     async ({ project: slug, path, version: expected, content, edits }) =>
-      run(() => store.updateFile(slug, path, expected, { content, edits })),
+      run(
+        () => store.updateFile(slug, path, expected, { content, edits }),
+        (result) => ({ op: "update", project: slug, path: (result as { path: string }).path }),
+      ),
   );
 
   server.registerTool(
@@ -117,7 +140,11 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
         path: z.string().describe("Folder path, such as notes/ideas."),
       },
     },
-    async ({ project: slug, path }) => run(() => store.createFolder(slug, path)),
+    async ({ project: slug, path }) =>
+      run(
+        () => store.createFolder(slug, path),
+        (result) => ({ op: "mkdir", project: slug, path: (result as { path: string }).path }),
+      ),
   );
 
   server.registerTool(
@@ -131,7 +158,11 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
         version,
       },
     },
-    async ({ project: slug, from, to, version: expected }) => run(() => store.moveFile(slug, from, to, expected)),
+    async ({ project: slug, from, to, version: expected }) =>
+      run(
+        () => store.moveFile(slug, from, to, expected),
+        (result) => ({ op: "move", project: slug, from, path: (result as { path: string }).path }),
+      ),
   );
 
   server.registerTool(
@@ -141,7 +172,11 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
       annotations: { destructiveHint: true },
       inputSchema: { project, path: filePath, version },
     },
-    async ({ project: slug, path, version: expected }) => run(() => store.trashFile(slug, path, expected)),
+    async ({ project: slug, path, version: expected }) =>
+      run(
+        () => store.trashFile(slug, path, expected),
+        () => ({ op: "trash", project: slug, path }),
+      ),
   );
 
   server.registerTool(
@@ -155,6 +190,10 @@ export function registerKbTools(server: McpServer, store: Store = defaultStore()
         limit: z.number().int().min(1).max(50).optional().describe("Maximum hits. Defaults to 20."),
       },
     },
-    async ({ project: slug, query, limit }) => run(() => store.search(slug, query, limit ?? 20)),
+    async ({ project: slug, query, limit }) =>
+      run(
+        () => store.search(slug, query, limit ?? 20),
+        () => ({ op: "search", project: slug }),
+      ),
   );
 }

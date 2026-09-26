@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { splitFrontmatter } from "@/lib/markdown/frontmatter";
 import { hrefFor } from "@/lib/markdown/links";
 import { extractSection } from "@/lib/markdown/outline";
+import { rehypeMarkChanged } from "@/lib/markdown/plugins";
 import { CodeBlock } from "./blocks";
 import { markdownComponents, markdownPlugins, Properties, type EmbedProps, type MarkdownDoc } from "./markdown-parts";
 import { useProject } from "./project-context";
@@ -16,12 +17,18 @@ type MarkdownViewProps = {
   path?: string;
   depth?: number;
   trail?: string[];
+  // Body line numbers (after frontmatter) to mark as just changed.
+  changed?: ReadonlySet<number>;
 };
 
-export function MarkdownView({ source, docs, path, depth = 0, trail = [] }: MarkdownViewProps) {
+export function MarkdownView({ source, docs, path, depth = 0, trail = [], changed }: MarkdownViewProps) {
   const parsed = useMemo(() => splitFrontmatter(source), [source]);
   const project = useProject();
-  const plugins = useMemo(() => markdownPlugins(docs, project), [docs, project]);
+  const plugins = useMemo(() => {
+    const base = markdownPlugins(docs, project);
+    if (!changed?.size) return base;
+    return { ...base, rehypePlugins: [...(base.rehypePlugins ?? []), [rehypeMarkChanged, changed]] as typeof base.rehypePlugins };
+  }, [docs, project, changed]);
   const chain = useMemo(() => (path ? [...trail, path] : trail), [path, trail]);
   const components = useMemo(() => markdownComponents({ docs, project, depth, trail: chain, Code: CodeBlock, Embed }), [docs, project, depth, chain]);
 

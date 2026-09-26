@@ -50,6 +50,8 @@ The same snippets are in the app under Settings → MCP. Copy them from either p
 
 The tools are `list_projects`, `create_project`, `list_files` (paths, titles, versions, and sizes, not page text), `read_file`, `create_file`, `update_file`, `create_folder`, `move_file`, `delete_file`, and `search`.
 
+While an agent works, the app shows it live. The top bar says what the agent is doing, and a dot marks each page it is editing. A page open in view mode follows the agent to whichever page it edits. That page switches to an editing screen with the agent's name and edit count, and the blocks it changed are highlighted as they land. If you are editing, the app offers a Watch button instead of moving you. The screen returns to normal a few seconds after the agent stops. The MCP server records each tool call in `kb/.activity.jsonl`, and the app streams that file from `/api/activity`.
+
 Start the app with `npm run dev`, then ask an agent to create a project and a page. The page shows up in the browser within a few seconds. Edits you type are written back to the same files. Open the site at [http://localhost:3000](http://localhost:3000); `127.0.0.1` works too. The save route is on only while `KB_LOCAL=1`, which `npm run dev` sets, so a deployed build does not expose it.
 
 ## Design

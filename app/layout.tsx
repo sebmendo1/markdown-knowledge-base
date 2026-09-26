@@ -13,6 +13,7 @@ import "./share.css";
 import "./tree.css";
 import "./block-editor.css";
 import "./projects.css";
+import "./agent.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

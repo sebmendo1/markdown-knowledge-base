@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { hrefOf } from "@/lib/workspace/paths";
 import { setMode, type Mode } from "./draft-store";
 import { DotsIcon } from "./action-icons";
+import { describeWork, useAgentActivity } from "./agent-activity";
 import { GearIcon } from "./gear-icon";
 import { downloadPage, duplicate, revert, saveVersion, trash } from "./page-actions";
 import { PanelIcon } from "./panel-icon";
@@ -53,6 +54,8 @@ export function DocumentChrome({
 }) {
   const project = useProject();
   const editing = mode !== "preview";
+  const { working, sessions } = useAgentActivity();
+  const agentHere = sessions.find((item) => item.project === project && item.path === path);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const slug = path.replace(/\.md$/i, "").split("/");
 
@@ -100,6 +103,19 @@ export function DocumentChrome({
           </p>
         ) : null}
         <div className="topbar-spacer" />
+        {working ? (
+          <button
+            type="button"
+            className="agent-indicator"
+            aria-live="polite"
+            onClick={() => {
+              if (working.project && working.path && working.op !== "trash" && working.op !== "read") go(hrefOf(working.project, working.path));
+            }}
+          >
+            <span className="agent-pulse" aria-hidden="true" />
+            <span className="agent-indicator-text">{describeWork(working)}</span>
+          </button>
+        ) : null}
         {pageId ? (
           <>
             <button
@@ -142,7 +158,7 @@ export function DocumentChrome({
         <span>{STATUS[state]}</span>
         <span className="status-gap" />
         {pageId ? <span>{words} words</span> : null}
-        {pageId ? <span>{MODE_LABEL[mode]}</span> : null}
+        {pageId ? <span>{agentHere ? `${agentHere.agent} editing` : MODE_LABEL[mode]}</span> : null}
       </footer>
       {menu && pageId ? <PopoverMenu x={menu.x} y={menu.y} label="Page actions" items={items(pageId)} onClose={() => setMenu(null)} /> : null}
     </>

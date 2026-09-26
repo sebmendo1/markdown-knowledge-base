@@ -12,15 +12,17 @@ const watching = new Set<string>();
 const syncedFolders = new Map<string, Set<string>>();
 const timers = new Map<string, number>();
 const chains = new Map<string, Promise<void>>();
+const remoteHandlers = new Map<string, () => void>();
 const NONE: DiskConflict[] = [];
 let conflictList = NONE;
 let saveErrors = 0;
 let lastError = "";
 
-function enqueue(project: string, job: () => Promise<void>) {
+function enqueue(project: string, job: () => Promise<void>): Promise<void> {
   const previous = chains.get(project) ?? Promise.resolve();
   const next = previous.then(job, job);
   chains.set(project, next);
+  return next;
 }
 
 function foldersOf(project: string) {
@@ -168,8 +170,18 @@ function schedule(project: string) {
 
 onWorkspaceWrite((project) => schedule(project));
 
+// Pull right away, for when an agent reports an edit, instead of waiting for the next poll.
+export function syncNow(project: string): Promise<void> {
+  const onRemote = remoteHandlers.get(project);
+  if (!onRemote || !watching.has(project)) return Promise.resolve();
+  return enqueue(project, async () => {
+    await pull(project, onRemote).catch(() => "ok" as const);
+  });
+}
+
 export function startDiskSync(project: string, onRemote: () => void) {
   watching.add(project);
+  remoteHandlers.set(project, onRemote);
   setPreserveDirtyBase(project, true);
   let timer = 0;
   const run = () =>
@@ -185,6 +197,7 @@ export function startDiskSync(project: string, onRemote: () => void) {
   window.addEventListener("focus", run);
   return () => {
     watching.delete(project);
+    remoteHandlers.delete(project);
     setPreserveDirtyBase(project, false);
     window.clearInterval(timer);
     window.removeEventListener("focus", run);
