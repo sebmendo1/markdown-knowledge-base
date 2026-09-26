@@ -38,7 +38,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body>
+      {/* Browser extensions (writing assistants, password managers) add attributes to <body> before hydration. */}
+      <body suppressHydrationWarning>
         <script
           dangerouslySetInnerHTML={{
             __html:
