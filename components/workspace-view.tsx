@@ -7,6 +7,7 @@ import { hrefOf } from "@/lib/workspace/paths";
 import type { ProjectEntry } from "@/lib/workspace/projects";
 import type { PageDoc } from "@/lib/workspace/tree";
 import type { AgentSession } from "./agent-activity";
+import { useAgentChanges } from "./agent-changes";
 import { AgentStage } from "./agent-stage";
 import { setSidebarExpanded, useSidebarExpanded, type Mode } from "./draft-store";
 import { DocumentChrome } from "./document-chrome";
@@ -64,6 +65,7 @@ export function WorkspaceView(props: {
   const missing = props.state === "missing";
   const showOutline = props.outlineOpen && props.mode !== "source" && !missing;
   const expanded = useSidebarExpanded();
+  const review = useAgentChanges(missing ? null : props.pageId, props.value);
   const shell = ["shell", expanded ? "" : "is-collapsed", showOutline ? "has-outline" : ""].filter(Boolean).join(" ");
   function showSidebar() {
     setSidebarExpanded(true);
@@ -96,6 +98,7 @@ export function WorkspaceView(props: {
     <PreviewStage
       mode={props.mode}
       value={props.value}
+      review={review}
       rendered={props.rendered}
       path={props.currentPath}
       docs={props.docs}
@@ -127,6 +130,7 @@ export function WorkspaceView(props: {
           state={props.state}
           words={props.words}
           mode={props.mode}
+          review={review}
           onOpenFiles={showSidebar}
           go={props.go}
           banner={
@@ -180,7 +184,7 @@ export function WorkspaceView(props: {
       <MoveDialog ws={props.ws} />
       <TrashDialog ws={props.ws} />
       <HistoryDialog ws={props.ws} docs={props.docs} />
-      <SettingsHost />
+      <SettingsHost canShowShortcuts />
       <ShareHost />
     </div>
   );

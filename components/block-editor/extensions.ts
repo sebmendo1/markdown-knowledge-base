@@ -13,6 +13,7 @@ import { extractHeadings } from "@/lib/markdown/outline";
 import { filterSlash, openNextBlock, type SlashItem } from "./commands";
 import type { SuggestStore } from "./suggest-store";
 import { CalloutView, EmbedView, FenceView, InlineMathView, MathBlockView, RawView, WikiLinkView } from "./views";
+import { AgentDiff } from "./agent-diff";
 
 const headingText = new WeakMap<PMNodeObject, string>();
 
@@ -159,6 +160,7 @@ export function editorExtensions(options: {
       },
     }),
     HeadingIds,
+    AgentDiff,
     BlockRules,
     createSlash(options.slash),
     createPagePicker(options.pages, options.docs),

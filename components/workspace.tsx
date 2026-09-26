@@ -9,10 +9,11 @@ import type { ProjectEntry } from "@/lib/workspace/projects";
 import { backlinks, rendersAsRepo } from "@/lib/workspace/tree";
 import { onAgentEdit, resumeFollowing, useAgentActivity } from "./agent-activity";
 import { setMode, setSidebarExpanded, useMode } from "./draft-store";
+import { prefersReducedMotion, usePreferences } from "./preferences";
 import { editPage } from "./history-store";
 import { ProjectContext } from "./project-context";
 import { touchProject, useRegistry } from "./project-store";
-import { emit } from "./ui-events";
+import { emit, listen } from "./ui-events";
 import { useActiveHeading } from "./use-active-heading";
 import { useEditorKeys } from "./use-editor-keys";
 import { useHeadings } from "./use-headings";
@@ -61,10 +62,11 @@ export function Workspace({
   const last = useRef<{ id: string; path: string } | null>(null);
   const agents = useAgentActivity();
   const [watch, setWatch] = useState<{ agent: string; path: string } | null>(null);
-  const followRef = useRef({ currentPath, mode, paused: agents.followPaused });
+  const { followAgents } = usePreferences();
+  const followRef = useRef({ currentPath, mode, paused: agents.followPaused || !followAgents });
   useEffect(() => {
-    followRef.current = { currentPath, mode, paused: agents.followPaused };
-  }, [currentPath, mode, agents.followPaused]);
+    followRef.current = { currentPath, mode, paused: agents.followPaused || !followAgents };
+  }, [currentPath, mode, agents.followPaused, followAgents]);
 
   // Follow an agent to the page it is editing, once the browser has its edit. Someone typing is not
   // pulled away; they get a Watch prompt instead.
@@ -87,6 +89,8 @@ export function Workspace({
     setSidebarOpen(true);
     window.setTimeout(() => emit("markdown-kb-create", { kind: "page", folder: page ? folderOf(currentPath) : "" }), 0);
   }
+
+  useEffect(() => listen("markdown-kb-help", () => setHelpOpen(true)), []);
 
   useEditorKeys({ mode, pageId: page?.id ?? null, setOutlineOpen, setSidebarOpen, setPaletteOpen, setHelpOpen, onNewPage: newPageHere });
 
@@ -161,7 +165,7 @@ export function Workspace({
   }
 
   function jump(id: string) {
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    const motion = prefersReducedMotion() ? "auto" : "smooth";
     previewRef.current?.querySelector(`#${CSS.escape(id)}`)?.scrollIntoView({ behavior: motion, block: "start" });
   }
 

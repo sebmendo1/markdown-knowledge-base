@@ -15,6 +15,12 @@ const HEARTBEAT_MS = 15_000;
 export function GET(request: Request) {
   if (process.env.KB_LOCAL !== "1") return NextResponse.json({ error: "Not found" }, { status: 404 });
   const root = defaultStore().root;
+  // ?recent=N returns the newest N events as JSON, newest first, for Settings → Agents.
+  const recent = new URL(request.url).searchParams.get("recent");
+  if (recent !== null) {
+    const count = Math.min(50, Math.max(1, Number.parseInt(recent, 10) || 10));
+    return NextResponse.json({ events: readActivity(root).slice(-count).reverse() });
+  }
   const file = path.join(root, ACTIVITY_FILE);
   const encoder = new TextEncoder();
   let poll: ReturnType<typeof setInterval> | undefined;

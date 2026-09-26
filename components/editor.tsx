@@ -6,6 +6,7 @@ import { Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import CodeMirror, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { useMemo } from "react";
+import { usePreferences } from "./preferences";
 import { useResolvedTheme } from "./theme-store";
 
 function editorTheme(dark: boolean) {
@@ -49,9 +50,11 @@ type EditorProps = {
 
 export function Editor({ value, onChange, onView }: EditorProps) {
   const dark = useResolvedTheme() === "dark";
+  const { spellcheck } = usePreferences();
   const extensions = useMemo(
     () => [
       markdown({ base: markdownLanguage, codeLanguages: languages }),
+      EditorView.contentAttributes.of({ spellcheck: spellcheck ? "true" : "false" }),
       editorTheme(dark),
       EditorView.lineWrapping,
       Prec.highest(
@@ -61,7 +64,7 @@ export function Editor({ value, onChange, onView }: EditorProps) {
         ]),
       ),
     ],
-    [dark],
+    [dark, spellcheck],
   );
 
   return (

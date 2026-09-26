@@ -3,25 +3,41 @@
 import { useEffect, useRef, useState } from "react";
 import type { McpSnippets } from "@/lib/mcp/snippets";
 import { mcpSnippets } from "@/lib/mcp/snippets";
-import { notify } from "./toast-host";
-import { applyTheme, setTheme, useThemeChoice, type ThemeChoice } from "./theme-store";
+import { applyMotion } from "./preferences";
+import { AboutSettings } from "./settings/about";
+import { AgentsSettings } from "./settings/agents";
+import { AppearanceSettings } from "./settings/appearance";
+import { EditorSettings } from "./settings/editor";
+import { GeneralSettings } from "./settings/general";
+import { KeyboardSettings } from "./settings/keyboard";
+import { applyTheme } from "./theme-store";
 
 const OPEN = "markdown-kb-settings";
-type Section = "general" | "appearance" | "mcp";
+const SECTIONS = [
+  ["general", "General"],
+  ["appearance", "Appearance"],
+  ["editor", "Editor"],
+  ["agents", "Agents"],
+  ["keyboard", "Keyboard"],
+  ["about", "About"],
+] as const;
+type Section = (typeof SECTIONS)[number][0];
 const PLACEHOLDER = mcpSnippets("/absolute/path/to/markdown-knowledge-base/kb", "/absolute/path/to/markdown-knowledge-base/mcp/server.ts");
 
 export function openSettings() {
   window.dispatchEvent(new Event(OPEN));
 }
 
-export function SettingsHost() {
+export function SettingsHost({ canShowShortcuts = false }: { canShowShortcuts?: boolean }) {
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState<Section>("appearance");
-  const choice = useThemeChoice();
+  const [snippets, setSnippets] = useState<McpSnippets>(PLACEHOLDER);
+  const [local, setLocal] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     applyTheme();
+    applyMotion();
     const show = () => {
       setSection("appearance");
       setOpen(true);
@@ -41,59 +57,9 @@ export function SettingsHost() {
     };
   }, []);
 
+  // The local server fills in real folder paths for General and Agents. A deployed build has no endpoint.
   useEffect(() => {
-    if (open) dialogRef.current?.focus();
-  }, [open]);
-
-  if (!open) return null;
-  return (
-    <div className="overlay settings-overlay" onMouseDown={() => setOpen(false)}>
-      <div ref={dialogRef} className="settings" role="dialog" aria-label="Settings" tabIndex={-1} onMouseDown={(event) => event.stopPropagation()}>
-        <header className="settings-top">
-          <h2>Settings</h2>
-          <button type="button" className="icon-button" aria-label="Close settings" onClick={() => setOpen(false)}>
-            ×
-          </button>
-        </header>
-        <div className="settings-body">
-          <nav className="settings-nav" aria-label="Settings sections">
-            <button type="button" className={section === "general" ? "is-active" : undefined} onClick={() => setSection("general")}>
-              General
-            </button>
-            <button type="button" className={section === "appearance" ? "is-active" : undefined} onClick={() => setSection("appearance")}>
-              Appearance
-            </button>
-            <button type="button" className={section === "mcp" ? "is-active" : undefined} onClick={() => setSection("mcp")}>
-              MCP
-            </button>
-          </nav>
-          {section === "general" ? <General /> : section === "appearance" ? <Appearance choice={choice} /> : <McpSettings />}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function General() {
-  return (
-    <section className="settings-pane">
-      <h3>General</h3>
-      <p className="settings-lead">This copy stays on this machine.</p>
-      <div className="settings-row">
-        <div>
-          <div className="settings-label">Pages</div>
-          <p>Pages you create or edit live in this browser, one project at a time. Export a project from the Pages menu to keep a copy or move it to another device.</p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function McpSettings() {
-  const [snippets, setSnippets] = useState<McpSnippets>(PLACEHOLDER);
-  const [local, setLocal] = useState(false);
-
-  useEffect(() => {
+    if (!open || local) return;
     let gone = false;
     void fetch("/api/mcp")
       .then(async (response) => {
@@ -108,75 +74,46 @@ function McpSettings() {
     return () => {
       gone = true;
     };
-  }, []);
+  }, [open, local]);
 
-  async function copy(label: string, text: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      const area = document.createElement("textarea");
-      area.value = text;
-      document.body.appendChild(area);
-      area.select();
-      document.execCommand("copy");
-      area.remove();
-    }
-    notify(`Copied ${label} settings`);
-  }
+  useEffect(() => {
+    if (open) dialogRef.current?.focus();
+  }, [open]);
 
+  if (!open) return null;
+  const close = () => setOpen(false);
   return (
-    <section className="settings-pane">
-      <h3>MCP</h3>
-      <p className="settings-lead">
-        {local
-          ? `These settings point agents at ${snippets.kbDir}. Paste one into Cursor, Claude Code, or Codex.`
-          : "Run npm run dev on this machine to fill in the folder paths. Paste one of these into Cursor, Claude Code, or Codex."}
-      </p>
-      {(
-        [
-          ["Cursor", snippets.cursor],
-          ["Claude Code", snippets.claude],
-          ["Codex", snippets.codex],
-        ] as const
-      ).map(([label, text]) => (
-        <div className="mcp-block" key={label}>
-          <header>
-            <div className="settings-label">{label}</div>
-            <button type="button" className="mcp-copy" onClick={() => void copy(label, text)}>
-              Copy
-            </button>
-          </header>
-          <pre>{text}</pre>
-        </div>
-      ))}
-    </section>
-  );
-}
-
-function Appearance({ choice }: { choice: ThemeChoice }) {
-  return (
-    <section className="settings-pane">
-      <h3>Appearance</h3>
-      <p className="settings-lead">How markdown-kb looks on this machine.</p>
-      <div className="settings-row">
-        <div>
-          <div className="settings-label">Theme</div>
-          <p>Use the system setting, or keep one look.</p>
-        </div>
-        <div className="theme-switch" role="radiogroup" aria-label="Theme">
-          {(
-            [
-              ["light", "Light"],
-              ["dark", "Dark"],
-              ["system", "System"],
-            ] as const
-          ).map(([value, label]) => (
-            <button key={value} type="button" role="radio" aria-checked={choice === value} className={choice === value ? "is-active" : undefined} onClick={() => setTheme(value)}>
-              {label}
-            </button>
-          ))}
+    <div className="overlay settings-overlay" onMouseDown={close}>
+      <div ref={dialogRef} className="settings" role="dialog" aria-label="Settings" tabIndex={-1} onMouseDown={(event) => event.stopPropagation()}>
+        <header className="settings-top">
+          <h2>Settings</h2>
+          <button type="button" className="icon-button" aria-label="Close settings" onClick={close}>
+            ×
+          </button>
+        </header>
+        <div className="settings-body">
+          <nav className="settings-nav" aria-label="Settings sections">
+            {SECTIONS.map(([id, label]) => (
+              <button key={id} type="button" className={section === id ? "is-active" : undefined} aria-current={section === id ? "page" : undefined} onClick={() => setSection(id)}>
+                {label}
+              </button>
+            ))}
+          </nav>
+          {section === "general" ? (
+            <GeneralSettings kbDir={local ? snippets.kbDir : null} />
+          ) : section === "appearance" ? (
+            <AppearanceSettings />
+          ) : section === "editor" ? (
+            <EditorSettings />
+          ) : section === "agents" ? (
+            <AgentsSettings snippets={snippets} local={local} />
+          ) : section === "keyboard" ? (
+            <KeyboardSettings canShowShortcuts={canShowShortcuts} onClose={close} />
+          ) : (
+            <AboutSettings onClose={close} />
+          )}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

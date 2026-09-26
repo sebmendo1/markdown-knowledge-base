@@ -6,6 +6,9 @@ import { addedLines } from "@/lib/store/line-diff";
 import type { PageDoc } from "@/lib/workspace/tree";
 import { pauseFollowing, type AgentSession } from "./agent-activity";
 import { LazyMarkdownView } from "./lazy-markdown";
+import { prefersReducedMotion, usePreferences } from "./preferences";
+
+const NONE: ReadonlySet<number> = new Set();
 
 // The page as an agent edits it: live content, with the blocks changed in this session marked,
 // and the view kept on the latest change.
@@ -22,9 +25,10 @@ export function AgentStage({
   path: string;
   previewRef: RefObject<HTMLDivElement | null>;
 }) {
+  const { highlightAgentChanges } = usePreferences();
   const changed = useMemo(
-    () => addedLines(session.before ? splitFrontmatter(session.before).body : "", splitFrontmatter(value).body),
-    [session.before, value],
+    () => (highlightAgentChanges ? addedLines(session.before ? splitFrontmatter(session.before).body : "", splitFrontmatter(value).body) : NONE),
+    [highlightAgentChanges, session.before, value],
   );
 
   useEffect(() => {
@@ -35,7 +39,7 @@ export function AgentStage({
       if (!last) return;
       const rect = last.getBoundingClientRect();
       if (rect.top >= 0 && rect.bottom <= window.innerHeight) return;
-      const motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+      const motion = prefersReducedMotion() ? "auto" : "smooth";
       last.scrollIntoView({ behavior: motion, block: "center" });
     });
     return () => window.cancelAnimationFrame(frame);

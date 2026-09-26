@@ -202,6 +202,13 @@ The sentence is "log this experiment to Ledger". The agent uses only the ten MCP
 
 `propose_change` first returns a structured error for an invalid proposal. The agent retries with a valid proposal. That retry succeeds and the proposal is stored.
 
+## F13-T27 Review agent changes in the editor
+
+- Depends on: F13-T01
+- Size: one feature
+- Requirements: F13-REQ-037, F13-REQ-038, F13-REQ-039, F13-REQ-040, F13-REQ-041
+- Test: `lib/store/text-diff.test.ts` proves `word hunks and character counts` (F13-AC-038a); `lib/store/agent-changes.test.ts` proves `typing is not counted and deleting agent text lowers the count` (F13-AC-038b); `lib/editor/agent-diff.test.ts` proves `inline and block decorations` (F13-AC-040a, F13-AC-040b); `e2e/agent-activity.spec.ts` proves the counter, reload, mark reviewed, the disk-banner path, and external writes (F13-AC-037a, F13-AC-038a, F13-AC-039a, F13-AC-041a)
+
 ## Coverage
 
 | Requirement | Task | Test |
@@ -242,3 +249,8 @@ The sentence is "log this experiment to Ledger". The agent uses only the ten MCP
 | F13-REQ-034 | F13-T24 | F13-AC-034a |
 | F13-REQ-035 | F13-T25 | F13-AC-035a |
 | F13-REQ-036 | F13-T26 | F13-AC-036a |
+| F13-REQ-037 | F13-T27 | F13-AC-037a |
+| F13-REQ-038 | F13-T27 | F13-AC-038a, F13-AC-038b |
+| F13-REQ-039 | F13-T27 | F13-AC-039a |
+| F13-REQ-040 | F13-T27 | F13-AC-040a, F13-AC-040b |
+| F13-REQ-041 | F13-T27 | F13-AC-041a |

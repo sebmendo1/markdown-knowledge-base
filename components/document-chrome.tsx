@@ -5,6 +5,8 @@ import { hrefOf } from "@/lib/workspace/paths";
 import { setMode, type Mode } from "./draft-store";
 import { DotsIcon } from "./action-icons";
 import { describeWork, useAgentActivity } from "./agent-activity";
+import type { AgentReview } from "./agent-changes";
+import { AgentDiffCounter } from "./agent-diff-counter";
 import { GearIcon } from "./gear-icon";
 import { downloadPage, duplicate, revert, saveVersion, trash } from "./page-actions";
 import { PanelIcon } from "./panel-icon";
@@ -36,6 +38,7 @@ export function DocumentChrome({
   state,
   words,
   mode,
+  review,
   onOpenFiles,
   go,
   banner,
@@ -47,6 +50,7 @@ export function DocumentChrome({
   state: PageState;
   words: number;
   mode: Mode;
+  review?: AgentReview | null;
   onOpenFiles: () => void;
   go: (href: string) => void;
   banner?: ReactNode;
@@ -118,6 +122,7 @@ export function DocumentChrome({
         ) : null}
         {pageId ? (
           <>
+            {review ? <AgentDiffCounter pageId={pageId} review={review} /> : null}
             <button
               type="button"
               className={editing ? "edit-toggle is-on" : "edit-toggle"}

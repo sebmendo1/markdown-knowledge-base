@@ -140,6 +140,54 @@
   from { background: color-mix(in srgb, var(--accent) 34%, transparent); }
 }
 
+/* Characters agents added and removed since the last review, left of Edit. Choosing it marks them reviewed. */
+.agent-diff-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 12px;
+  flex: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.agent-diff-counter:hover { background: var(--bg-hover); }
+.agent-diff-added { color: var(--added); }
+.agent-diff-removed { color: var(--removed); }
+
+/* Agent changes in the block editor: insertions green and underlined, deletions red and struck. */
+.block-doc ins.diff-add {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--added) 18%, transparent);
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--added);
+  text-underline-offset: 3px;
+}
+.block-doc del.diff-del,
+.block-doc .diff-del-block del {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--removed) 16%, transparent);
+  color: var(--removed);
+  text-decoration: line-through;
+  user-select: none;
+}
+.block-doc .diff-del-block {
+  margin: 0.5em 0;
+  white-space: pre-wrap;
+  user-select: none;
+}
+.block-doc .diff-add-block {
+  border-radius: 6px;
+  box-shadow: -10px 0 0 -7px var(--added);
+  background: color-mix(in srgb, var(--added) 10%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .agent-pulse::after,
   .tree-agent,
@@ -152,4 +200,8 @@
   .agent-indicator { max-width: 44px; padding: 0 18px; }
   .agent-indicator-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .agent-bar { top: 8px; }
+}
+
+@media (pointer: coarse) {
+  .agent-diff-counter { height: 44px; }
 }

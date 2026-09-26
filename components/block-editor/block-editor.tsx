@@ -7,6 +7,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Doc } from "@/lib/docs";
 import { markdownToNodes, parsePage, type ParsedPage } from "@/lib/editor/from-markdown";
 import { joinBlocks, type BlockItem } from "@/lib/editor/to-markdown";
+import { readPreferences, usePreferences } from "../preferences";
+import { showAgentDiff } from "./agent-diff";
 import { BlockHandle } from "./block-handle";
 import { BubbleToolbar } from "./bubble-toolbar";
 import type { SlashItem } from "./commands";
@@ -41,17 +43,21 @@ function pasteMarkdown(view: EditorView, event: ClipboardEvent): boolean {
 
 export function BlockEditor({
   value,
+  baseline,
   docs,
   onChange,
   go,
 }: {
   value: string;
+  // The page without the agents' unreviewed changes, to highlight them. Null when there are none.
+  baseline: string | null;
   docs: Doc[];
   onChange: (next: string) => void;
   go: (href: string) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const onChangeRef = useRef(onChange);
+  const baselineRef = useRef(baseline);
   const sync = useRef<Sync>({ page: null, front: "", originals: new WeakMap(), emitted: null });
   const [setup] = useState(() => {
     const stores = { slash: createSuggestStore<SlashItem>(), pages: createSuggestStore<PageOption>() };
@@ -65,6 +71,7 @@ export function BlockEditor({
   useEffect(() => {
     setup.docsSource.set(docs);
     onChangeRef.current = onChange;
+    baselineRef.current = baseline;
   });
 
   const emit = useCallback((editor: Editor) => {
@@ -85,11 +92,18 @@ export function BlockEditor({
     immediatelyRender: false,
     extensions,
     editorProps: {
-      attributes: { class: "md block-doc", "aria-label": "Page content", spellcheck: "true" },
+      // A function, so each view update reads Settings → Editor → Spellcheck.
+      attributes: () => ({ class: "md block-doc", "aria-label": "Page content", spellcheck: readPreferences().spellcheck ? "true" : "false" }),
       handlePaste: (view, event) => pasteMarkdown(view, event),
     },
     onUpdate: ({ editor: current }) => emit(current),
   });
+
+  // Re-apply the editor's attributes when Spellcheck changes while the editor is open.
+  const { spellcheck } = usePreferences();
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) editor.view.updateState(editor.view.state);
+  }, [editor, spellcheck]);
 
   const load = useCallback((current: Editor, source: string) => {
     const page = parsePage(source);
@@ -105,6 +119,7 @@ export function BlockEditor({
       if (index < page.nodes.length && child.type.name === page.nodes[index].type) originals.set(child, index);
     });
     state.originals = originals;
+    showAgentDiff(current, baselineRef.current);
   }, []);
 
   useEffect(() => {
@@ -113,6 +128,13 @@ export function BlockEditor({
       if (!editor.isDestroyed && value !== sync.current.emitted) load(editor, value);
     });
   }, [editor, load, value]);
+
+  // While the person types, the marks move with the text; redraw them once typing pauses.
+  useEffect(() => {
+    if (!editor) return;
+    const timer = window.setTimeout(() => showAgentDiff(editor, baseline), baseline === null ? 0 : 250);
+    return () => window.clearTimeout(timer);
+  }, [editor, baseline]);
 
   function changeFront(next: string) {
     sync.current.front = next;

@@ -25,14 +25,18 @@ export type AgentSession = {
 
 export type AgentWork = { agent: string; op: ActivityEvent["op"]; project?: string; path?: string; at: number };
 
-type State = { sessions: AgentSession[]; working: AgentWork | null; followPaused: boolean };
+// recent: the latest actions this tab has seen, newest first, for Settings → Agents.
+type State = { sessions: AgentSession[]; working: AgentWork | null; followPaused: boolean; recent: AgentWork[] };
 
-const EMPTY: State = { sessions: [], working: null, followPaused: false };
+const RECENT_LIMIT = 10;
+const EMPTY: State = { sessions: [], working: null, followPaused: false, recent: [] };
 let state = EMPTY;
 const listeners = new Set<() => void>();
 const editListeners = new Set<(event: ActivityEvent) => void>();
 let source: EventSource | null = null;
 let expiry = 0;
+// When an agent last created, changed, or moved each page, by `project/path`. Outlives sessions.
+const lastAgentEdit = new Map<string, number>();
 
 function set(next: State) {
   state = next;
@@ -84,6 +88,7 @@ function receive(event: ActivityEvent) {
   if (isPageEdit) {
     const project = event.project!;
     const path = event.path!;
+    lastAgentEdit.set(key(project, path), now);
     const oldPath = event.op === "move" ? event.from : undefined;
     const previous =
       sessions.find((item) => item.project === project && item.path === path) ??
@@ -101,7 +106,7 @@ function receive(event: ActivityEvent) {
         };
     sessions = [...sessions.filter((item) => item !== previous), session];
   }
-  set({ ...state, sessions, working });
+  set({ ...state, sessions, working, recent: [working, ...state.recent].slice(0, RECENT_LIMIT) });
   scheduleExpiry();
 
   if (EDIT_OPS.has(event.op) && event.project) {
@@ -137,12 +142,18 @@ function expire() {
   const sessions = state.sessions.filter((item) => !ended.includes(item));
   const working = state.working && now - state.working.at < WORKING_IDLE_MS ? state.working : null;
   const quiet = sessions.length === 0 && !working;
-  set({ sessions, working, followPaused: quiet ? false : state.followPaused });
+  set({ ...state, sessions, working, followPaused: quiet ? false : state.followPaused });
   for (const item of ended) {
     const name = item.path.split("/").pop();
     notify(`${item.agent} finished editing ${name} · ${item.edits} ${item.edits === 1 ? "edit" : "edits"}`);
   }
   scheduleExpiry();
+}
+
+// True when an agent reported changing this page recently, so a disk change to it is the agent's.
+export function wasAgentEdit(project: string, path: string, withinMs = 15000): boolean {
+  const at = lastAgentEdit.get(key(project, path));
+  return at !== undefined && Date.now() - at <= withinMs;
 }
 
 // Called after the browser has loaded an agent's edit. Pages opened in view mode follow the agent.

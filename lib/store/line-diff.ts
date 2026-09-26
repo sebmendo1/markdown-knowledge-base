@@ -1,7 +1,7 @@
+import { lcsPairs } from "./lcs";
+
 // Lines of `after` that are not in `before`, as 1-based line numbers. A line that moved counts as unchanged.
 // Uses a longest common subsequence, and falls back to a set comparison when the pages are very long.
-const MAX_CELLS = 4_000_000;
-
 export function addedLines(before: string, after: string): Set<number> {
   const b = after.split("\n");
   const added = new Set<number>();
@@ -24,33 +24,17 @@ export function addedLines(before: string, after: string): Set<number> {
   const midA = a.slice(start, endA);
   const midB = b.slice(start, endB);
 
-  if (midA.length * midB.length > MAX_CELLS) {
+  const pairs = lcsPairs(midA, midB);
+  if (!pairs) {
     const known = new Set(midA);
     midB.forEach((line, index) => {
       if (!known.has(line)) added.add(start + index + 1);
     });
     return added;
   }
-
-  const cols = midB.length + 1;
-  const table = new Uint32Array((midA.length + 1) * cols);
-  for (let i = midA.length - 1; i >= 0; i -= 1) {
-    for (let j = midB.length - 1; j >= 0; j -= 1) {
-      table[i * cols + j] = midA[i] === midB[j] ? table[(i + 1) * cols + j + 1] + 1 : Math.max(table[(i + 1) * cols + j], table[i * cols + j + 1]);
-    }
-  }
-  let i = 0;
-  let j = 0;
-  while (j < midB.length) {
-    if (i < midA.length && midA[i] === midB[j]) {
-      i += 1;
-      j += 1;
-    } else if (i < midA.length && table[(i + 1) * cols + j] >= table[i * cols + j + 1]) {
-      i += 1;
-    } else {
-      added.add(start + j + 1);
-      j += 1;
-    }
-  }
+  const kept = new Set(pairs.map(([, j]) => j));
+  midB.forEach((_, index) => {
+    if (!kept.has(index)) added.add(start + index + 1);
+  });
   return added;
 }

@@ -9,6 +9,7 @@ type Events = {
   "markdown-kb-move": Target;
   "markdown-kb-trash": null;
   "markdown-kb-history": string;
+  "markdown-kb-help": null;
 };
 
 export function emit<K extends keyof Events>(name: K, detail: Events[K]) {

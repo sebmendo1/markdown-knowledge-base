@@ -62,6 +62,11 @@ The space comes from the credential. Tools and routes do not take a space argume
 - **F13-REQ-034** The system shall finish one `get_context`, one `get_template`, and one `propose_change`, excluding model time, in under 10 seconds at the 95th percentile in the call environment.
 - **F13-REQ-035** When Cursor is given the sentence "log this experiment to Ledger", the system shall store a valid proposal produced with only the ten MCP tools, and that proposal shall need no manual fixes.
 - **F13-REQ-036** When `propose_change` has returned a structured error for an invalid proposal, and the agent retries with a valid proposal, the system shall accept that retry and store the proposal.
+- **F13-REQ-037** When a page changes on disk within 15 seconds of an editor-server `create`, `update`, or `move` event for that page, the system shall record the change as an agent change for that page in this browser. A disk change with no such event, and an edit typed in this browser, shall not be recorded as an agent change.
+- **F13-REQ-038** While a page has unreviewed agent changes, the title row shall show, immediately left of the Edit toggle, a counter `+{added} −{removed}`, where `added` is the number of characters the agents inserted that are still on the page and `removed` is the number of characters the agents deleted. The counter shall persist across reloads. Typing in this browser shall not add to either number. Deleting agent-inserted text shall lower `added`.
+- **F13-REQ-039** When the counter is chosen, the system shall clear the page's agent changes and hide the counter and the highlights. It shall change no page content, merge nothing, and open no dialog.
+- **F13-REQ-040** While editing as blocks and the page has unreviewed agent changes, the editor shall mark agent-inserted text green and underlined and show agent-deleted text red and struck through, in place. A new or changed block that is not text, such as a list, table, or diagram, shall carry a green bar. A deleted block shall show its text red and struck through where it was. Deleted text shall not be editable or copied as page text. Color shall not be the only distinction.
+- **F13-REQ-041** When a page has local edits and the agent changes it on disk, the system shall show the disk banner and record nothing. When `Load disk version` is chosen, the system shall record the change from the last disk copy to the new disk copy as an agent change.
 
 ### Pack
 
@@ -391,6 +396,34 @@ Given Cursor and the sentence "log this experiment to Ledger", when the agent us
 ### F13-AC-036a
 
 Given `propose_change` returned a structured error for an invalid proposal, when the agent retries with a valid proposal, then the retry succeeds and the proposal is stored.
+
+### F13-AC-037a
+
+Given a page an agent updated through the editor server, when the browser loads the disk copy, then the change is recorded as an agent change. Given the same file changed on disk with no agent event, then nothing is recorded.
+
+### F13-AC-038a
+
+Given an agent replaced `The cat sat` with `The dog sat`, then the counter left of Edit reads `+3 −3`, and it still reads `+3 −3` after a reload.
+
+### F13-AC-038b
+
+Given the counter reads `+3 −3`, when the person types elsewhere on the page, then it still reads `+3 −3`. When the person deletes the agent's `dog`, then it reads `+0 −3`.
+
+### F13-AC-039a
+
+Given the counter is shown, when it is chosen, then the counter and the highlights disappear, and the page content is unchanged.
+
+### F13-AC-040a
+
+Given an agent replaced `The cat sat` with `The dog sat`, when the page is edited as blocks, then `dog` is marked inserted and `cat` is shown struck as deleted, in that paragraph.
+
+### F13-AC-040b
+
+Given an agent added a paragraph and removed another, when the page is edited as blocks, then the new paragraph's text is marked inserted and the removed paragraph's text is shown struck where it was.
+
+### F13-AC-041a
+
+Given local edits on a page, when an agent changes the page on disk and `Load disk version` is chosen, then the agent's change from the last disk copy is highlighted and counted.
 
 ## Edge cases and errors
 

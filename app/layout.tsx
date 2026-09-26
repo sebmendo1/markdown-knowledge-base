@@ -44,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              '(()=>{try{var t=localStorage.getItem("markdown-kb:theme"),c=t==="light"||t==="dark"||t==="system"?t:"dark",d=c==="system"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):c;document.documentElement.dataset.theme=d}catch(e){}})()',
+              '(()=>{try{var t=localStorage.getItem("markdown-kb:theme"),c=t==="light"||t==="dark"||t==="system"?t:"dark",d=c==="system"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):c;document.documentElement.dataset.theme=d;var p=JSON.parse(localStorage.getItem("markdown-kb:prefs")||"{}");if(p&&p.motion==="reduce")document.documentElement.dataset.motion="reduce"}catch(e){}})()',
           }}
         />
         {children}

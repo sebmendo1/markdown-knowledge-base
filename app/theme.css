@@ -15,6 +15,8 @@
   --accent: #3b6fd6;
   --amber: #8a5a10;
   --danger: #a33b3b;
+  --added: #1d6b45;
+  --removed: #a33b3b;
   --selection: #d5e2fb;
   color-scheme: light;
 }

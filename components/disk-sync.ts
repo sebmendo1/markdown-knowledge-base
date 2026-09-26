@@ -97,6 +97,22 @@ function mergeConflictList(incoming: DiskConflict[]) {
   return [...byId.values()];
 }
 
+// A page's content changed because of the disk: a newer file, a new file, or Load disk version.
+export type DiskApply = { project: string; id: string; path: string; before: string; after: string };
+const applyListeners = new Set<(change: DiskApply) => void>();
+
+export function onDiskApply(listener: (change: DiskApply) => void) {
+  applyListeners.add(listener);
+  return () => {
+    applyListeners.delete(listener);
+  };
+}
+
+function announce(change: DiskApply) {
+  if (change.before === change.after) return;
+  for (const listener of applyListeners) listener(change);
+}
+
 async function pull(project: string, onRemote: () => void): Promise<"off" | "ok"> {
   if (!watching.has(project) || currentProject() !== project) return "ok";
   const response = await fetch(`/api/files?project=${encodeURIComponent(project)}`, { cache: "no-store" });
@@ -138,6 +154,12 @@ async function pull(project: string, onRemote: () => void): Promise<"off" | "ok"
   if (merged.ws !== fresh) {
     const more = pendingChanges(merged.ws, foldersOf(project)).length > 0;
     writeProject(project, merged.ws, more);
+    const previous = new Map(fresh.pages.map((page) => [page.id, page.content]));
+    for (const page of merged.ws.pages) {
+      const before = previous.get(page.id);
+      if (before === page.content) continue;
+      announce({ project, id: page.id, path: page.origin ?? page.path, before: before ?? "", after: page.content });
+    }
     onRemote();
   }
   const remaining = conflictList.filter((item) => {
@@ -211,6 +233,8 @@ export function useDiskConflicts() {
 export function loadDiskVersion(id: string) {
   const hit = conflictList.find((item) => item.id === id);
   if (!hit) return;
+  // The agent's change is from the last disk copy, not from the local draft that is being dropped.
+  const base = readWorkspace().pages.find((page) => page.id === id)?.base ?? "";
   commit((ws) => ({
     ...ws,
     pages: ws.pages.map((page) =>
@@ -222,6 +246,7 @@ export function loadDiskVersion(id: string) {
   }));
   conflictList = conflictList.filter((item) => item.id !== id);
   changed();
+  announce({ project: currentProject(), id, path: hit.path, before: base, after: hit.content });
 }
 
 export function useDiskProjectWatch(signature: string, refresh: () => void) {

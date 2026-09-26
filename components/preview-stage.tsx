@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, type ReactNode, type RefObject } from "react";
 import { hrefOf } from "@/lib/workspace/paths";
 import type { PageDoc } from "@/lib/workspace/tree";
+import type { AgentReview } from "./agent-changes";
 import type { Mode } from "./draft-store";
 import { LazyMarkdownView, preloadMarkdown } from "./lazy-markdown";
 import { useProject } from "./project-context";
@@ -27,6 +28,7 @@ const BlockEditor = dynamic(() => loadBlockEditor().then((module) => module.Bloc
 export function PreviewStage({
   mode,
   value,
+  review,
   rendered,
   path,
   docs,
@@ -37,6 +39,7 @@ export function PreviewStage({
 }: {
   mode: Mode;
   value: string;
+  review: AgentReview | null;
   rendered: ReactNode;
   path: string;
   docs: PageDoc[];
@@ -63,7 +66,7 @@ export function PreviewStage({
       <div className="preview-pane" ref={previewRef}>
         <article className="md-column">
           {mode === "edit" ? (
-            <BlockEditor value={value} docs={docs} onChange={onChange} go={go} />
+            <BlockEditor value={value} baseline={review?.baseline ?? null} docs={docs} onChange={onChange} go={go} />
           ) : (
             (rendered ?? <LazyMarkdownView source={value} docs={docs} path={path} />)
           )}

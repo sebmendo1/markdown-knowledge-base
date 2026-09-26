@@ -5,6 +5,7 @@ import { duplicatePage, moveFolder, movePage, renameFolder, renamePage } from "@
 import { folderOf, humanize, nameOf, within } from "@/lib/workspace/paths";
 import { importFiles } from "@/lib/workspace/tree";
 import { zip } from "@/lib/workspace/zip";
+import { forgetAgentChanges } from "./agent-changes";
 import { forgetHistory, readHistory, restoreVersion, snapshot } from "./history-store";
 import { notify } from "./toast-host";
 import { commit, currentProject, docOf, makeId, readProject, readWorkspace } from "./workspace-store";
@@ -93,6 +94,7 @@ export function purge(id?: string) {
     .map((item) => item.id);
   commit((ws) => purgePage(ws, id));
   ids.forEach(forgetHistory);
+  ids.forEach(forgetAgentChanges);
 }
 
 export function revert(id: string) {
