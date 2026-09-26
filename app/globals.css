@@ -248,8 +248,19 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .md h2 { font-size: 20px; font-weight: 600; margin: 1.8em 0 0.4em; }
 .md h3 { font-size: 16.5px; font-weight: 600; margin: 1.4em 0 0.3em; }
 .md p { margin: 0.75em 0; }
-.md ul, .md ol { margin: 0.7em 0; padding-left: 1.25em; }
-.md li { margin: 0.2em 0; }
+.md ul, .md ol { margin: 0.7em 0; padding-left: 1.4em; }
+.md ol { padding-left: 1.7em; }
+/* Tailwind's reset removes list markers. Bring them back, changing shape with each level of nesting,
+   as in Notion: disc, circle, square for bullets; 1, a, i for numbers. Task lists stay unmarked below. */
+.md ul { list-style: disc; }
+.md ul ul { list-style: circle; }
+.md ul ul ul { list-style: square; }
+.md ol { list-style: decimal; }
+.md ol ol { list-style: lower-alpha; }
+.md ol ol ol { list-style: lower-roman; }
+.md li { margin: 0.2em 0; padding-left: 0.2em; }
+.md li::marker { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.md li > ul, .md li > ol { margin: 0.2em 0; }
 .md a { color: #9db7ff; text-underline-offset: 3px; }
 .md a:hover { color: #c5d6ff; }
 .md hr { border: 0; height: 2px; background: var(--bg-hover); margin: 2em 0; }
@@ -274,7 +285,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .md img { max-width: 100%; border-radius: 8px; }
 .md .footnotes { margin-top: 2.2em; padding-top: 0.6em; color: var(--text-dim); font-size: 14px; }
 .md ul.contains-task-list { list-style: none; padding-left: 0.1em; }
-.md li.task-list-item { list-style: none; }
+.md li.task-list-item { list-style: none; padding-left: 0; }
+.block-doc li[data-checked] { padding-left: 0; }
 .md input[type="checkbox"] { accent-color: var(--accent); margin-right: 0.4em; }
 
 .properties { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 1.2em; }

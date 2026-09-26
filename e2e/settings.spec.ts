@@ -101,8 +101,8 @@ test("F10-AC-023a reduce motion stops animation and survives a reload", async ({
     return name;
   });
   expect(animation).toBe("none");
-  await page.reload({ waitUntil: "commit" });
-  await page.waitForFunction(() => document.body !== null);
+  // The startup script in <body> runs while the HTML is parsed, before hydration.
+  await page.reload({ waitUntil: "domcontentloaded" });
   expect(await page.evaluate(() => document.documentElement.dataset.motion)).toBe("reduce");
 });
 

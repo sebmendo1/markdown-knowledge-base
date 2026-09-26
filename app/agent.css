@@ -134,6 +134,10 @@
   background: var(--accent);
 }
 .md tr.agent-change::before { display: none; }
+/* List items: put the bar left of the bullet or number, not on it. */
+.md li.agent-change::before { left: calc(-1.4em - 10px); }
+.md ol > li.agent-change::before { left: calc(-1.7em - 10px); }
+.md li.task-list-item.agent-change::before { left: -10px; }
 .md tr.agent-change td,
 .md tr.agent-change th { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 @keyframes agent-land {
