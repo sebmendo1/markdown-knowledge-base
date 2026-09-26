@@ -15,11 +15,14 @@
   background: var(--bg-hover);
   color: var(--text);
 }
+/* The one colored control on a screen (F21-REQ-020). The accent stays for focus and links. */
 .share-button {
-  background: var(--accent);
+  background: linear-gradient(180deg, var(--primary-top), var(--primary-bottom));
   color: #fff;
+  font-family: var(--font-button);
+  font-weight: 500;
 }
-.share-button:hover { filter: brightness(1.08); }
+.share-button:hover { filter: brightness(1.1); }
 .share-overlay { z-index: 60; align-items: center; padding-top: 0; }
 .share-dialog {
   width: min(480px, calc(100vw - 32px));

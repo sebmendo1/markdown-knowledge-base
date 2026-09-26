@@ -20,6 +20,21 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+// Display faces from the Paper design (ADR-0037). To turn them on, add the files to app/fonts/
+// (SebSansDisplay-Regular.woff2, SebSansDisplay-Bold.woff2, SebSansVar.woff2), uncomment this block,
+// and add ${sebDisplay.variable} ${sebVar.variable} to the <html> className. Until then, --font-display
+// and --font-button fall back to Geist.
+//
+// import localFont from "next/font/local";
+// const sebDisplay = localFont({
+//   variable: "--font-seb-display",
+//   src: [
+//     { path: "./fonts/SebSansDisplay-Regular.woff2", weight: "400" },
+//     { path: "./fonts/SebSansDisplay-Bold.woff2", weight: "700" },
+//   ],
+// });
+// const sebVar = localFont({ variable: "--font-seb-var", src: "./fonts/SebSansVar.woff2", weight: "100 900" });
+
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],

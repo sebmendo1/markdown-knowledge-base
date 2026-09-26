@@ -29,7 +29,7 @@ Option 2. The product owner chose it on 2026-09-26.
 - Two soft vertical gradients are allowed, on the primary button and the search field. ADR-0006 still rules out hairlines between surfaces and shadows on columns.
 - Seb Sans Display sets the page title, the lead paragraph, and the project name. Seb Sans Var sets the primary button label. Geist and Geist Mono set everything else. Until the font files ship, Geist is the fallback.
 - The outline is a card inside a page-colored column. This replaces ADR-0008's full-height sidebar-colored outline. The right column still shows only the outline.
-- Faint text is `#8A8A8A` in Dark, not the file's `#737373`.
+- Faint text is `#8C8C8C` in Dark, not the file's `#737373`.
 
 Where the file leaves a gap, the recommended answers in design.md D-Q-1 to D-Q-5 apply until the owner answers.
 

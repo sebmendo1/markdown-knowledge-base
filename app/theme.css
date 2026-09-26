@@ -13,6 +13,11 @@
   --text-dim: #3a3a3a;
   --text-faint: #6a6a66;
   --accent: #3b6fd6;
+  --field-top: #e2e2de;
+  --field-bottom: #ecece8;
+  --outline-card: var(--bg-sunken);
+  --row-active: rgb(0 0 0 / 0.06);
+  --kbd-text: var(--text-dim);
   --amber: #8a5a10;
   --danger: #a33b3b;
   --added: #1d6b45;

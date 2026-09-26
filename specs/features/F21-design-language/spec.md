@@ -49,7 +49,7 @@ No sign-in exists (decision D3). The rules apply to every person who can open th
 - F21-REQ-023 The system shall draw the Search control 30px tall with a 10px radius, filled in Dark with a top-to-bottom gradient of `#484848` from 60% to 40% opacity over the file column, and in Light with a gradient from `#e2e2de` to `#ecece8`, with the placeholder in the dim text color and the key hint in Geist Mono 11px `#B0B0B0` on a `#1F1F1F` chip with an 8px radius.
 - F21-REQ-024 The system shall draw a file-column page row 30px tall with a 12px radius, Geist 13px in the dim text color, and shall fill the open page's row with white at 8% opacity and set its text in the text color.
 - F21-REQ-025 The system shall clip a table to an 18px radius, pad each cell 8px by 10px, fill the header row and every even body row with the sunken surface, and draw no cell borders.
-- F21-REQ-026 The system shall set faint text (section labels, outline rows, and inactive icons) to `#8a8a8a` in Dark, so that it reaches a contrast ratio of at least 4.5:1 on the page, the file column, and the outline card.
+- F21-REQ-026 The system shall set faint text (section labels, outline rows, and inactive icons) to `#8c8c8c` in Dark, so that it reaches a contrast ratio of at least 4.5:1 on the page, the file column, the outline card, and dialogs.
 - F21-REQ-027 The system shall set section labels ("Pages", "Outline") in Geist 11px uppercase with 0.06em tracking.
 
 Green and red for insertions and deletions are not part of this shell. They belong to review, which is not started.

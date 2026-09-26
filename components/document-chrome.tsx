@@ -106,6 +106,22 @@ export function DocumentChrome({
             <strong>{slug.at(-1)}.md</strong>
           </p>
         ) : null}
+        {pageId ? (
+          <button
+            type="button"
+            className="icon-button page-menu-button"
+            aria-label="Page actions"
+            aria-haspopup="menu"
+            aria-expanded={Boolean(menu)}
+            onMouseDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect();
+              setMenu(menu ? null : { x: rect.left, y: rect.bottom + 6 });
+            }}
+          >
+            <DotsIcon />
+          </button>
+        ) : null}
         <div className="topbar-spacer" />
         {working ? (
           <button
@@ -137,20 +153,7 @@ export function DocumentChrome({
             <button type="button" className="share-button" onClick={() => openShare({ title, path: `${project}/${path}`, state })}>
               Share
             </button>
-            <button
-              type="button"
-              className="icon-button page-menu-button"
-              aria-label="Page actions"
-              aria-haspopup="menu"
-              aria-expanded={Boolean(menu)}
-              onMouseDown={(event) => event.stopPropagation()}
-              onClick={(event) => {
-                const rect = event.currentTarget.getBoundingClientRect();
-                setMenu(menu ? null : { x: rect.right - 232, y: rect.bottom + 6 });
-              }}
-            >
-              <DotsIcon />
-            </button>
+
           </>
         ) : null}
         <button type="button" className="icon-button settings-launch" aria-label="Settings" onClick={openSettings}>

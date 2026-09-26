@@ -5,7 +5,7 @@
   display: none;
 }
 .brand-row {
-  height: calc(44px + env(safe-area-inset-top));
+  height: calc(56px + env(safe-area-inset-top));
   display: flex;
   align-items: center;
   gap: 4px;
@@ -60,3 +60,7 @@
     transform: none;
   }
 }
+
+/* The project name sits on its own row under the hide control, as in the Paper design (F08-REQ-041). */
+.project-row { display: flex; align-items: center; min-height: 44px; padding: 0 8px; }
+.project-row .project-switch { height: 36px; padding: 0 8px; }

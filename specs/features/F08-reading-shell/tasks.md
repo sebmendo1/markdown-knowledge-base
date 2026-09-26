@@ -104,6 +104,8 @@ Every step here is shipped. The tests named below already prove it.
 
 ## ADR-0037
 
+Built on 2026-09-26 and proven by `e2e/design.spec.ts` and `lib/markdown/outline-tree.test.ts`. F21-T-011 is wired to fall back to Geist until the Seb Sans files ship.
+
 ### F08-T-013 Outline card and collapsible sections
 
 - Requirements: F08-REQ-006, F08-REQ-036, F08-REQ-039, F08-REQ-040

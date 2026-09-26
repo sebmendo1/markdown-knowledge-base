@@ -113,7 +113,7 @@ test("each block survives a rewrite with the same structure", () => {
 });
 
 test("bold that starts with inline code stays one bold run", () => {
-  for (const source of ["**`x` in**", "a **`#8A8A8A` in the product** b", "**x *y* z**"]) {
+  for (const source of ["**`x` in**", "a **`#8C8C8C` in the product** b", "**x *y* z**"]) {
     const [node] = markdownToNodes(source);
     assert.equal(blockToMarkdown(node), source);
   }

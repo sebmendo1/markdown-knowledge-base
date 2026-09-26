@@ -8,7 +8,6 @@ import { PageTree } from "./page-tree";
 import { PanelIcon } from "./panel-icon";
 import { ProjectSwitcher } from "./project-switcher";
 import { openSettings } from "./settings-host";
-import { emit } from "./ui-events";
 
 export function FileSidebar({
   project,
@@ -37,6 +36,8 @@ export function FileSidebar({
         <button type="button" className="icon-button" aria-label="Hide sidebar" onClick={onRetract}>
           <PanelIcon />
         </button>
+      </div>
+      <div className="project-row">
         <ProjectSwitcher project={project} projects={projects} />
       </div>
       <button type="button" className="search-button" onClick={onSearch}>
@@ -44,12 +45,8 @@ export function FileSidebar({
         <kbd>⌘K</kbd>
       </button>
       <PageTree ws={ws} docs={docs} currentPath={currentPath} onGo={onGo} />
+      {/* One account row (F08-REQ-037). It reads "Settings" until sign-in exists; Trash is in the Pages menu. */}
       <div className="sidebar-foot">
-        <button type="button" className="settings-entry" onClick={() => emit("markdown-kb-trash", null)}>
-          <TrashIcon />
-          Trash
-          {ws.trash.length > 0 ? <span className="count">{ws.trash.length}</span> : null}
-        </button>
         <button type="button" className="settings-entry" onClick={openSettings}>
           <GearIcon />
           Settings
@@ -59,10 +56,3 @@ export function FileSidebar({
   );
 }
 
-function TrashIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M2.5 4.5h11M6 4.5V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1.5M4 4.5l.7 8.6a1 1 0 0 0 1 .9h4.6a1 1 0 0 0 1-.9l.7-8.6" />
-    </svg>
-  );
-}

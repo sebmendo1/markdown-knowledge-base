@@ -131,9 +131,10 @@ test.describe("with an agent", () => {
     }
     const dialog = await openSettings(page);
     await section(page, "Agents");
-    await expect(dialog.getByRole("status")).toContainText("Claude Code");
-    await expect(dialog.getByRole("status")).toContainText("last seen just now");
-    const rows = dialog.getByRole("list", { name: "Recent agent activity" }).getByRole("listitem");
+    await expect(dialog.locator(".settings-status")).toContainText("Claude Code");
+    await expect(dialog.locator(".settings-status")).toContainText("last seen just now");
+    // Other test files' agents write to the same log, so look only at this project's rows.
+    const rows = dialog.getByRole("list", { name: "Recent agent activity" }).getByRole("listitem").filter({ hasText: project });
     await expect(rows.nth(0)).toContainText(`Claude Code edited notes.md · ${project}`);
     await expect(rows.nth(1)).toContainText(`Claude Code read notes.md · ${project}`);
   });
@@ -187,12 +188,12 @@ test("F10-AC-030a about shows the version and links", async ({ page }) => {
   await expect(dialog.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", /github\.com/);
 });
 
-test("the settings dialog has no accessibility violations other than contrast", async ({ page }) => {
+test("the settings dialog has no accessibility violations", async ({ page }) => {
   await openSettings(page);
   for (const name of ["General", "Appearance", "Editor", "Agents", "Keyboard", "About"]) {
     await section(page, name);
     const results = await new AxeBuilder({ page }).include(".settings").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-    const violations = results.violations.filter((violation) => violation.id !== "color-contrast");
+    const violations = results.violations;
     expect(violations.map((violation) => `${name}: ${violation.id}: ${violation.help}`)).toEqual([]);
   }
 });

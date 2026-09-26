@@ -88,6 +88,8 @@ Every step here is shipped. The tests named below already prove it. The numbers 
 
 ## ADR-0037
 
+Built on 2026-09-26 and proven by `e2e/design.spec.ts` and `lib/markdown/outline-tree.test.ts`. F21-T-011 is wired to fall back to Geist until the Seb Sans files ship.
+
 ### F21-T-011 Ship the display faces
 
 - Requirements: F21-REQ-009, F21-REQ-022

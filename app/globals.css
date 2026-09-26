@@ -11,7 +11,8 @@
   --bg-sunken: #1f1f1f;
   --text: #ececec;
   --text-dim: #a3a3a3;
-  --text-faint: #737373;
+  /* #8c8c8c reaches 4.5:1 on the page, the file column, the outline card, and dialogs (F21-REQ-026). */
+  --text-faint: #8c8c8c;
   --accent: #7aa2f7;
   --amber: #e6c07b;
   --danger: #f0a8a8;
@@ -20,6 +21,16 @@
   color-scheme: dark;
   --font-sans: var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* Paper design direction (ADR-0037). The Seb Sans variables exist once app/layout.tsx loads the files. */
+  --font-display: var(--font-seb-display, var(--font-geist-sans)), sans-serif;
+  --font-button: var(--font-seb-var, var(--font-geist-sans)), sans-serif;
+  --primary-top: #0e3ed2;
+  --primary-bottom: #011fad;
+  --field-top: rgb(72 72 72 / 0.6);
+  --field-bottom: rgb(72 72 72 / 0.4);
+  --outline-card: rgb(44 44 44 / 0.2);
+  --row-active: rgb(255 255 255 / 0.08);
+  --kbd-text: #b0b0b0;
 }
 
 * { box-sizing: border-box; }
@@ -58,18 +69,20 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   font-weight: 600;
   letter-spacing: -0.01em;
 }
+/* Search is a soft field with a slight bevel (F21-REQ-023). */
 .search-button {
   margin: 4px 10px 8px;
   height: 30px;
   border: 0;
-  background: var(--bg-hover);
-  border-radius: 6px;
+  background: linear-gradient(180deg, var(--field-top), var(--field-bottom));
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 8px 0 10px;
-  color: var(--text-faint);
+  padding: 0 4px 0 10px;
+  color: var(--text-dim);
 }
+.search-button:hover { color: var(--text); }
 .search-button kbd, .help kbd, .shortcut kbd {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -79,6 +92,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   color: var(--text-dim);
   background: var(--bg-sunken);
 }
+.search-button kbd { padding: 4px 8px; line-height: 1; color: var(--kbd-text); }
 .tree { overflow: auto; padding: 4px 8px 20px; }
 .tree-group {
   margin: 14px 8px 4px;
@@ -97,7 +111,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   line-height: 1.35;
 }
 .tree-link:hover { background: var(--bg-hover); color: var(--text); }
-.tree-link[aria-current="page"] { background: var(--bg-hover); color: var(--text); }
+/* The open page is a white tint, with no accent bar (F21-REQ-024). */
+.tree-link[aria-current="page"] { background: var(--row-active); color: var(--text); }
 .tree-link[aria-current="page"]::before {
   content: "";
   position: absolute;
@@ -111,7 +126,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 
 .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .topbar {
-  height: 44px;
+  height: 56px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -149,32 +164,55 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .preview-pane, .outline { overflow: auto; }
 .md-column { max-width: 760px; margin: 0 auto; padding: 36px 32px 96px; }
 
-.outline { background: var(--bg-outline); padding: 18px 10px 40px; }
-.outline h2, .outline-empty {
-  margin: 0 8px 8px;
+/* The outline is a card in a page-colored column (ADR-0037, F08-REQ-036). */
+.outline { background: var(--bg); padding: 24px 12px 40px; }
+.outline-card { background: var(--outline-card); border-radius: 16px; padding: 0 0 12px; }
+.outline h2 {
+  margin: 0;
+  padding: 16px 12px 8px;
   font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-faint);
-  font-weight: 500;
 }
-.outline-empty { text-transform: none; letter-spacing: 0; font-size: 12px; }
-.outline button {
+.outline-empty { margin: 0; padding: 4px 12px; font-size: 12.5px; color: var(--text-faint); }
+.outline-row { display: flex; align-items: center; }
+.outline-title,
+.outline-jump {
   display: block;
   width: 100%;
-  text-align: left;
-  background: none;
+  min-width: 0;
+  padding: 4px 12px;
   border: 0;
+  border-radius: 10px;
+  background: none;
   color: var(--text-faint);
   font-size: 12.5px;
   line-height: 1.35;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-right: 8px;
-  border-radius: 4px;
+  text-align: left;
 }
-.outline button:hover { color: var(--text-dim); }
-.outline button.is-active { color: var(--text); }
+.outline-row .outline-jump { flex: 1; padding-right: 4px; }
+.outline-title { color: var(--text); font-weight: 500; }
+.outline-jump:hover, .outline-title:hover { color: var(--text-dim); }
+.outline-jump.is-active, .outline-title.is-active { color: var(--text); }
+.outline-toggle-slot { flex: none; width: 24px; height: 24px; margin-right: 8px; display: flex; align-items: center; justify-content: center; }
+.outline-toggle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-faint);
+}
+.outline-toggle:hover { background: var(--bg-hover); color: var(--text); }
+.outline-toggle path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.outline-toggle svg { transition: transform 120ms ease; }
+.outline-toggle.is-open svg { transform: rotate(180deg); }
 
 .status {
   height: 28px;
@@ -344,7 +382,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .md-embed { font-size: 15px; }
 .md-embed h1, .md-embed h2 { font-size: 16px; margin-top: 0.8em; }
 
-.table-scroll { overflow-x: auto; margin: 1em 0 1.2em; }
+/* Tables sit in an 18px rounded block (F21-REQ-025); wide tables still scroll sideways inside it. */
+.table-scroll { overflow-x: auto; margin: 1em 0 1.2em; border-radius: 18px; }
 .md table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 .md th, .md td { padding: 8px 10px; text-align: left; vertical-align: top; }
 .md th { color: var(--text-dim); font-size: 12.5px; font-weight: 600; background: var(--bg-sunken); }

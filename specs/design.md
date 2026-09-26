@@ -30,7 +30,7 @@ A dark reading room: near-black paper, quiet grey chrome that steps back, one vo
 | Active row | white at 8% (`#FFFFFF14`, ≈ `#2D2D2D` on the sidebar) | Open page in the file list |
 | Text | `#ECECEC` | Body, headings, active row, outline title |
 | Text dim | `#A3A3A3` | Nav rows, Edit, path, table header |
-| Text faint | `#737373` in the file, **`#8A8A8A` in the product** | Section labels, outline rows, inactive icons |
+| Text faint | `#737373` in the file, **`#8C8C8C` in the product** | Section labels, outline rows, inactive icons |
 | Kbd text | `#B0B0B0` | ⌘K |
 | Primary | gradient `#0E3ED2` → `#011FAD` (oklab 45.1% −0.023 −0.229 → 36.3% −0.022 −0.217), label `#FFFFFF` | Share |
 | Search field | gradient `#484848` at 60% → 40% over the sidebar (≈ `#363636` → `#2F2F2F`) | Search |
@@ -39,7 +39,7 @@ Light theme: the file has no light artboard. The light theme keeps today's value
 
 ### Why the faint grey moves
 
-The file's `#737373` fails WCAG 2.2 AA (X-REQ-013) where it is used: the "PAGES" label on the sidebar is 3.63:1, and outline rows on the card are 3.82:1. `#8A8A8A` passes on the page (5.6:1), the sidebar (4.99:1), and the card (5.24:1) and keeps the same step below `#A3A3A3`. The search placeholder sits on the lighter field (2.55:1 in the file), so it uses `#A3A3A3` instead. This also closes X-T-013.
+The file's `#737373` fails WCAG 2.2 AA (X-REQ-013) where it is used: the "PAGES" label on the sidebar is 3.63:1, and outline rows on the card are 3.82:1. `#8C8C8C` passes on the page (5.62:1), the sidebar (5.12:1), the card (5.38:1), and dialogs on `#242424` (4.62:1) and keeps the same step below `#A3A3A3`. The search placeholder sits on the lighter field (2.55:1 in the file), so it uses `#A3A3A3` instead. This also closes X-T-013.
 
 ## Type
 
@@ -111,7 +111,7 @@ At 1200px wide (grid `248px 1fr`, with the outline inside the page column):
 | Focus ring | Accent `#7AA2F7` | Unchanged; the accent stays for focus and links (F21-REQ-021) |
 | Display type | None | Seb Sans Display on the title, lead, and project name (F21-REQ-022) |
 | Search field | `--bg-hover` fill, radius 6 | Gradient fill, radius 10 (F21-REQ-023) |
-| Faint text | `#737373` | `#8A8A8A` (F21-REQ-026) |
+| Faint text | `#737373` | `#8C8C8C` (F21-REQ-026) |
 | Tables | Square corners | Radius 18 container (F21-REQ-025) |
 | Outline | Full-height column in the sidebar color | Floating card in a page-colored column, collapsible sections (F08-REQ-036, F08-REQ-039, F08-REQ-040) |
 | Header | Path, then Edit, Share, ⋯ on the right | File name and ⋯ on the left; Edit and Share on the right (F08-REQ-038) |

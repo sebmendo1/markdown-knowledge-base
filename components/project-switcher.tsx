@@ -62,7 +62,7 @@ export function ProjectSwitcher({ project, projects }: { project?: ProjectEntry;
         aria-label={`${name}. Switch project`}
         onClick={() => setOpen((value) => !value)}
       >
-        {project ? <ProjectTile slug={project.slug} name={project.name} size="sm" /> : null}
+        {/* The name alone, in display type, with no letter tile (F08-REQ-041). Menu rows keep their tiles. */}
         <span className="project-switch-name">{name}</span>
         <UpDownIcon />
       </button>

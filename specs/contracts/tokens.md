@@ -22,13 +22,27 @@ Dark is `:root` in `globals.css`, plus `--selection` in `theme.css`. Light is `[
 | `--bg-sunken` | `#1f1f1f` | `#ecece8` |
 | `--text` | `#ececec` | `#1a1a1a` |
 | `--text-dim` | `#a3a3a3` | `#3a3a3a` |
-| `--text-faint` | `#737373` | `#6a6a66` |
+| `--text-faint` | `#8c8c8c` | `#6a6a66` |
 | `--accent` | `#7aa2f7` | `#3b6fd6` |
 | `--amber` | `#e6c07b` | `#8a5a10` |
 | `--danger` | `#f0a8a8` | `#a33b3b` |
 | `--selection` | `#2a3a55` | `#d5e2fb` |
 
 `color-scheme` is `dark` on `:root` and `light` on `[data-theme="light"]`.
+
+### Paper design direction (ADR-0037)
+
+| Token | Dark | Light |
+| --- | --- | --- |
+| `--primary-top` / `--primary-bottom` | `#0e3ed2` / `#011fad` | same |
+| `--field-top` / `--field-bottom` | `rgb(72 72 72 / 0.6)` / `rgb(72 72 72 / 0.4)` | `#e2e2de` / `#ecece8` |
+| `--outline-card` | `rgb(44 44 44 / 0.2)` | `var(--bg-sunken)` |
+| `--row-active` | `rgb(255 255 255 / 0.08)` | `rgb(0 0 0 / 0.06)` |
+| `--kbd-text` | `#b0b0b0` | `var(--text-dim)` |
+| `--font-display` | `var(--font-seb-display, var(--font-geist-sans)), sans-serif` | same |
+| `--font-button` | `var(--font-seb-var, var(--font-geist-sans)), sans-serif` | same |
+
+`--font-seb-display` and `--font-seb-var` are not defined until the Seb Sans files are loaded in `app/layout.tsx`, so both families resolve to Geist today. The Share button is the gradient with a `#fff` label. The title row is 56px. Tables sit in an 18px rounded wrapper. The outline column is `--bg` with the card inside.
 
 Dark `::selection` in `globals.css` is hardcoded `#2a3a55`, the same value as `--selection`. Light `::selection` uses `var(--selection)`.
 
